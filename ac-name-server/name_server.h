@@ -2,6 +2,9 @@
 #define NAME_SERVER_H
 
 
+#define SERVER_BACKLOG (10) // the number of clients that can be queued
+#define SERVER_DEF_PORT "6958" // the default port the server will listen on
+
 struct _client {
 	int socket_fd; // the socket descriptor for this client
 
@@ -25,6 +28,12 @@ void handle_client(void* arg);
 */
 
 int init_server(char* port);
+
+/** Listens for clients 
+	@param socket_fd The descriptor of the socket to listen on	
+*/
+
+void listen_for_clients(int socket_fd);
 
 
 

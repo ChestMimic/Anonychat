@@ -1,13 +1,27 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
+#include <string.h> //?
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
 
 
 #include "name_server.h"
 
 
 int main(int argc, char* argv[]) {
+
+	//initialize the server socket
+	int socket_fd = init_server(SERVER_DEF_PORT);
+	
+	//listen for clients
+	listen_for_clients(socket_fd);
+}
 
 
 
@@ -73,5 +87,41 @@ int init_server(char* port) {
 	
 	return socket_fd;
 
+}
 
+/** Listens for clients 
+	@param socket_fd The descriptor of the socket to listen on
+	
+*/
+
+void listen_for_clients(int socket_fd) {
+
+	int res = listen(socket_fd, SERVER_BACKLOG);
+
+	//TODO: Add a way for the server to gracefully exit? Maybe?
+	while (1) {
+		printf("Waiting for a client to connect"); //debug statement mostly
+		
+		socklen_t sin_size;
+		struct sockaddr_storage client_addr;
+		int client_socket_fd; // socket fd for client
+		
+		client_socket_fd = accept(socket_fd, (struct sockaddr*) &client_addr,  &sin_size);
+		
+		if (client_socket_fd == -1) {
+			printf("Error occured while trying to accept a client...\n");
+			continue; // couldnt accept client, continue on
+		}
+		
+		printf("Client has connected \n");
+		
+		//TODO: Start a thread that will handle the connected client
+		
+	}
+
+}
+
+void print_usage() {
+	printf("Usage: \n");
+	printf("\t ./name_server");
 }
