@@ -1,0 +1,16 @@
+The AnonyChat Name Server Project
+
+The name server is resposible for keeping information about clients 
+currently connected to the chat service.
+
+This will allow clients to obtain information about thier peers in the 
+network, as well as if thier desired chat partners are currently logged 
+in.
+
+It will also provide a way for clients to exchange thier public keys to 
+start communication, either via private messaging, or group chat via a 
+channel.
+
+The server will also act as a user name server, and will let users 
+request specific user names, or assign a random unused name to a client 
+if requested.
