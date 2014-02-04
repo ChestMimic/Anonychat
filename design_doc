@@ -1,0 +1,130 @@
+AnonyChat Design Document
+
+Centralized Name Server
+	-This server will keep connection state on the clients that are currently online
+		-Will allow clients to fetch a list of peers to broadcast messages to
+		
+		-This will allow clients to check if the person they want to communicate with are
+			current online or not
+			
+		-Can query for a specific client, or all clients if they wish to hide who they want to
+			talk to from the server
+			
+	-Possibly allow a way for clients to distribute thier public keys, as well as public
+		keys for chatroom / channel / group chat communications
+		
+
+Client Communication
+
+	One on One communication (example)
+			-Group communication will work similarly, one-to-one just used as a simple example
+			
+		- If Alice wants to send a message to Bob, it will:
+		
+			1) Check the name server, and see if bob is currently online
+			2) Check if Bob has published his public key on the name server.
+			3) Craft a message, encrypt it using Bob's public key.
+			4) Send the message to X peers
+			
+		-Group communication will work in the same way, however instead of encrypting 
+			the message with the public key for Bob, it will be the public key of the
+			group/channel they wish to communicate with
+			
+	
+	Client Recieves a Message
+	
+		-When a client receives a message from another peer it will have to decide if the
+			message was intended for itself
+			
+			1) Create an MD5 hash of the message.
+			
+			2) Check the list of received messages for the hash. 
+				a) If the hash exists it will stop processing of the message.
+				b) If the hash does not exist in the list, it will add it to the list
+					with a TTL, and continue processing the message				
+					
+			3) It will attempt to decyrpt the message with all of its private keys
+				- These keys can either be for one-one or group chat.
+				
+			4) If it was able to decypt the message then it will add the message to the	
+				appropriate chat.
+					-We need to determine how it will know if a message is decryped.
+					-Possibly similar to truecrypt. Have a specific sequence at the begining
+						of every message, and if the client sees that sequence then the
+						message has been successfuly decrypted
+						
+			5) If it was not able to decypt the message then it will forward the message 
+				to X peers.
+				
+		-The ammount of peers (X)
+			-Calculated using the number of peers currently connected to the server
+			-Possibly a random number in a certian range
+		
+		-The hash of messages
+			-This will prevent the messages from being forwarded around in the network
+				forever.
+				
+			-Downside, It is possible, however rare, for MD5 hashes to overlap.
+				-as this is rare the TTL will allow for other messages with the same hash to
+					be sent again.			
+
+
+How we will be anonymous
+	-The souce of the messages that will be sent between clients will not be known.
+	-The connect to the cetnralized name server will only be for checking client state
+		-No messages will be transfered to/from a client through the name server
+				
+				
+Approach:
+	-We will start off by created the name server, and implementing the clients ability to
+		talk with the name server
+		
+	-We will focus on enabling one-to-one communication between users
+	
+	-This will then be expanded to support communication between multiple parties, in a
+		group/channel communication.
+		
+	
+Questions ---
+	
+	IRC~~?
+		-Do we need to use IRC? The distribued aspect of the program is seemingly more
+			important, and we can implement our own very basic protocl that will allow
+			users to send very basic messages between each other. Possibly we can base
+			this on how IRC does it?
+			
+	Encryption?
+		-We need to decide which Library that we will be using for encryption
+		-How will the users get public keys for the other users they wish to communicate with?
+			-Possibly a user can decide to publish thier public key to the name server
+				allowing users to fetch it from the name-server and communicate with that user
+				
+			-How will private keys for chats work. If we use a public key model for this
+				then all of the clients who wish to communicate will have to have the
+				same private key to decrypt the messages? Or can different private keys be
+				used? If so we might beable to have the client generate private keys for
+				specific channels that they wish to communicate in?
+		
+	Protocols
+		-We will need to strictly define the protocols that we are using on the name server.
+			-ie. How the user reports its presence and username to the server.
+				-Does a user do anything specific when it first connects?
+					-Will the server?
+					
+				-How will a user request status of other users? of all users?
+				
+		-The protocol for sending messages between clients will need to be defined
+			-Again this can be based upon the IRC spec
+			-Need a way to uniquely identify messages? Maybe?
+			-What exactly will we contain in each message?
+			
+	Name-Server		
+		-How do we want to store information about clients? Based upon a username?
+		-What information do we want to provide to user about clients
+			-Mostly usernames? Revealing the IP of a user might defeat anonimity			
+				
+				
+				
+				
+		
+		
