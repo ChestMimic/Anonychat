@@ -88,7 +88,7 @@ Approach:
 Questions ---
 	
 	IRC~~?
-		-Do we need to use IRC? The distribued aspect of the program is seemingly more
+		-Do we need to use IRC? The distributed aspect of the program is seemingly more
 			important, and we can implement our own very basic protocl that will allow
 			users to send very basic messages between each other. Possibly we can base
 			this on how IRC does it?
@@ -117,6 +117,14 @@ Questions ---
 			-Again this can be based upon the IRC spec
 			-Need a way to uniquely identify messages? Maybe?
 			-What exactly will we contain in each message?
+			
+		-Message Protocol
+		
+			IRC, 512 line string, ending with CR-LF		
+				[<prefix>]<command> <params> <crlf>
+			
+			CString with max size of 512bytes, including crlf
+			ENCRYPTION_PREFIX [<prefix>]<command> <params> <...> <crlf>
 			
 	Name-Server		
 		-How do we want to store information about clients? Based upon a username?
