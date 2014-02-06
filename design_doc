@@ -67,6 +67,12 @@ Client Communication
 			-Downside, It is possible, however rare, for MD5 hashes to overlap.
 				-as this is rare the TTL will allow for other messages with the same hash to
 					be sent again.			
+					
+Client Peers
+	-Client will have a maximum amount of peers that it will be currently connected to
+		-Each connection to the peer will have a TTL, after that TTL expires, it will randomly choose a new peer
+			-This keeps the number of simultaneuos connections low, while still mainting anonimity
+				with changing peers
 
 
 How we will be anonymous
@@ -95,6 +101,7 @@ Questions ---
 			
 	Encryption?
 		-We need to decide which Library that we will be using for encryption
+			-public/private key, RSA encryption
 		-How will the users get public keys for the other users they wish to communicate with?
 			-Possibly a user can decide to publish thier public key to the name server
 				allowing users to fetch it from the name-server and communicate with that user
