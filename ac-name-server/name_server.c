@@ -130,10 +130,11 @@ int init_server(char* port) {
 void listen_for_clients(int socket_fd) {
 
 	int res = listen(socket_fd, SERVER_BACKLOG);
+		
 
 	//TODO: Add a way for the server to gracefully exit? Maybe?
 	while (1) {
-		printf("Waiting for a client to connect"); //debug statement mostly
+		printf("Waiting for a client to connect \n"); //debug statement mostly
 		
 		socklen_t sin_size;
 		struct sockaddr_storage client_addr;
