@@ -21,19 +21,25 @@ int main(int argc, char* argv[]){
 
 	getaddrinfo(argv[1], argv[2] , &hints, &res);
 
+	printf("Establishing socket...");
 	sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);	//get socket number
 	if(sock == -1){	//negative socket means error, die
 		//error
+		printf("Socket failed!\n");
 		exit(1);
 	}
+	printf("Socket good!\n");
 
+	printf("Connecting to server...");
 	if(connect(sock, res->ai_addr, res->ai_addrlen) == -1){ //attempt connection
 		//error
+		printf("Connection failed!\n");
 		exit(1);
 	}
+	printf("Connected!\n");
 
 	while(1){
-		if(recv(sock, "", 0, 0) < 0){//wait for messages, die on error
+		if(recv(sock, "Hello", sizeof("Hello"), 0) < 0){//wait for messages, die on error
 			close(sock);
 			freeaddrinfo(res);
 			exit(1);
