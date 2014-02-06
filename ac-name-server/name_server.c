@@ -19,8 +19,40 @@ int main(int argc, char* argv[]) {
 	//initialize the server socket
 	int socket_fd = init_server(SERVER_DEF_PORT);
 	
+	
 	//listen for clients
 	listen_for_clients(socket_fd);
+}
+
+/** Thread function for handling a new client that has connected to the server
+	@param arg Pointer to a client struct, represnting the client that has connected
+*/
+
+void handle_client(void* arg) {
+
+	int client_socket; // the socket that this client is connected on
+	struct sockaddr_storage client_addr; // the address of the client
+
+	char host_addr[NI_MAXHOST];
+	
+	int res = getnameinfo( (struct sockaddr *) &client_addr, sizeof(struct sockaddr_storage),
+		host_addr, sizeof(host_addr), NULL, 0, NI_NAMEREQD);
+		
+	if (res) {
+		printf("Error receiving hostname! \n");
+	}
+	else {
+		printf("Connection started from %s!\n", host_addr);
+	}
+
+	//handle the client, 
+		//add the client to list of connected clients
+		//handle any requests from the client.
+			//as of now, just requests for peers
+		//remove the client from the list when it disconnects
+		
+		
+		
 }
 
 
@@ -36,7 +68,7 @@ int init_server(char* port) {
 	struct addrinfo* server_info;
 	struct addrinfo* server_connect;
 	
-	int socket_fd
+	int socket_fd;
 	
 	int res = 0; //generic results
 	
@@ -65,6 +97,7 @@ int init_server(char* port) {
 			//cannot bind to this address, try next
 		}
 		
+		int yes = 1; // true int for setsocket opt
 		res = setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
 		
 		if (res == -1) {
@@ -83,7 +116,7 @@ int init_server(char* port) {
 	
 	//free the memory that was allocated
 	free(server_info);
-	free(server_connect); 
+	//free(server_connect); 
 	
 	return socket_fd;
 

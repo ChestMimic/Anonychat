@@ -5,8 +5,12 @@
 #define SERVER_BACKLOG (10) // the number of clients that can be queued
 #define SERVER_DEF_PORT "6958" // the default port the server will listen on
 
+#define SERVER_MAX_MESSAGE (512) // the maximum message size in bytes
+
+
 struct _client {
 	int socket_fd; // the socket descriptor for this client
+	char address[NI_MAXHOST]; // the string containing the address of the client
 
 };
 
