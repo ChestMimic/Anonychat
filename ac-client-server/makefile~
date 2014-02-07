@@ -1,0 +1,7 @@
+all:
+	gcc -lpthread -g -o ser
+	gcc -o client -g client.c
+
+clean:
+	rm -rf *o server
+	rm -rf *o client
