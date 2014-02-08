@@ -32,7 +32,7 @@ int main(int argc, char* argv[]){
 	}
 	printf("Socket good!\n");
 
-	printf("Connecting to server...");
+	printf("Connecting to server...\n");
 	if(connect(sock, res->ai_addr, res->ai_addrlen) == -1){ //attempt connection
 		//error
 		printf("Connection failed!\n");

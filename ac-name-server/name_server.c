@@ -38,6 +38,9 @@ void handle_client(void* arg) {
 	int res = getnameinfo( (struct sockaddr *) &client_addr, sizeof(struct sockaddr_storage),
 		client_o->address, sizeof(client_o->address), NULL, 0, NI_NAMEREQD);
 		
+	//This is working for getting hostname, 68-118-228-238.dhcp.oxfr.ma.charter.com form.
+	//However the first connection to the server throws ai_family not supported
+		
 	if (res) {
 		printf("Error! %s \n", gai_strerror(res));
 	}
