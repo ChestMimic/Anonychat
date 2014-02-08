@@ -12,6 +12,7 @@ struct _client {
 	int socket_fd; // the socket descriptor for this client
 	struct sockaddr_storage client_addr; // struct storing the client address
 	char address[NI_MAXHOST]; // the string containing the address of the client
+	pthread_t client_thread; // pointer to the thread that this client is executing on
 
 };
 
@@ -25,7 +26,7 @@ void print_usage();
 	@param arg Pointer to a client struct, represnting the client that has connected
 */
 
-void handle_client(void* arg);
+void* handle_client(void* arg);
 
 
 
@@ -41,13 +42,6 @@ int init_server(char* port);
 */
 
 void listen_for_clients(int socket_fd);
-
-/** Cleans up after a client thread ends.
-	Currently frees the memory pointed to by pthread
-	@param pthread Pointer to the pthread allocated	
-*/
-void cleanup_thread(void* pthread);
-
 
 
 #endif

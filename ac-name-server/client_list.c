@@ -94,5 +94,6 @@ list* list_create() {
 	list_o->size = 0;
 	list_o->head = NULL;
 	list_o->tail = NULL;
+	pthread_mutex_init(&(list_o->mutex), NULL);
 	return list_o;
 }

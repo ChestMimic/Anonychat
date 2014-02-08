@@ -12,10 +12,22 @@
 
 
 #include "name_server.h"
+#include "client_list.h"
 
+
+/** list of clients connected to the server */
+list* client_list;
+
+pthread_mutex_t priting_mutex; //mutex for updating list
 
 int main(int argc, char* argv[]) {
 
+	//initialize the client list
+	client_list = list_create();
+	
+	//initialize the mutexes
+	pthread_mutex_init(&priting_mutex, NULL); 
+	
 	//initialize the server socket
 	int socket_fd = init_server(SERVER_DEF_PORT);
 	
@@ -28,7 +40,7 @@ int main(int argc, char* argv[]) {
 	@param arg Pointer to a client struct, represnting the client that has connected
 */
 
-void handle_client(void* arg) {
+void* handle_client(void* arg) {
 
 	client* client_o = (client*) arg; // cast the argument into client struct
 
@@ -41,12 +53,14 @@ void handle_client(void* arg) {
 	//This is working for getting hostname, 68-118-228-238.dhcp.oxfr.ma.charter.com form.
 	//However the first connection to the server throws ai_family not supported
 		
+	pthread_mutex_lock(&priting_mutex); //lock the printing mutex before we print this.
 	if (res) {
 		printf("Error! %s \n", gai_strerror(res));
 	}
 	else {
 		printf("Connection started from %s!\n", client_o->address);
 	}
+	pthread_mutex_unlock(&priting_mutex);
 
 	//handle the client, 
 		//add the client to list of connected clients
@@ -54,19 +68,23 @@ void handle_client(void* arg) {
 			//as of now, just requests for peers
 		//remove the client from the list when it disconnects
 		
-		
-		
-}
-
-/** Cleans up after a client thread ends.
-	Currently frees the memory pointed to by pthread
-	@param pthread Pointer to the pthread allocated
+	//add the client to the conencted list
+	pthread_mutex_lock(&(client_list->mutex)); //obtain list mutex before we operate on it
+	list_add(client_list, client_o);
+	pthread_mutex_unlock(&(client_list->mutex)); // release mutex when done
+		//request handling
 	
-*/
-void cleanup_thread(void* pthread) {
-	free(pthread);
+	//remove the client from the connected list	
+	pthread_mutex_lock(&(client_list->mutex)); //obtain list mutex before we operate on it
+	list_remove(client_list, client_o);
+	pthread_mutex_unlock(&(client_list->mutex)); // release mutex when done
+	
+	free(client_o); // no longer need the memory for the client
+	
+	return NULL;
+	
+		
 }
-
 
 
 /** Sets up the socket the server will use to listen on for new clients
@@ -146,7 +164,9 @@ void listen_for_clients(int socket_fd) {
 
 	//TODO: Add a way for the server to gracefully exit? Maybe?
 	while (1) {
+		pthread_mutex_lock(&priting_mutex);
 		printf("Waiting for a client to connect \n"); //debug statement mostly
+		pthread_mutex_unlock(&priting_mutex);
 		
 		socklen_t sin_size;
 		struct sockaddr_storage client_addr;
@@ -154,21 +174,23 @@ void listen_for_clients(int socket_fd) {
 		
 		client_socket_fd = accept(socket_fd, (struct sockaddr*) &client_addr,  &sin_size);
 		
+		pthread_mutex_lock(&priting_mutex);
 		if (client_socket_fd == -1) {
 			printf("Error occured while trying to accept a client...\n");
+			pthread_mutex_unlock(&priting_mutex);
 			continue; // couldnt accept client, continue on
 		}
 		
 		printf("Client has connected \n");
+		pthread_mutex_unlock(&priting_mutex);
 		
 		client* client_con = (client*) malloc(sizeof(client));
 		
 		client_con->socket_fd = client_socket_fd;
-		client_con->client_addr = client_addr;
-		
-		handle_client(client_con);
-		
-		//TODO: Start a thread that will handle the connected client
+		client_con->client_addr = client_addr;		
+	
+		//start the client thread	
+		pthread_create(&(client_con->client_thread), NULL, &handle_client, (void*) client_con);
 		
 	}
 

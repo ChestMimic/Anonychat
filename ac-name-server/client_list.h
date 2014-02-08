@@ -1,6 +1,11 @@
 #ifndef CLIENT_LIST_H
 #define CLIENT_LIST_H
 
+
+#include <pthread.h>
+
+
+
 /** Structure representing a list element
 */
 
@@ -12,13 +17,14 @@ struct _list_elm {
 
 typedef struct _list_elm list_elm;
 
-/** Structure representing a list
+/** Structure representing a multi threaded list
 */
 
 struct _list {
 	list_elm* head; // the head of the list
 	list_elm* tail; // the tail of the list
 	int size; // the size of the list
+	pthread_mutex_t mutex; // the mutex to hold for this list
 };
 
 typedef struct _list list;
