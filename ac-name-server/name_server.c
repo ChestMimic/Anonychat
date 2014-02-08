@@ -1,14 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-
-#include <string.h> //?
-
+#include <string.h> 
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+
+#include <pthread.h>
 
 
 #include "name_server.h"
@@ -30,19 +30,19 @@ int main(int argc, char* argv[]) {
 
 void handle_client(void* arg) {
 
-	int client_socket; // the socket that this client is connected on
-	struct sockaddr_storage client_addr; // the address of the client
+	client* client_o = (client*) arg; // cast the argument into client struct
 
-	char host_addr[NI_MAXHOST];
+	int client_socket = client_o->socket_fd; // the socket that this client is connected on
+	struct sockaddr_storage client_addr = client_o->client_addr; // the address of the client
 	
 	int res = getnameinfo( (struct sockaddr *) &client_addr, sizeof(struct sockaddr_storage),
-		host_addr, sizeof(host_addr), NULL, 0, NI_NAMEREQD);
+		client_o->address, sizeof(client_o->address), NULL, 0, NI_NAMEREQD);
 		
 	if (res) {
-		printf("Error receiving hostname! \n");
+		printf("Error! %s \n", gai_strerror(res));
 	}
 	else {
-		printf("Connection started from %s!\n", host_addr);
+		printf("Connection started from %s!\n", client_o->address);
 	}
 
 	//handle the client, 
@@ -53,6 +53,15 @@ void handle_client(void* arg) {
 		
 		
 		
+}
+
+/** Cleans up after a client thread ends.
+	Currently frees the memory pointed to by pthread
+	@param pthread Pointer to the pthread allocated
+	
+*/
+void cleanup_thread(void* pthread) {
+	free(pthread);
 }
 
 
@@ -148,6 +157,13 @@ void listen_for_clients(int socket_fd) {
 		}
 		
 		printf("Client has connected \n");
+		
+		client* client_con = (client*) malloc(sizeof(client));
+		
+		client_con->socket_fd = client_socket_fd;
+		client_con->client_addr = client_addr;
+		
+		handle_client(client_con);
 		
 		//TODO: Start a thread that will handle the connected client
 		

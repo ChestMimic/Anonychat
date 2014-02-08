@@ -10,6 +10,7 @@
 
 struct _client {
 	int socket_fd; // the socket descriptor for this client
+	struct sockaddr_storage client_addr; // struct storing the client address
 	char address[NI_MAXHOST]; // the string containing the address of the client
 
 };
@@ -26,6 +27,8 @@ void print_usage();
 
 void handle_client(void* arg);
 
+
+
 /** Sets up the socket the server will use to listen on for new clients
 	@param port cstring that contains the port to start the server on
 	@return The descriptor of the socket that was created, or -1 if it failed
@@ -38,6 +41,12 @@ int init_server(char* port);
 */
 
 void listen_for_clients(int socket_fd);
+
+/** Cleans up after a client thread ends.
+	Currently frees the memory pointed to by pthread
+	@param pthread Pointer to the pthread allocated	
+*/
+void cleanup_thread(void* pthread);
 
 
 

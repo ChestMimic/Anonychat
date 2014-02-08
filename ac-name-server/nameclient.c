@@ -12,8 +12,10 @@ int main(int argc, char* argv[]){
 	struct addrinfo hints, *res;
 	int sock;
 
+	printf("NameClient? \n");
+
 	memset(&hints, 0, sizeof hints);	//ensure empty struct
-	hints.ai_family = AF_UNSPEC;		//IPv4 OR IPv6
+	hints.ai_family = AF_INET;		//IPv4 OR IPv6
 	hints.ai_socktype = SOCK_STREAM;	//TCP connection
 	hints.ai_flags = AI_PASSIVE;
 
@@ -21,7 +23,7 @@ int main(int argc, char* argv[]){
 
 	getaddrinfo(argv[1], argv[2] , &hints, &res);
 
-	printf("Establishing socket...");
+	printf("Establishing socket... \n");
 	sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);	//get socket number
 	if(sock == -1){	//negative socket means error, die
 		//error
@@ -38,8 +40,12 @@ int main(int argc, char* argv[]){
 	}
 	printf("Connected!\n");
 
-	while(1){
-		if(recv(sock, "Hello", sizeof("Hello"), 0) < 0){//wait for messages, die on error
+	while(1) {
+	
+		//will this seg fault? lol..
+		int resu = recv(sock, "Hello", 6, 0); //wait for messages, die on error
+		
+		if (resu < 0) {
 			close(sock);
 			freeaddrinfo(res);
 			exit(1);
