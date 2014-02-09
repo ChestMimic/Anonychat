@@ -47,6 +47,8 @@ void* handle_client(void* arg) {
 	int client_socket = client_o->socket_fd; // the socket that this client is connected on
 	struct sockaddr_storage client_addr = client_o->client_addr; // the address of the client
 	
+	//TODO: fix this to get IP address, not host-name
+	
 	int res = getnameinfo( (struct sockaddr *) &client_addr, sizeof(struct sockaddr_storage),
 		client_o->address, sizeof(client_o->address), NULL, 0, NI_NAMEREQD);
 		
