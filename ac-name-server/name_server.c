@@ -49,21 +49,28 @@ void* handle_client(void* arg) {
 	
 	//TODO: fix this to get IP address, not host-name
 	
+	struct sockaddr_in* ipv4_addr = (struct sockaddr_in*) &client_addr;
+	int ip_addr = ipv4_addr->sin_addr.s_addr;
+	
+	//copy the ip address into the client struct
+	inet_ntop(AF_INET, &ip_addr, client_o->address, sizeof(client_o->address));
+	
+	/* Old address code
 	int res = getnameinfo( (struct sockaddr *) &client_addr, sizeof(struct sockaddr_storage),
 		client_o->address, sizeof(client_o->address), NULL, 0, NI_NAMEREQD);
-		
+		*/
 	//This is working for getting hostname, 68-118-228-238.dhcp.oxfr.ma.charter.com form.
 	//However the first connection to the server throws ai_family not supported
 		
 	pthread_mutex_lock(&priting_mutex); //lock the printing mutex before we print this.
-	if (res) {
+	/*if (res) {
 		printf("Error! %s \n", gai_strerror(res));
 		pthread_mutex_unlock(&priting_mutex);
 		return NULL; //couldn't get the clients hostname, exit the thread
 	}
-	else {
-		printf("Connection started from %s!\n", client_o->address);
-	}
+	else {*/
+	printf("Connection started from %s!\n", client_o->address);
+	//}
 	pthread_mutex_unlock(&priting_mutex);
 
 	//handle the client, 
