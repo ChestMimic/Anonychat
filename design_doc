@@ -71,13 +71,13 @@ Client Communication
 Client Peers
 	-Client will have a maximum amount of peers that it will be currently connected to
 		-Each connection to the peer will have a TTL, after that TTL expires, it will randomly choose a new peer
-			-This keeps the number of simultaneuos connections low, while still mainting anonimity
+			-This keeps the number of simultaneous connections low, while still mainting anonimity
 				with changing peers
 
 
 How we will be anonymous
 	-The souce of the messages that will be sent between clients will not be known.
-	-The connect to the cetnralized name server will only be for checking client state
+	-The connect to the centralized name server will only be for checking client state
 		-No messages will be transferred to/from a client through the name server
 				
 				
