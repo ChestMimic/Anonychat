@@ -56,6 +56,8 @@ void* handle_client(void* arg) {
 	pthread_mutex_lock(&priting_mutex); //lock the printing mutex before we print this.
 	if (res) {
 		printf("Error! %s \n", gai_strerror(res));
+		pthread_mutex_unlock(&priting_mutex);
+		return NULL; //couldn't get the clients hostname, exit the thread
 	}
 	else {
 		printf("Connection started from %s!\n", client_o->address);
@@ -69,17 +71,25 @@ void* handle_client(void* arg) {
 		//remove the client from the list when it disconnects
 		
 	//add the client to the conencted list
+	
+	printf("Lets add the client to the list \n");
+	
 	pthread_mutex_lock(&(client_list->mutex)); //obtain list mutex before we operate on it
 	list_add(client_list, client_o);
 	pthread_mutex_unlock(&(client_list->mutex)); // release mutex when done
 		//request handling
+	
+	printf("Lets remove the client to the list \n");
 	
 	//remove the client from the connected list	
 	pthread_mutex_lock(&(client_list->mutex)); //obtain list mutex before we operate on it
 	list_remove(client_list, client_o);
 	pthread_mutex_unlock(&(client_list->mutex)); // release mutex when done
 	
+	printf("Lets free the client \n");
 	free(client_o); // no longer need the memory for the client
+	
+	printf("Lets exit the thread \n");
 	
 	return NULL;
 	

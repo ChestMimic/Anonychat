@@ -1,6 +1,7 @@
 #include "client_list.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 
 /** Adds the given value to the list
 	@param val A pointer to the value to add
@@ -31,9 +32,12 @@ int list_add(list* list, void* val) {
 */
 
 void* list_remove(list* list, void* val) {
+	printf("List_remove Lets check the list Size! \n");
 	if (list_size(list) < 1) {
 		//can't remove something from an empty list;
+		return NULL;
 	}
+	printf("Lets start finding the elm to remove! \n");
 	list_elm* curr_elm = list->head;
 	
 	while(curr_elm != NULL && curr_elm != val) {
@@ -45,11 +49,15 @@ void* list_remove(list* list, void* val) {
 	
 	if (curr_elm != NULL) {
 		ret = curr_elm->val; // get the value from the item we are removing
-		curr_elm->prev->next = curr_elm->next;
+		printf("ListRemove: curr_elm->prev = %x \n", curr_elm->prev);
+		curr_elm->prev->next = curr_elm->next; //set the link before this one, to null.
+			//HOWEVER!! if there is only one item in the list. this will segfault
 		if (curr_elm->next == NULL) {
 			// this was the tail
 			list->tail = curr_elm->prev;
 		}
+		
+		list->size--; //decrease the size of the list
 		
 		free(curr_elm); //free the item element
 	}
