@@ -33,17 +33,14 @@ int list_add(list* list, void* val) {
 */
 
 void* list_remove(list* list, void* val) {
-	printf("List_remove Lets check the list Size! \n");
 	if (list_size(list) < 1) {
 		//can't remove something from an empty list;
 		return NULL;
 	}
-	printf("Lets start finding the elm to remove! \n");
 	list_elm* curr_elm = list->head;
 	
 	while(curr_elm != NULL && curr_elm->val != val) {
 		//loop while we haven't found the item, and havent reached end of the list
-		printf("Loopy Loopy Loopy curr_elm: %x \n", curr_elm);
 		curr_elm = curr_elm->next;
 	}
 	
@@ -56,7 +53,6 @@ void* list_remove(list* list, void* val) {
 			list->head = curr_elm->next;
 		}
 		else {		
-			printf("ListRemove: curr_elm->prev = %x \n", curr_elm->prev);
 			curr_elm->prev->next = curr_elm->next; //set the link before this one, to null.
 				//HOWEVER!! if there is only one item in the list. this will segfault
 			if (curr_elm->next == NULL) {

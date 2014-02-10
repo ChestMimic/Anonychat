@@ -41,68 +41,34 @@ int main(int argc, char* argv[]) {
 */
 
 void* handle_client(void* arg) {
-
 	client* client_o = (client*) arg; // cast the argument into client struct
-
-	int client_socket = client_o->socket_fd; // the socket that this client is connected on
-	struct sockaddr_storage client_addr = client_o->client_addr; // the address of the client
-	
-	//TODO: fix this to get IP address, not host-name
-	
-	struct sockaddr_in* ipv4_addr = (struct sockaddr_in*) &client_addr;
-	int ip_addr = ipv4_addr->sin_addr.s_addr;
-	
+	int client_socket = client_o->socket_fd; // the socket that this client is connected on		
+	struct sockaddr_in* ipv4_addr = (struct sockaddr_in*) &(client_o->client_addr); //client addr
+	int ip_addr = ipv4_addr->sin_addr.s_addr; //address int form.	
 	//copy the ip address into the client struct
-	inet_ntop(AF_INET, &ip_addr, client_o->address, sizeof(client_o->address));
-	
-	/* Old address code
-	int res = getnameinfo( (struct sockaddr *) &client_addr, sizeof(struct sockaddr_storage),
-		client_o->address, sizeof(client_o->address), NULL, 0, NI_NAMEREQD);
-		*/
-	//This is working for getting hostname, 68-118-228-238.dhcp.oxfr.ma.charter.com form.
-	//However the first connection to the server throws ai_family not supported
+	inet_ntop(AF_INET, &ip_addr, client_o->address, sizeof(client_o->address));	
 		
 	pthread_mutex_lock(&priting_mutex); //lock the printing mutex before we print this.
-	/*if (res) {
-		printf("Error! %s \n", gai_strerror(res));
-		pthread_mutex_unlock(&priting_mutex);
-		return NULL; //couldn't get the clients hostname, exit the thread
-	}
-	else {*/
 	printf("Connection started from %s!\n", client_o->address);
-	//}
 	pthread_mutex_unlock(&priting_mutex);
-
-	//handle the client, 
-		//add the client to list of connected clients
-		//handle any requests from the client.
-			//as of now, just requests for peers
-		//remove the client from the list when it disconnects
-		
-	//add the client to the conencted list
 	
-	printf("Lets add the client to the list \n");
+	//send the initial peer request
+	//listen for requests from the client	
+
 	
 	pthread_mutex_lock(&(client_list->mutex)); //obtain list mutex before we operate on it
 	list_add(client_list, client_o);
 	pthread_mutex_unlock(&(client_list->mutex)); // release mutex when done
-		//request handling
-	
-	printf("Lets remove the client to the list \n");
-	
+
+
+		
 	//remove the client from the connected list	
 	pthread_mutex_lock(&(client_list->mutex)); //obtain list mutex before we operate on it
 	list_remove(client_list, client_o);
 	pthread_mutex_unlock(&(client_list->mutex)); // release mutex when done
-	
-	printf("Lets free the client \n");
-	free(client_o); // no longer need the memory for the client
-	
-	printf("Lets exit the thread \n");
-	
-	return NULL;
-	
-		
+
+	free(client_o); // no longer need the memory for the client	
+	return NULL;		
 }
 
 
@@ -187,8 +153,8 @@ void listen_for_clients(int socket_fd) {
 		printf("Waiting for a client to connect \n"); //debug statement mostly
 		pthread_mutex_unlock(&priting_mutex);
 		
-		socklen_t sin_size;
 		struct sockaddr_storage client_addr;
+		socklen_t sin_size = sizeof(client_addr);
 		int client_socket_fd; // socket fd for client
 		
 		client_socket_fd = accept(socket_fd, (struct sockaddr*) &client_addr,  &sin_size);
