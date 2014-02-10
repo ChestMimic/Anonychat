@@ -7,10 +7,14 @@
 
 #define SERVER_MAX_MESSAGE (512) // the maximum message size in bytes
 
+#define PEER_POOL_SIZE (5) // the default peer pool size to send to the client
+
 
 struct _client {
 	int socket_fd; // the socket descriptor for this client
-	char address[NI_MAXHOST]; // the string containing the address of the client
+	struct sockaddr_storage client_addr; // struct storing the client address
+	char address[INET_ADDRSTRLEN]; // the string containing the address of the client
+	pthread_t* client_thread; // pointer to the thread that this client is executing on
 
 };
 
@@ -24,7 +28,21 @@ void print_usage();
 	@param arg Pointer to a client struct, represnting the client that has connected
 */
 
-void handle_client(void* arg);
+void* client_handle(void* arg);
+
+/** Creates a set of peers for the specified client, and sends them to the client
+	@param client_o A pointer to a client structure in which to send the peers to
+*/
+
+void client_send_peers(client* client_o);
+
+/** Sends the message in msg to the given socket
+	@param socket_fd the Socket descriptor of the client to send the message to
+	@param Pointer to the message to send
+	@param size The size of the message being sent
+	@return 0 if sucess, error code other wise */
+
+int server_send_message(int socket_fd, void* msg, int size);
 
 /** Sets up the socket the server will use to listen on for new clients
 	@param port cstring that contains the port to start the server on
@@ -38,7 +56,6 @@ int init_server(char* port);
 */
 
 void listen_for_clients(int socket_fd);
-
 
 
 #endif
