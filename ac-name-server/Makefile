@@ -3,7 +3,7 @@ all: name_server name_client
 name_server: name_server.o client_list.o
 	gcc name_server.o client_list.o -o name_server -pthread
 	
-name_client: name_client.o
+name_client: nameclient.o
 	gcc nameclient.o -o name_client
 	
 name_server.o: name_server.c name_server.h

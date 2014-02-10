@@ -48,10 +48,8 @@ int main(int argc, char* argv[]){
 		char buff[SERVER_MAX_MESSAGE];
 		char* mesg = "Hello";
 		
-		//will this seg fault? lol..
-		int resu = recv(sock, buff, SERVER_MAX_MESSAGE, 0); //wait for messages, die on error
-		
-		if (resu < 0) {
+		int resu = recv(sock, buff, SERVER_MAX_MESSAGE, 0); //wait for messages, die on error		
+		if (resu <= 0) {
 			close(sock);
 			freeaddrinfo(res);
 			exit(1);
@@ -60,7 +58,6 @@ int main(int argc, char* argv[]){
 			printf("%s\n", buff);
 		}
 		
-		int sen = send(sock, mesg, sizeof(mesg), 0);//allows connection to die when nameserver dies
 	}
 
 	return 0;

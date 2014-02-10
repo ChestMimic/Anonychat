@@ -72,6 +72,8 @@ void* client_handle(void* arg) {
 	list_remove(client_list, client_o);
 	pthread_mutex_unlock(&(client_list->mutex)); // release mutex when done
 
+
+	close(client_o->socket_fd);
 	free(client_o); // no longer need the memory for the client	
 	return NULL;		
 }
