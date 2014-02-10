@@ -94,16 +94,16 @@ void client_send_peers(client* client_o) {
 	printf("num_peers: %d, total_peers: %d \n", num_peers, total_peers);
 	
 	if (num_peers > total_peers) {
-		printf("num_peers is > total_peers \n");
+		//printf("num_peers is > total_peers \n");
 		//if num peers is greater than total peers, we can just add the whole list
 		num_peers = list_size(client_list) - 1;
 		int i;
 		for (i = 0; i <total_peers; i++) {
-			printf("Im in da loop? \n");
+			//printf("Im in da loop? \n");
 			client* client_p = (client*)list_item_at(client_list, i);
 			if (client_p->socket_fd == client_o->socket_fd) {
-				printf("client_p socket: %d, client_o socket: %d \n", client_p->socket_fd,
-					client_o->socket_fd);
+				//printf("client_p socket: %d, client_o socket: %d \n", client_p->socket_fd,
+					//client_o->socket_fd);
 				continue;
 			}
 			//copy the ip address into the message
@@ -112,7 +112,7 @@ void client_send_peers(client* client_o) {
 			printf("Concat %s to msg \n", client_p->address);
 		}
 		
-	}/*
+	}
 	else {	
 		int me = -1;	
 		
@@ -128,21 +128,42 @@ void client_send_peers(client* client_o) {
 			}
 			int done = 0;
 			while (!done) {
-				int rnum = rand() % (num_peers + 1); 
-				if (rnum == me || strcmp(list_item_at(client_list, rnum)->address, client_o->address) == 0) {
+				int rnum = rand() % (total_peers); 
+				client* client_p = list_item_at(client_list, rnum);
+				if (rnum == me || client_p->socket_fd == client_o->socket_fd) {
 					me = rnum;
 					continue;
 				}
+				
 				//we found a peer that is not us. yay!
+				//copy the ip address into the message
+				strncat(msg, " ", SERVER_MAX_MESSAGE); //add a space
+				strncat(msg, client_p->address, SERVER_MAX_MESSAGE); 
 			
 			}
 		}
-	}*/
+	}
 	
 	strncat(msg, "\r\n", SERVER_MAX_MESSAGE);
 	
 	printf("Message to send: %s \n", msg);
+	
+	server_send_message(client_o->socket_fd, msg, strlen(msg));
 
+}
+
+/** Sends the message in msg to the given socket
+	@param socket_fd the Socket descriptor of the client to send the message to
+	@param Pointer to the message to send
+	@param size The size of the message being sent
+	@return 0 if sucess, error code other wise */
+
+int server_send_message(int socket_fd, void* msg, int size) {
+	if (!send(socket_fd, msg, size, 0)) {
+		printf("Error sending message! \n");
+		return 1;
+	}
+	return 0;
 }
 
 

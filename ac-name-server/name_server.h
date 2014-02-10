@@ -36,6 +36,14 @@ void* client_handle(void* arg);
 
 void client_send_peers(client* client_o);
 
+/** Sends the message in msg to the given socket
+	@param socket_fd the Socket descriptor of the client to send the message to
+	@param Pointer to the message to send
+	@param size The size of the message being sent
+	@return 0 if sucess, error code other wise */
+
+int server_send_message(int socket_fd, void* msg, int size);
+
 /** Sets up the socket the server will use to listen on for new clients
 	@param port cstring that contains the port to start the server on
 	@return The descriptor of the socket that was created, or -1 if it failed
