@@ -8,6 +8,10 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
+#ifndef SERVER_MAX_MESSAGE
+#define SERVER_MAX_MESSAGE (512)
+#endif
+
 int main(int argc, char* argv[]){
 	struct addrinfo hints, *res;
 	int sock;
@@ -41,16 +45,19 @@ int main(int argc, char* argv[]){
 	printf("Connected!\n");
 
 	while(1) {
-		char* buff;
+		char buff[SERVER_MAX_MESSAGE];
 		char* mesg = "Hello";
 		
 		//will this seg fault? lol..
-		int resu = recv(sock, buff, sizeof(buff), 0); //wait for messages, die on error
+		int resu = recv(sock, buff, SERVER_MAX_MESSAGE, 0); //wait for messages, die on error
 		
 		if (resu < 0) {
 			close(sock);
 			freeaddrinfo(res);
 			exit(1);
+		}
+		else{
+			printf("%s\n", buff);
 		}
 		
 		int sen = send(sock, mesg, sizeof(mesg), 0);//allows connection to die when nameserver dies
