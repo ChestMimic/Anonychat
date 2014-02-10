@@ -28,7 +28,7 @@ void print_usage();
 	@param arg Pointer to a client struct, represnting the client that has connected
 */
 
-void* handle_client(void* arg);
+void* client_handle(void* arg);
 
 /** Creates a set of peers for the specified client, and sends them to the client
 	@param client_o A pointer to a client structure in which to send the peers to
