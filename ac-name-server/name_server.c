@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <time.h>
 
 #include <pthread.h>
 
@@ -28,6 +29,9 @@ int main(int argc, char* argv[]) {
 	//initialize the mutexes
 	pthread_mutex_init(&priting_mutex, NULL); 
 	
+	//seed the random generator
+	srand(time(NULL));
+	
 	//initialize the server socket
 	int socket_fd = init_server(SERVER_DEF_PORT);
 	
@@ -40,7 +44,7 @@ int main(int argc, char* argv[]) {
 	@param arg Pointer to a client struct, represnting the client that has connected
 */
 
-void* handle_client(void* arg) {
+void* client_handle(void* arg) {
 	client* client_o = (client*) arg; // cast the argument into client struct
 	int client_socket = client_o->socket_fd; // the socket that this client is connected on		
 	struct sockaddr_in* ipv4_addr = (struct sockaddr_in*) &(client_o->client_addr); //client addr
@@ -49,7 +53,8 @@ void* handle_client(void* arg) {
 	inet_ntop(AF_INET, &ip_addr, client_o->address, sizeof(client_o->address));	
 		
 	pthread_mutex_lock(&priting_mutex); //lock the printing mutex before we print this.
-	printf("Connection started from %s!\n", client_o->address);
+	printf("Connection started from %s! on Socket: %d at mem: %x \n", client_o->address, client_socket,
+		client_o);
 	pthread_mutex_unlock(&priting_mutex);
 	
 	//send the initial peer request
@@ -58,17 +63,89 @@ void* handle_client(void* arg) {
 	
 	pthread_mutex_lock(&(client_list->mutex)); //obtain list mutex before we operate on it
 	list_add(client_list, client_o);
+	
+	client_send_peers(client_o);
+	
 	pthread_mutex_unlock(&(client_list->mutex)); // release mutex when done
 
 
-		
+	/*	
 	//remove the client from the connected list	
 	pthread_mutex_lock(&(client_list->mutex)); //obtain list mutex before we operate on it
 	list_remove(client_list, client_o);
 	pthread_mutex_unlock(&(client_list->mutex)); // release mutex when done
-
+*/
 	free(client_o); // no longer need the memory for the client	
 	return NULL;		
+}
+
+/** Creates a set of peers for the specified client, and sends them to the client
+	@param client_o A pointer to a client structure in which to send the peers to
+*/
+
+void client_send_peers(client* client_o) {
+
+	int msg_size = SERVER_MAX_MESSAGE;
+	char msg[msg_size]; // the message to use
+	msg[0] = '\0'; // add the null byte
+	strncat(msg, "PEERS", SERVER_MAX_MESSAGE);
+	msg_size = msg_size - 2 - 5; // - 2 for CRLF, -6 for PEERS 
+	
+	int num_peers = PEER_POOL_SIZE; // the number of peers to send
+	int total_peers = list_size(client_list); //total number of connected clients, excludign self
+	
+	printf("num_peers: %d, total_peers: %d \n", num_peers, total_peers);
+	
+	if (num_peers > total_peers) {
+		printf("num_peers is > total_peers \n");
+		//if num peers is greater than total peers, we can just add the whole list
+		num_peers = list_size(client_list) - 1;
+		int i;
+		for (i = 0; i <total_peers; i++) {
+			printf("Im in da loop? \n");
+			client* client_p = (client*)list_item_at(client_list, i);
+			if (client_p->socket_fd == client_o->socket_fd) {
+				printf("client_p socket: %d, client_o socket: %d \n", client_p->socket_fd,
+					client_o->socket_fd);
+				continue;
+			}
+			//copy the ip address into the message
+			strncat(msg, " ", SERVER_MAX_MESSAGE); //add a space
+			strncat(msg, client_p->address, SERVER_MAX_MESSAGE); 
+			printf("Concat %s to msg \n", client_p->address);
+		}
+		
+	}/*
+	else {	
+		int me = -1;	
+		
+		//max ip size is 16. probally us INET_ADDRSTRLEN, which is 16
+	
+		int i;
+		for (i = 0; i < num_peers; i++) {
+		
+			if (msg_size < INET_ADDRSTRLEN) {
+				//TODO: add more handling here
+				//however with just and address pool of 5, we shouldnt reach max, 5 * 16 = 80 < 510
+				break; // we reached message limit.
+			}
+			int done = 0;
+			while (!done) {
+				int rnum = rand() % (num_peers + 1); 
+				if (rnum == me || strcmp(list_item_at(client_list, rnum)->address, client_o->address) == 0) {
+					me = rnum;
+					continue;
+				}
+				//we found a peer that is not us. yay!
+			
+			}
+		}
+	}*/
+	
+	strncat(msg, "\r\n", SERVER_MAX_MESSAGE);
+	
+	printf("Message to send: %s \n", msg);
+
 }
 
 
@@ -170,12 +247,13 @@ void listen_for_clients(int socket_fd) {
 		pthread_mutex_unlock(&priting_mutex);
 		
 		client* client_con = (client*) malloc(sizeof(client));
+		printf("Mallocing client_con: %x \n", client_con);
 		
 		client_con->socket_fd = client_socket_fd;
 		client_con->client_addr = client_addr;		
 	
 		//start the client thread	
-		pthread_create(&(client_con->client_thread), NULL, &handle_client, (void*) client_con);
+		pthread_create(&(client_con->client_thread), NULL, &client_handle, (void*) client_con);
 		
 	}
 

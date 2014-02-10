@@ -7,6 +7,8 @@
 
 #define SERVER_MAX_MESSAGE (512) // the maximum message size in bytes
 
+#define PEER_POOL_SIZE (5) // the default peer pool size to send to the client
+
 
 struct _client {
 	int socket_fd; // the socket descriptor for this client
@@ -28,7 +30,11 @@ void print_usage();
 
 void* handle_client(void* arg);
 
+/** Creates a set of peers for the specified client, and sends them to the client
+	@param client_o A pointer to a client structure in which to send the peers to
+*/
 
+void client_send_peers(client* client_o);
 
 /** Sets up the socket the server will use to listen on for new clients
 	@param port cstring that contains the port to start the server on

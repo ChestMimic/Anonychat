@@ -94,7 +94,7 @@ void* list_item_at(list* list, int pos) {
 	for (i=0;i < pos; i++) {
 		elm = elm->next; // advance to the next element
 	}
-	return elm;
+	return elm->val;
 }
 
 
