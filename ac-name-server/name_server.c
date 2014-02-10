@@ -67,6 +67,16 @@ void* client_handle(void* arg) {
 	
 	pthread_mutex_unlock(&(client_list->mutex)); // release mutex when done
 	
+	char buffer [SERVER_MAX_MESSAGE + 1];
+	int res;
+	while ( (res = recv(client_socket, buffer, SERVER_MAX_MESSAGE, 0))) {
+		buffer[res + 1] = '\0';
+		printf("Received: %s \n", buffer);
+		memset(buffer, 0, SERVER_MAX_MESSAGE);
+	}
+	
+	//while (1) { } //busy wait
+	
 	//remove the client from the connected list	
 	pthread_mutex_lock(&(client_list->mutex)); //obtain list mutex before we operate on it
 	list_remove(client_list, client_o);
