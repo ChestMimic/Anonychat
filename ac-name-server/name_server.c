@@ -53,8 +53,7 @@ void* client_handle(void* arg) {
 	inet_ntop(AF_INET, &ip_addr, client_o->address, sizeof(client_o->address));	
 		
 	pthread_mutex_lock(&priting_mutex); //lock the printing mutex before we print this.
-	printf("Connection started from %s! on Socket: %d at mem: %x \n", client_o->address, client_socket,
-		client_o);
+	printf("Connection started from %s on Socket: %d \n", client_o->address, client_socket);
 	pthread_mutex_unlock(&priting_mutex);
 	
 	//send the initial peer request
@@ -67,14 +66,12 @@ void* client_handle(void* arg) {
 	client_send_peers(client_o);
 	
 	pthread_mutex_unlock(&(client_list->mutex)); // release mutex when done
-
-
-	/*	
+	
 	//remove the client from the connected list	
 	pthread_mutex_lock(&(client_list->mutex)); //obtain list mutex before we operate on it
 	list_remove(client_list, client_o);
 	pthread_mutex_unlock(&(client_list->mutex)); // release mutex when done
-*/
+
 	free(client_o); // no longer need the memory for the client	
 	return NULL;		
 }
@@ -223,7 +220,7 @@ void listen_for_clients(int socket_fd) {
 
 	int res = listen(socket_fd, SERVER_BACKLOG);
 		
-
+	int count = 0;
 	//TODO: Add a way for the server to gracefully exit? Maybe?
 	while (1) {
 		pthread_mutex_lock(&priting_mutex);
@@ -241,19 +238,15 @@ void listen_for_clients(int socket_fd) {
 			printf("Error occured while trying to accept a client...\n");
 			pthread_mutex_unlock(&priting_mutex);
 			continue; // couldnt accept client, continue on
-		}
-		
-		printf("Client has connected \n");
+		}		
 		pthread_mutex_unlock(&priting_mutex);
 		
-		client* client_con = (client*) malloc(sizeof(client));
-		printf("Mallocing client_con: %x \n", client_con);
-		
+		client* client_con = (client*) malloc(sizeof(client));				
 		client_con->socket_fd = client_socket_fd;
-		client_con->client_addr = client_addr;		
-	
+		client_con->client_addr = client_addr;	
+		client_con->client_thread = (pthread_t*) malloc(sizeof(pthread_t));		
 		//start the client thread	
-		pthread_create(&(client_con->client_thread), NULL, &client_handle, (void*) client_con);
+		pthread_create(client_con->client_thread, NULL, &client_handle, (void*) client_con);
 		
 	}
 

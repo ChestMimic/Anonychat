@@ -14,7 +14,7 @@ struct _client {
 	int socket_fd; // the socket descriptor for this client
 	struct sockaddr_storage client_addr; // struct storing the client address
 	char address[INET_ADDRSTRLEN]; // the string containing the address of the client
-	pthread_t client_thread; // pointer to the thread that this client is executing on
+	pthread_t* client_thread; // pointer to the thread that this client is executing on
 
 };
 
