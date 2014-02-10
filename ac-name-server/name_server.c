@@ -18,7 +18,7 @@
 
 /** list of clients connected to the server */
 list* client_list;
-
+started
 pthread_mutex_t priting_mutex; //mutex for updating list
 
 int main(int argc, char* argv[]) {
@@ -82,6 +82,7 @@ void* client_handle(void* arg) {
 	list_remove(client_list, client_o);
 	pthread_mutex_unlock(&(client_list->mutex)); // release mutex when done
 
+	printf("Connection disconnected from %s on Socket: %d \n", client_o->address, client_socket);
 
 	close(client_o->socket_fd);
 	free(client_o); // no longer need the memory for the client	
