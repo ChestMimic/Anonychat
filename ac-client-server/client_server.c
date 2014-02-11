@@ -14,6 +14,7 @@
 #define         CHUNK_SIZE 512
 
 int clientThread(void *);
+int sendThread(void *);
 unsigned int newThread(void*, int*);
 
 main (int argc, char **argv) {
@@ -86,7 +87,10 @@ main (int argc, char **argv) {
   ca.sin_addr.s_addr  = inet_addr(IPAddress); // the kernel assigns the IP ad
 
   if (connect(fd, (struct sockaddr *)&ca, lca) == -1)  {
-      perror( "Failed to connect");
+     perror( "Failed to connect");
+  } else {
+    int out = newThread((void*) (*clientThread), &fd);
+    int ou2 = newThread((void*) (*sendThread), &fd);
   }
 
   sa.sin_family       = AF_INET;
@@ -106,8 +110,8 @@ main (int argc, char **argv) {
     if(fdConn == -1) {
       printf("Error");
     }
-    printf("accept\n");
     int out = newThread((void*) (*clientThread), &fdConn);
+    int ou2 = newThread((void*) (*sendThread), &fdConn);
   }
 }
 
@@ -123,11 +127,13 @@ int clientThread(void* data) {
   myprioID = pthread_self();
   int* fdConn = (int*) data;
   cprio = getpriority(PRIO_PROCESS, 0);
-  printf( "New thread: \nID: %ld \nPriority: %d\n", myprioID, cprio);
-  printf("Data passed to the new thread: %d\n", *((int*)data));
+  //printf( "New thread: \nID: %ld \nPriority: %d\n", myprioID, cprio);
+  //printf("Data passed to the new thread: %d\n", *((int*)data));
 
   char init[100];
   strcpy(init, "Established connection to new client");
+  
+  //printf("%s\n", init);
 
   // Send init string
   send(*(int*)data, init, strlen(init), 0);
@@ -136,17 +142,49 @@ int clientThread(void* data) {
   
   // Receive 
   while(0 == 0) {
-    /*if (recv( *((int*)data), inBuff, sizeof(inBuff) - 2, 0 ) <= 0 ) {
+    if (recv( *((int*)data), inBuff, sizeof(inBuff) - 2, 0 ) <= 0 ) {
       printf( "Error encountered: Terminating\n");
       exit(0);
     } else {
       printf( "String received: %s\n", inBuff);
     }
-    bzero(inBuff, CHUNK_SIZE);*/
+      bzero(inBuff, CHUNK_SIZE);
+    }
+
+  return 0;
+}
+
+int sendThread(void* data) {
+  
+  // variables
+  unsigned int cprio, myprioID;
+  char inBuff[BUFFER_SIZE];
+  char ip_output_buffer[BUFFER_SIZE];
+
+  // Thread things
+  sleep(1);
+  myprioID = pthread_self();
+  int* fdConn = (int*) data;
+  cprio = getpriority(PRIO_PROCESS, 0);
+  //printf( "New thread: \nID: %ld \nPriority: %d\n", myprioID, cprio);
+  //printf("Data passed to the new thread: %d\n", *((int*)data));
+  
+  char message[BUFFER_SIZE];
+
+  // Wait while connections establish
+  sleep(1);
+
+  // Handle user input
+  printf("Hello user. Please enter your message.\n" );
+  while(0 == 0) {
+    scanf("%s", message);
+    send(*(int*)data, message, strlen(message), 0);
+    printf("Message sent\n");
+    bzero(message, CHUNK_SIZE);
   }
 
-  return(0);
-}
+  return 0;
+  }
 
 unsigned int newThread(void *tsa, int *data) {
     pthread_t            thread;
