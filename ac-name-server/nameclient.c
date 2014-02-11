@@ -8,11 +8,13 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
+#include "nameclient.h"
+
 #ifndef SERVER_MAX_MESSAGE
 #define SERVER_MAX_MESSAGE (512)
 #endif
 
-int main(int argc, char* argv[]){
+int contact_server(char *address, char *port){
 	struct addrinfo hints, *res;
 	int sock;
 
@@ -25,14 +27,14 @@ int main(int argc, char* argv[]){
 
 	//TODO:Get nameserver connection info
 
-	getaddrinfo(argv[1], argv[2] , &hints, &res);
+	getaddrinfo( address,  port , &hints, &res);
 
 	printf("Establishing socket... \n");
 	sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);	//get socket number
 	if(sock == -1){	//negative socket means error, die
 		//error
 		printf("Socket failed!\n");
-		exit(1);
+		return -1;
 	}
 	printf("Socket good!\n");
 
@@ -40,7 +42,7 @@ int main(int argc, char* argv[]){
 	if(connect(sock, res->ai_addr, res->ai_addrlen) == -1){ //attempt connection
 		//error
 		printf("Connection failed!\n");
-		exit(1);
+		return -1;
 	}
 	printf("Connected!\n");
 
@@ -52,7 +54,7 @@ int main(int argc, char* argv[]){
 		if (resu <= 0) {
 			close(sock);
 			freeaddrinfo(res);
-			exit(1);
+			return -1;
 		}
 		else{
 			printf("%s\n", buff);

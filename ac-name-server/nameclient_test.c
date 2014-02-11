@@ -1,11 +1,12 @@
 //Author: Mark Fitzgibbon
 //File is only for the testing of the nameclient functionality. Will not be necessary for final builds.
+#include <stdlib.h>
 
 #include "nameclient.h"
 
 int main(int argc, char* argv[]){
-	int address = argv[1];
-	int port = argv[2];
+	char* address = argv[1];
+	char* port = argv[2];
 
 	//call
 	contact_server(address, port);
