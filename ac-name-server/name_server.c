@@ -18,7 +18,7 @@
 
 /** list of clients connected to the server */
 list* client_list;
-started
+
 pthread_mutex_t priting_mutex; //mutex for updating list
 
 int main(int argc, char* argv[]) {
@@ -44,13 +44,7 @@ int main(int argc, char* argv[]) {
 	@param a cstring a
 	@param b cstring b
 	@return 1 if a starts with b, 0 otherwie
-*//** Determines if the string a starts with the string b,
-	@param a cstring a
-	@param b cstring b
-	@return 1 if a starts with b, 0 otherwie
 */
-
-int str_starts_with(const char* a, const char* b) 
 
 int str_starts_with(const char* a, const char* b) { 
 	return strncmp(a, b, strlen(b)) == 0;
@@ -89,12 +83,11 @@ void* client_handle(void* arg) {
 		buffer[res + 1] = '\0';
 		printf("Received: %s \n", buffer);
 		
+		
 		if (str_starts_with(buffer, "PEERREQ")) {
 			//peer request message
-			client_send_pers(client_o); // client requested peers, send them
+			client_send_peers(client_o); // client requested peers, send them
 		}
-		
-		memset(buffer, 0, SERVER_MAX_MESSAGE);
 	}
 	
 	//while (1) { } //busy wait

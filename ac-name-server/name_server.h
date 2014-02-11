@@ -47,10 +47,10 @@ int server_send_message(int socket_fd, void* msg, int size);
 /** Determines if the string a starts with the string b,
 	@param a cstring a
 	@param b cstring b
-	@return 1 if a starts with b, 0 otherwie
+	@return 1 if a starts with b, 0 otherwise
 */
 
-int str_starts_with(const char* a, const char* b);
+int str_starts_with(const char* a, const char* b); 
 
 /** Sets up the socket the server will use to listen on for new clients
 	@param port cstring that contains the port to start the server on
