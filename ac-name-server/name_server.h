@@ -36,6 +36,25 @@ void* client_handle(void* arg);
 
 void client_send_peers(client* client_o);
 
+/** Crafts the peer message to send to the client when the number o peers is above the peer threshold
+	@param client_o The client who is requesting the peers
+	@param max_msg_size  The maximum size of the message
+	@return A pointer to a cstring containing the list of peers, seperated by a space,
+		should be freed after use
+*/
+
+char* client_peers_rand(client* client_o, int max_msg_size);
+
+/** Returns the peer message to send to the client when the number of peers
+	is below the peer threshold
+	@param client_o The client who is requesting the peers
+	@param max_msg_size  The maximum size of the message
+	@return A pointer to a cstring containing the list of peers, seperated by a space,
+		should be freed after use
+*/
+
+char* client_peers_static(client* client_o, int max_msg_size);
+
 /** Sends the message in msg to the given socket
 	@param socket_fd the Socket descriptor of the client to send the message to
 	@param Pointer to the message to send

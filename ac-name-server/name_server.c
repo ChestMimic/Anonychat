@@ -113,8 +113,8 @@ void client_send_peers(client* client_o) {
 	int msg_size = SERVER_MAX_MESSAGE;
 	char msg[msg_size]; // the message to use
 	msg[0] = '\0'; // add the null byte
-	strncat(msg, "PEERS", SERVER_MAX_MESSAGE);
-	msg_size = msg_size - 2 - 5; // - 2 for CRLF, -6 for PEERS 
+	strncat(msg, "PEERS ", SERVER_MAX_MESSAGE);
+	msg_size = msg_size - 2 - 6; // - 2 for CRLF, -6 for PEERS 
 	
 	int num_peers = PEER_POOL_SIZE; // the number of peers to send
 	int total_peers = list_size(client_list); //total number of connected clients, excludign self
@@ -122,54 +122,14 @@ void client_send_peers(client* client_o) {
 	printf("num_peers: %d, total_peers: %d \n", num_peers, total_peers);
 	
 	if (num_peers > total_peers) {
-		//printf("num_peers is > total_peers \n");
-		//if num peers is greater than total peers, we can just add the whole list
-		num_peers = list_size(client_list) - 1;
-		int i;
-		for (i = 0; i <total_peers; i++) {
-			//printf("Im in da loop? \n");
-			client* client_p = (client*)list_item_at(client_list, i);
-			if (client_p->socket_fd == client_o->socket_fd) {
-				//printf("client_p socket: %d, client_o socket: %d \n", client_p->socket_fd,
-					//client_o->socket_fd);
-				continue;
-			}
-			//copy the ip address into the message
-			strncat(msg, " ", SERVER_MAX_MESSAGE); //add a space
-			strncat(msg, client_p->address, SERVER_MAX_MESSAGE); 
-			printf("Concat %s to msg \n", client_p->address);
-		}
-		
+		char* to_cat = client_peers_static(client_o, msg_size);		
+		strncat(msg, to_cat, SERVER_MAX_MESSAGE);
+		free(to_cat);
 	}
 	else {	
-		int me = -1;	
-		
-		//max ip size is 16. probally us INET_ADDRSTRLEN, which is 16
-	
-		int i;
-		for (i = 0; i < num_peers; i++) {
-		
-			if (msg_size < INET_ADDRSTRLEN) {
-				//TODO: add more handling here
-				//however with just and address pool of 5, we shouldnt reach max, 5 * 16 = 80 < 510
-				break; // we reached message limit.
-			}
-			int done = 0;
-			while (!done) {
-				int rnum = rand() % (total_peers); 
-				client* client_p = list_item_at(client_list, rnum);
-				if (rnum == me || client_p->socket_fd == client_o->socket_fd) {
-					me = rnum;
-					continue;
-				}
-				
-				//we found a peer that is not us. yay!
-				//copy the ip address into the message
-				strncat(msg, " ", SERVER_MAX_MESSAGE); //add a space
-				strncat(msg, client_p->address, SERVER_MAX_MESSAGE); 
-			
-			}
-		}
+		char* to_cat = client_peers_rand(client_o, msg_size);
+		strncat(msg, to_cat, SERVER_MAX_MESSAGE);
+		free(to_cat);
 	}
 	
 	strncat(msg, "\r\n", SERVER_MAX_MESSAGE);
@@ -178,6 +138,79 @@ void client_send_peers(client* client_o) {
 	
 	server_send_message(client_o->socket_fd, msg, strlen(msg));
 
+}
+
+/** Crafts the peer message to send to the client when the number o peers is above the peer threshold
+	@param client_o The client who is requesting the peers
+	@param max_msg_size  The maximum size of the message
+	@return A pointer to a cstring containing the list of peers, seperated by a space,
+		should be freed after use
+*/
+
+char* client_peers_rand(client* client_o, int max_msg_size) {
+	int me = -1;	
+	int num_peers = PEER_POOL_SIZE; // the number of peers to send
+	int total_peers = list_size(client_list); //total number of connected clients, excludign self
+	
+	char* msg = (char*) malloc(max_msg_size); //allocate space for the mesage
+	memset(msg, 0, max_msg_size);
+	msg[0] = '\0';
+		
+	//max ip size is 16. probally us INET_ADDRSTRLEN, which is 16
+
+	int i;
+	for (i = 0; i < num_peers; i++) {	
+		while (1) {
+			int rnum = rand() % (total_peers); 
+			client* client_p = list_item_at(client_list, rnum);
+			if (rnum == me || client_p->socket_fd == client_o->socket_fd) {
+				me = rnum;
+				continue;
+			}
+			//we found a peer that is now us,
+			strncat(msg, client_p->address, max_msg_size); 
+			strncat(msg, " ", max_msg_size); //add a space
+			break;		
+		}
+	}
+	
+	if (strlen(msg) > 0) {
+		msg[strlen(msg) -1] = '\0'; // remove the extra space at the end
+	}
+	
+	return msg;
+}
+
+/** Returns the peer message to send to the client when the number of peers
+	is below the peer threshold
+	@param client_o The client who is requesting the peers
+	@param max_msg_size  The maximum size of the message
+	@return A pointer to a cstring containing the list of peers, seperated by a space,
+		should be freed after use
+*/
+
+char* client_peers_static(client* client_o, int max_msg_size) {
+	char* msg = (char*) malloc(max_msg_size);
+	memset(msg, 0, max_msg_size);
+	msg[0] = '\0';
+	//if num peers is greater than total peers, we can just add the whole list
+	int total_peers = list_size(client_list);
+	
+	int i;
+	for (i = 0; i <total_peers; i++) {
+		client* client_p = (client*)list_item_at(client_list, i);
+		if (client_p->socket_fd == client_o->socket_fd) {
+			continue;
+		}
+		//copy the ip address into the message
+		strncat(msg, client_p->address, max_msg_size);
+		strncat(msg, " ", max_msg_size); //add a space
+	}
+	if (strlen(msg) > 0) {
+		msg[strlen(msg) -1] = '\0'; // remove the extra space at the end
+		printf("Removing extra space at end \n");
+	}
+	return msg;
 }
 
 /** Sends the message in msg to the given socket
