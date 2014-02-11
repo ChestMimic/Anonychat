@@ -44,6 +44,14 @@ void client_send_peers(client* client_o);
 
 int server_send_message(int socket_fd, void* msg, int size);
 
+/** Determines if the string a starts with the string b,
+	@param a cstring a
+	@param b cstring b
+	@return 1 if a starts with b, 0 otherwie
+*/
+
+int str_starts_with(const char* a, const char* b);
+
 /** Sets up the socket the server will use to listen on for new clients
 	@param port cstring that contains the port to start the server on
 	@return The descriptor of the socket that was created, or -1 if it failed

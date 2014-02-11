@@ -40,6 +40,22 @@ int main(int argc, char* argv[]) {
 	listen_for_clients(socket_fd);
 }
 
+/** Determines if the string a starts with the string b,
+	@param a cstring a
+	@param b cstring b
+	@return 1 if a starts with b, 0 otherwie
+*//** Determines if the string a starts with the string b,
+	@param a cstring a
+	@param b cstring b
+	@return 1 if a starts with b, 0 otherwie
+*/
+
+int str_starts_with(const char* a, const char* b) 
+
+int str_starts_with(const char* a, const char* b) { 
+	return strncmp(a, b, strlen(b)) == 0;
+}
+
 /** Thread function for handling a new client that has connected to the server
 	@param arg Pointer to a client struct, represnting the client that has connected
 */
@@ -72,6 +88,12 @@ void* client_handle(void* arg) {
 	while ( (res = recv(client_socket, buffer, SERVER_MAX_MESSAGE, 0))) {
 		buffer[res + 1] = '\0';
 		printf("Received: %s \n", buffer);
+		
+		if (str_starts_with(buffer, "PEERREQ")) {
+			//peer request message
+			client_send_pers(client_o); // client requested peers, send them
+		}
+		
 		memset(buffer, 0, SERVER_MAX_MESSAGE);
 	}
 	
