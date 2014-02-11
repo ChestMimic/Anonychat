@@ -4,8 +4,8 @@ GCC=gcc $(INC)
 
 all: name_server name_client
 
-name_server: name_server.o $(LIB)/client_list.o
-	$(GCC) name_server.o $(LIB)/client_list.o -o name_server -pthread
+name_server: name_server.o $(LIB)/list.o
+	$(GCC) name_server.o $(LIB)/list.o -o name_server -pthread
 	
 name_client: nameclient.o nameclient_test.o
 	$(GCC) nameclient_test.o nameclient.o -o name_client

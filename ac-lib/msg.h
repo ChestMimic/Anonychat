@@ -68,4 +68,6 @@ char* client_decrypt_msg(char* msg);
 char* client_encrypt_msg(char* msg, char* public_key);
 
 
+
+
 #endif

@@ -2,6 +2,7 @@
 #include <arpa/inet.h>
 
 #include "msg.h"
+#include "list.h"
 
 
 /** Determines if the string a starts with the string b,

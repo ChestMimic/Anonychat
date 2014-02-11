@@ -13,7 +13,7 @@
 
 
 #include "name_server.h"
-#include "client_list.h"
+#include "list.h"
 
 
 /** list of clients connected to the server */
