@@ -3,6 +3,8 @@
 
 #define ENCRYPTION_HEADER "AC_ENC_FW"
 
+#define MESSAGE_PURGE_TIME (30) // the purge time of a message in secconds
+
 /** Struct representing a peer on the network
 */
 
@@ -16,6 +18,17 @@ struct _peer {
 };
 
 typedef struct _peer peer_o;
+
+/** Struct representing the value to insert into the message
+	hash table
+*/
+
+struct _message_hash {
+	char* msg; // the msg
+	time_t purge_time; // of this time is in the past, purge the hash
+};
+
+typedef struct _message_hash message_hash_o;
 
 
 /** Determines if the string a starts with the string b,
@@ -67,6 +80,53 @@ char* client_decrypt_msg(char* msg);
 
 char* client_encrypt_msg(char* msg, char* public_key);
 
+/** Creates the hash table to be used by the client to store
+		messages that have already been processed
+	@return A pointer to a GLIB GHashTable
+*/
+
+GHashTable* client_create_hash_table();
+
+/** Function used to free the key used by hash table
+	@param key Pointer to th key to free
+*/
+
+void client_hash_free_key(gpointer key);
+
+/** Function used to free the value used by the hash table
+	@param val Pointer to the value to free
+*/
+
+void client_hash_free_val(gpointer val);
+
+/** Adds the specified message to the given hash table
+	@param hash_table The hashtable to add the message to
+	@param msg A cstring containing the message, to add to the table
+*/
+
+void client_hash_add_msg(GHashTable* hash_table, char* msg);
+
+/** Determines if the client has seen the message before
+	@param The client's hash table that contains seen messages
+	@param msg The msg to check to see if the client has seen it
+	@return 1 if it has been seen before, 0 other wise
+*/
+
+int client_has_seen_msg(GHashTable* hash_table, char* msg);
+
+/** Removes all of the expired messages from the specified hash table
+	@param hash_table The hash table to purge the emssages from
+	@return The number of messages removed from the hash table
+*/
+
+unsigned int client_purge_msg(GHashTable* hash_table);
+
+/** Helper function to purge the hash table. Will remove all messages in which
+	the purge_time is less than current_time
+	@return TRUE if the message is to be removed, FALSE otherwise
+*/
+
+gboolean purge_message(gpointer key, gpointer val, gpointer data);
 
 
 

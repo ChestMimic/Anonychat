@@ -1,9 +1,17 @@
 #include <string.h>
 #include <arpa/inet.h>
+#include <glib.h>
+#include <time.h>
+#include <stdlib.h>
 
 #include "msg.h"
 #include "list.h"
 
+
+/*
+	GLIB Hash Table Reference 
+	https://developer.gnome.org/glib/2.37/glib-Hash-Tables.html
+*/
 
 /** Determines if the string a starts with the string b,
 	@param a cstring a
@@ -43,3 +51,87 @@ int send_msg_peer(peer_o* peer, char* msg) {
 	//TODO: change to open a connection to a peer?
 	return -1;
 }
+
+/** Creates the hash table to be used by the client to store
+		messages that have already been processed
+	@return A pointer to a GLIB GHashTable
+*/
+
+GHashTable* client_create_hash_table() {
+	return g_hash_table_new_full(g_str_hash, g_str_equal,
+		client_hash_free_key, client_hash_free_val);
+
+}
+
+/** Method used to free the key used by hash table
+	@param key Pointer to th key to free
+*/
+
+void client_hash_free_key(gpointer key) {
+	free(key);
+}
+
+/** Function used to free the value used by the hash table
+	@param val Pointer to the value to free
+*/
+
+void client_hash_free_val(gpointer val) {
+	message_hash_o* msg_val = (message_hash_o*) val;
+	free(msg_val->msg); // free the cstring containing the msg
+	free(msg_val);
+}
+
+
+/** Adds the specified message to the given hash table
+	@param hash_table The hashtable to add the message to
+	@param msg A cstring containing the message, to add to the table
+*/
+
+void client_hash_add_msg(GHashTable* hash_table, char* msg) {
+	//allocate and create the struct for the msg val
+	message_hash_o* msg_val = (message_hash_o*) malloc (sizeof (message_hash_o));
+	msg_val->msg = msg;
+	msg_val->purge_time = time(NULL) + MESSAGE_PURGE_TIME;
+	
+	//insert the value into the hash table
+	g_hash_table_insert(hash_table, msg, msg_val);	
+}
+
+/** Determines if the client has seen the message before
+	@param The client's hash table that contains seen messages
+	@param msg The msg to check to see if the client has seen it
+	@return 1 if it has been seen before, 0 other wise
+*/
+
+int client_has_seen_msg(GHashTable* hash_table, char* msg) {
+	if (g_hash_table_contains(hash_table, msg)) {
+		return 1; // it is in the hash table, we've seen the msg
+	}
+	return 0; // not in the hash table, we haven't seen the msg
+}
+
+/** Removes all of the expired messages from the specified hash table
+	@param hash_table The hash table to purge the emssages from
+	@return The number of messages removed from the hash table
+*/
+
+unsigned int client_purge_msg(GHashTable* hash_table) {
+	return g_hash_table_foreach_remove(hash_table, purge_message, NULL);
+}
+
+/** Helper function to purge the hash table. Will remove all messages in which
+	the purge_time is less than current_time
+	@return TRUE if the message is to be removed, FALSE otherwise
+*/
+
+gboolean purge_message(gpointer key, gpointer val, gpointer data) {
+	time_t current_time;
+	time(&current_time);	
+	message_hash_o* msg_val = (message_hash_o*) val;
+	
+	if (msg_val->purge_time <= current_time) {
+		return TRUE;
+	}
+	return FALSE;
+}
+

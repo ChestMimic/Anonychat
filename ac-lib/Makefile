@@ -1,10 +1,16 @@
+
+CC=			gcc
+CFLAGS=		$(shell pkg-config --cflags glib-2.0)
+LIB=		$(shell pkg-config --libs glib-2.0)
+
+
 all: msg.o list.o
 
 msg.o: msg.c msg.h
-	gcc -c msg.c 
+	$(CC) -c $(CFLAGS) msg.c 
 	
 client_list.o: list.c list.h
-	gcc -c list.c
+	$(CC) -c $(CFLAGS) list.c
 	
 clean:
 	rm *.o
