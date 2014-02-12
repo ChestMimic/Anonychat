@@ -4,6 +4,9 @@
 #include <time.h>
 #include <stdlib.h>
 
+#include <openssl/conf.h>
+#include <openssl/evp.h>
+
 #include "msg.h"
 #include "list.h"
 
@@ -53,6 +56,23 @@ int send_msg_peer(peer_o* peer, char* msg) {
 	}
 	//TODO: change to open a connection to a peer?
 	return -1;
+}
+
+/** Initializes the OpenSSL crypto library for use
+*/
+
+void client_initialize_crypto() {
+	ERR_load_crypto_strings();
+	OpenSSL_add_all_algorithms();
+	OPENSSL_config(NULL);
+}
+
+/** Cleans up the OpenSSL crypto library after use
+*/
+
+void client_cleanup_crypto() {
+	EVP_cleanup();
+	ERR_free_strings();g
 }
 
 /** Attempts to decypt the given msg, will remove the encyption sentinal if able to	

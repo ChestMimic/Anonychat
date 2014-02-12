@@ -63,6 +63,16 @@ int send_msg_peer(peer_o* peer, char* msg);
 
 int client_parse_msg(char* msg);
 
+/** Initializes the OpenSSL crypto library for use
+*/
+
+void client_initialize_crypto();
+
+/** Cleans up the OpenSSL crypto library after use
+*/
+
+void client_cleanup_crypto();
+
 /** Attempts to decypt the given msg
 	@param msg The message to attempt to decrypt
 	@return A pointer to the decypted message, or NULL if 
