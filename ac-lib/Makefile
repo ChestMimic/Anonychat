@@ -9,7 +9,7 @@ all: msg.o list.o
 msg.o: msg.c msg.h
 	$(CC) -c $(CFLAGS) msg.c 
 	
-client_list.o: list.c list.h
+list.o: list.c list.h
 	$(CC) -c $(CFLAGS) list.c
 	
 clean:
