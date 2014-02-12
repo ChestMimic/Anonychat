@@ -11,6 +11,9 @@
 /*
 	GLIB Hash Table Reference 
 	https://developer.gnome.org/glib/2.37/glib-Hash-Tables.html
+	
+	OpenSSL Crypt Library Reference
+	https://www.openssl.org/docs/crypto/crypto.html
 */
 
 /** Determines if the string a starts with the string b,
@@ -50,6 +53,28 @@ int send_msg_peer(peer_o* peer, char* msg) {
 	}
 	//TODO: change to open a connection to a peer?
 	return -1;
+}
+
+/** Attempts to decypt the given msg, will remove the encyption sentinal if able to	
+		decrypt
+	@param msg The message to attempt to decrypt
+	@return A pointer to the decypted message, or NULL if 
+		unable to decrypt
+*/
+
+char* client_decrypt_msg(char* msg);
+
+/** Encrypt the given msg with the given public key, will add the
+		encryption sentinal to the message
+	@param msg The message to encrypt
+	@param public_key a cstring containing the public key
+	@return A pointer to the encrypted message, or NULL if
+		unable to decrpt
+*/
+
+char* client_encrypt_msg(char* msg, char* public_key) {
+
+
 }
 
 /** Creates the hash table to be used by the client to store
