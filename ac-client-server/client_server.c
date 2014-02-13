@@ -9,15 +9,16 @@
 #include       <time.h>
 #include       <pthread.h>
 #include       <sys/resource.h>
+#include       "thread_util.h"
+//#include       "msg.h"
 
 #define         BUFFER_SIZE     512
 #define         CHUNK_SIZE 512
 
 int clientThread(void *);
-int sendThread(void *);
-unsigned int newThread(void*, int*);
+int inputThread(void *);
 
-main (int argc, char **argv) {
+int main (int argc, char **argv) {
   
   // All variables and such
   int portNo; // Your port number
@@ -78,19 +79,15 @@ main (int argc, char **argv) {
       exit(1);
   }
 
-  // set up the sockaddr_in structure.  This uses, among other things the 
-  // port you've just entered.
   ca.sin_family       = AF_INET;
   ca.sin_port         = htons(portNo);     // client & server see same port
-  // Use 127.0.0.1 for local host
-  //printf("Your port: %d\n", sa.sin_port );
   ca.sin_addr.s_addr  = inet_addr(IPAddress); // the kernel assigns the IP ad
 
   if (connect(fd, (struct sockaddr *)&ca, lca) == -1)  {
      perror( "Failed to connect");
   } else {
     int out = newThread((void*) (*clientThread), &fd);
-    int ou2 = newThread((void*) (*sendThread), &fd);
+    int ou2 = newThread((void*) (*inputThread), &fd);
   }
 
   sa.sin_family       = AF_INET;
@@ -111,7 +108,7 @@ main (int argc, char **argv) {
       printf("Error");
     }
     int out = newThread((void*) (*clientThread), &fdConn);
-    int ou2 = newThread((void*) (*sendThread), &fdConn);
+    int ou2 = newThread((void*) (*inputThread), &fdConn);
   }
 }
 
@@ -146,7 +143,13 @@ int clientThread(void* data) {
       printf( "Error encountered: Terminating\n");
       exit(0);
     } else {
-      printf( "String received: %s\n", inBuff);
+      printf( "String received: %s", inBuff);
+      // Message containing PEER infomation
+      if(strncmp(inBuff, "PEERS ", 6) == 0) {
+	char peer[100];
+	strcpy(peer, inBuff+6);
+	printf("%s", peer);
+      }
     }
       bzero(inBuff, CHUNK_SIZE);
     }
@@ -154,17 +157,18 @@ int clientThread(void* data) {
   return 0;
 }
 
-int sendThread(void* data) {
+int inputThread(void* data) {
   
   // variables
   unsigned int cprio, myprioID;
   char inBuff[BUFFER_SIZE];
   char ip_output_buffer[BUFFER_SIZE];
+  int* fdConn = (int*) data;
+
 
   // Thread things
   sleep(1);
   myprioID = pthread_self();
-  int* fdConn = (int*) data;
   cprio = getpriority(PRIO_PROCESS, 0);
   //printf( "New thread: \nID: %ld \nPriority: %d\n", myprioID, cprio);
   //printf("Data passed to the new thread: %d\n", *((int*)data));
@@ -184,16 +188,4 @@ int sendThread(void* data) {
   }
 
   return 0;
-  }
-
-unsigned int newThread(void *tsa, int *data) {
-    pthread_t            thread;
-    pthread_attr_t       attr;
-
-    pthread_attr_init(&attr);
-    pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_JOINABLE );
-    pthread_create( &thread, &attr, tsa, (void *)data );
-    pthread_attr_destroy( &attr );
-
-    return( (unsigned int)thread );
 }

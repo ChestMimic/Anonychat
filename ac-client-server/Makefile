@@ -1,5 +1,17 @@
-all:
-	gcc -lpthread -g -o client_server client_server.c
+INC=-I../ac-lib/
+LIB=../ac-lib
+GCC=gcc $(INC)
+
+all: client_server
+
+client_server: thread_util.o client_server.o
+	$(GCC) -lpthread -g thread_util.o client_server.o -o client_server
+
+thread_util.o: thread_util.c thread_util.h
+	$(GCC) -c thread_util.c
+
+client_server.o: client_server.c thread_util.h
+	$(GCC) -c client_server.c
 
 clean:
 	rm  *.o client_server
