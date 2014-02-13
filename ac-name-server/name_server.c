@@ -80,7 +80,7 @@ void* client_handle(void* arg) {
 	char buffer [SERVER_MAX_MESSAGE + 1];
 	int res;
 	while ( (res = recv(client_socket, buffer, SERVER_MAX_MESSAGE, 0))) {
-		buffer[res + 1] = '\0';
+		buffer[res] = '\0';
 		printf("Received: %s \n", buffer);
 		
 		
@@ -88,6 +88,8 @@ void* client_handle(void* arg) {
 			//peer request message
 			client_send_peers(client_o); // client requested peers, send them
 		}
+		
+		memset(buffer,0, SERVER_MAX_MESSAGE + 1);
 	}
 	
 	//while (1) { } //busy wait

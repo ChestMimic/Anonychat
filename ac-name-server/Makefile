@@ -1,5 +1,5 @@
 INC=-I../ac-lib/
-LIB=../ac-lib/
+LIB=../ac-lib
 GCC=gcc $(INC)
 
 all: name_server name_client
