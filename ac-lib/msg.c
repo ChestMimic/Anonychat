@@ -72,7 +72,7 @@ void client_initialize_crypto() {
 
 void client_cleanup_crypto() {
 	EVP_cleanup();
-	ERR_free_strings();g
+	ERR_free_strings();
 }
 
 /** Attempts to decypt the given msg, will remove the encyption sentinal if able to	
@@ -82,7 +82,7 @@ void client_cleanup_crypto() {
 		unable to decrypt
 */
 
-char* client_decrypt_msg(char* msg);
+//char* client_decrypt_msg(char* msg);
 
 /** Encrypt the given msg with the given public key, will add the
 		encryption sentinal to the message
@@ -92,10 +92,10 @@ char* client_decrypt_msg(char* msg);
 		unable to decrpt
 */
 
-char* client_encrypt_msg(char* msg, char* public_key) {
+//char* client_encrypt_msg(char* msg, char* public_key) {
 
 
-}
+//}
 
 /** Creates the hash table to be used by the client to store
 		messages that have already been processed

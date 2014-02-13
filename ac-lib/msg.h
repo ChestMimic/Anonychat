@@ -30,6 +30,20 @@ struct _message_hash {
 
 typedef struct _message_hash message_hash_o;
 
+struct _message_encryped {
+	char* encrypted_msg; // The message encrypted with the encrypted key
+	char* encrypted_key; //The encrypted key, which is encrypted with the RSA pub key
+	char* init_vector; // The IV used during encryption
+};
+
+typedef struct _message_encrypted message_encrypted_o; 
+
+struct _rsa_ctx {
+
+};
+
+typedef struct _rsa_ctx rsa_ctx_o;
+
 
 /** Determines if the string a starts with the string b,
 	@param a cstring a
@@ -74,21 +88,22 @@ void client_initialize_crypto();
 void client_cleanup_crypto();
 
 /** Attempts to decypt the given msg
-	@param msg The message to attempt to decrypt
+	@param msg Pointer a message_encrypted_o which contains the msg, ek, and iv
 	@return A pointer to the decypted message, or NULL if 
 		unable to decrypt
 */
 
-char* client_decrypt_msg(char* msg);
+char* client_decrypt_msg(message_encrypted_o* msg);
 
 /** Encrypt the given msg with the given public key
 	@param msg The message to encrypt
 	@param public_key a cstring containing the public key
-	@return A pointer to the encrypted message, or NULL if
-		unable to decrpt
+	@param res A pointer to a message_encrypted_o struct to place the resulting
+		encrypted message, iv, and ek
+	@return 0 if successful, error code otherwise
 */
 
-char* client_encrypt_msg(char* msg, char* public_key);
+int client_encrypt_msg(char* msg, char* public_key, message_encrypted_o* res);
 
 /** Creates the hash table to be used by the client to store
 		messages that have already been processed
