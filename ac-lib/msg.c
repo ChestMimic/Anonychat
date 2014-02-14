@@ -3,9 +3,6 @@
 #include <time.h>
 #include <stdlib.h>
 
-#include <openssl/conf.h>
-#include <openssl/evp.h>
-
 #include "msg.h"
 #include "list.h"
 
@@ -74,27 +71,44 @@ void client_cleanup_crypto() {
 	ERR_free_strings();
 }
 
-/** Attempts to decypt the given msg, will remove the encyption sentinal if able to	
-		decrypt
-	@param msg The message to attempt to decrypt
+/** Attempts to decypt the given msg
+	@param msg Pointer a message_encrypted_o which contains the msg, ek, and iv
 	@return A pointer to the decypted message, or NULL if 
 		unable to decrypt
 */
 
-//char* client_decrypt_msg(char* msg);
+char* client_decrypt_msg(message_encrypted_o* msg) {
 
-/** Encrypt the given msg with the given public key, will add the
-		encryption sentinal to the message
+}
+
+/** Encrypt the given msg with the given public key
 	@param msg The message to encrypt
 	@param public_key a cstring containing the public key
-	@return A pointer to the encrypted message, or NULL if
-		unable to decrpt
+	@param res A pointer to a message_encrypted_o struct to place the resulting
+		encrypted message, iv, and ek
+	@return 0 if successful, error code otherwise
 */
 
-//char* client_encrypt_msg(char* msg, char* public_key) {
-
-
-//}
+int client_encrypt_msg(char* msg, EVP_PKEY* public_key, message_encrypted_o* res) {
+	size_t msg_enc_len = 0;
+	size_t block_size = 0;
+	
+	res->encrypted_key = (unsigned char*) malloc(EVP_PKEY_size(public_key));
+	res->init_vector = (unsigned char*) malloc(EVP_MAX_IV_LENGTH);
+	
+	if (res->encrypted_key == NULL || res->init_vector == NULL) {
+		return 1;
+	}
+	
+	//set the size of the init vector
+	size_t init_vector_length = EVP_MAX_IV_LENGTH;
+	
+	res->encrypted_msg = (unsigned char*) malloc(msg_enc_len + EVP_MAX_IV_LENGTH);
+	
+	
+	
+	
+}
 
 /** Creates the hash table to be used by the client to store
 		messages that have already been processed

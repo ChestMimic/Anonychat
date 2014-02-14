@@ -2,6 +2,8 @@
 #define MSG_LIB_H
 
 #include <glib.h>
+#include <openssl/conf.h>
+#include <openssl/evp.h>
 
 #define ENCRYPTION_HEADER "AC_ENC_FW"
 
@@ -32,16 +34,16 @@ struct _message_hash {
 
 typedef struct _message_hash message_hash_o;
 
-struct _message_encryped {
-	char* encrypted_msg; // The message encrypted with the encrypted key
-	char* encrypted_key; //The encrypted key, which is encrypted with the RSA pub key
-	char* init_vector; // The IV used during encryption
+struct _message_encrypted {
+	unsigned char* encrypted_msg; // The message encrypted with the encrypted key
+	unsigned char* encrypted_key; //The encrypted key, which is encrypted with the RSA pub key
+	unsigned char* init_vector; // The IV used during encryption
 };
 
 typedef struct _message_encrypted message_encrypted_o; 
 
 struct _rsa_ctx {
-
+	int i;
 };
 
 typedef struct _rsa_ctx rsa_ctx_o;
@@ -105,7 +107,7 @@ char* client_decrypt_msg(message_encrypted_o* msg);
 	@return 0 if successful, error code otherwise
 */
 
-int client_encrypt_msg(char* msg, char* public_key, message_encrypted_o* res);
+int client_encrypt_msg(char* msg, EVP_PKEY* public_key, message_encrypted_o* res);
 
 /** Creates the hash table to be used by the client to store
 		messages that have already been processed
