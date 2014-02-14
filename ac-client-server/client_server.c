@@ -10,7 +10,7 @@
 #include       <pthread.h>
 #include       <sys/resource.h>
 #include       "thread_util.h"
-//#include       "msg.h"
+#include       "msg.h"
 
 #define         BUFFER_SIZE     512
 #define         CHUNK_SIZE 512
