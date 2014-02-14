@@ -71,16 +71,6 @@ void client_cleanup_crypto() {
 	ERR_free_strings();
 }
 
-/** Attempts to decypt the given msg
-	@param msg Pointer a message_encrypted_o which contains the msg, ek, and iv
-	@return A pointer to the decypted message, or NULL if 
-		unable to decrypt
-*/
-
-char* client_decrypt_msg(message_encrypted_o* msg) {
-
-}
-
 /** Encrypt the given msg with the given public key
 	@param msg The message to encrypt
 	@param public_key a cstring containing the public key
@@ -145,7 +135,57 @@ int client_encrypt_msg(const unsigned char* msg, EVP_PKEY* public_key, message_e
 	//clean up
 	EVP_CIPHER_CTX_cleanup(encryption_ctx);
 	
+	return 0;	
+}
+
+/** Attempts to decypt the given msg
+	@param msg Pointer a message_encrypted_o which contains the msg, ek, and iv
+	@return A pointer to the decypted message, or NULL if 
+		unable to decrypt
+*/
+
+char* client_decrypt_msg(message_encrypted_o* msg) {
+	int decrypt_len = 0;
+	int block_size = 0;
+	int encrypted_msg_len; // Probally just set to a max size
 	
+	int encryption_key_len;
+	
+	EVP_PKEY *private_key;
+	EVP_CIPHER_CTX* decryption_ctx; // descryption context
+	
+	unsigned char* decrypted_msg = (unsigned char*) malloc(encrypted_msg_len);
+	
+	int res = EVP_OpenInit(decryption_ctx, EVP_aes_256_cbc(), msg->encrypted_key,
+		encryption_key_len, msg->init_vector, private_key);
+		
+	if (!res) {
+		//failed to initialize the decrypt
+		return NULL;
+	}
+	
+	res = EVP_OpenUpdate(decryption_ctx, decrypted_msg + decrypt_len, &block_size,
+		msg->encrypted_msg, encrypted_msg_len);
+	
+	if (!res) {
+		//failed to update the decrypt
+		return NULL;
+	}
+	decrypt_len += block_size;
+	
+	res = EVP_OpenFinal(decryption_ctx, decrypted_msg + decrypt_len, &block_size);
+	
+	if (!res) {
+		//failed to finalize the decrypt
+		return NULL;
+	}
+	
+	decrypt_len += block_size;
+	
+	//clean ups
+	EVP_CIPGER_CTX_cleanup(decryption_ctx);
+	
+	return decrypted_msg;
 	
 }
 
