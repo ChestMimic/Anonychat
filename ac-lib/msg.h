@@ -1,6 +1,8 @@
 #ifndef MSG_LIB_H
 #define MSG_LIB_H
 
+#include <glib.h>
+
 #define ENCRYPTION_HEADER "AC_ENC_FW"
 
 #define MESSAGE_PURGE_TIME (30) // the purge time of a message in secconds
