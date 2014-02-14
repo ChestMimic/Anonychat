@@ -89,22 +89,61 @@ char* client_decrypt_msg(message_encrypted_o* msg) {
 	@return 0 if successful, error code otherwise
 */
 
-int client_encrypt_msg(char* msg, EVP_PKEY* public_key, message_encrypted_o* res) {
-	size_t msg_enc_len = 0;
-	size_t block_size = 0;
+int client_encrypt_msg(const unsigned char* msg, EVP_PKEY* public_key, message_encrypted_o* res) {
+	int msg_enc_len = 0;
+	int block_size = 0;
+	int msg_len = 0;
+	
+	EVP_CIPHER_CTX* encryption_ctx;
 	
 	res->encrypted_key = (unsigned char*) malloc(EVP_PKEY_size(public_key));
 	res->init_vector = (unsigned char*) malloc(EVP_MAX_IV_LENGTH);
 	
 	if (res->encrypted_key == NULL || res->init_vector == NULL) {
+		//malloc failed
 		return 1;
 	}
 	
 	//set the size of the init vector
-	size_t init_vector_length = EVP_MAX_IV_LENGTH;
+	int init_vector_length = EVP_MAX_IV_LENGTH;
+	int encrypted_key_len;
 	
-	res->encrypted_msg = (unsigned char*) malloc(msg_enc_len + EVP_MAX_IV_LENGTH);
+	res->encrypted_msg = (unsigned char*) malloc(msg_len + EVP_MAX_IV_LENGTH);
+	if (res->encrypted_msg == NULL) {
+		//malloc failed.
+		return 1;
+	}
 	
+	int tmp = EVP_SealInit(encryption_ctx, EVP_aes_256_cbc(), &(res->encrypted_key),
+		&encrypted_key_len, res->init_vector, &public_key, 1);
+	
+	if (!tmp) {
+		//evp seal init failed
+		return 1;
+	}
+	
+	tmp = EVP_SealUpdate(encryption_ctx, res->encrypted_msg + msg_enc_len, 
+		&block_size, msg, msg_len);
+		
+	if (!tmp) {
+		//evp seal update failed
+		return 1;
+	}
+	
+	msg_enc_len += block_size;
+	
+	tmp = EVP_SealFinal(encryption_ctx, res->encrypted_msg + msg_enc_len,
+		&block_size);
+		
+	if (!tmp) {
+		//evp seal final failed
+		return 1;
+	}
+	
+	msg_enc_len += block_size;
+	
+	//clean up
+	EVP_CIPHER_CTX_cleanup(encryption_ctx);
 	
 	
 	

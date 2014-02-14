@@ -107,7 +107,7 @@ char* client_decrypt_msg(message_encrypted_o* msg);
 	@return 0 if successful, error code otherwise
 */
 
-int client_encrypt_msg(char* msg, EVP_PKEY* public_key, message_encrypted_o* res);
+int client_encrypt_msg(const unsigned char* msg, EVP_PKEY* public_key, message_encrypted_o* res);
 
 /** Creates the hash table to be used by the client to store
 		messages that have already been processed
