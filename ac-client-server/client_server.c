@@ -11,12 +11,17 @@
 #include       <sys/resource.h>
 #include       "thread_util.h"
 #include       "msg.h"
+#include       "list.h"
 
 #define         BUFFER_SIZE     512
 #define         CHUNK_SIZE 512
 
 int clientThread(void *);
 int inputThread(void *);
+
+// List of peers for a client
+list* peer_list;
+unsigned int idTracker = 0;
 
 int main (int argc, char **argv) {
   
@@ -66,6 +71,10 @@ int main (int argc, char **argv) {
       exit(0);
   }
 
+  // Initialize list of peers
+  peer_list = list_create();
+  
+  // Set port number
   portNo = atoi(argv[1]);
   printf("Your port: %d\n", portNo);
 
@@ -146,9 +155,12 @@ int clientThread(void* data) {
       printf( "String received: %s", inBuff);
       // Message containing PEER infomation
       if(strncmp(inBuff, "PEERS ", 6) == 0) {
-	char peer[100];
-	strcpy(peer, inBuff+6);
-	printf("%s", peer);
+	char ip[100];
+	strcpy(ip, inBuff+6);
+	printf("%s", ip);
+	peer_o peer = {idTracker, ip, *((int*)data), 0, 30};
+	list_add(peer_list, &peer);
+	idTracker++;
       }
     }
       bzero(inBuff, CHUNK_SIZE);
