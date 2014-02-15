@@ -183,7 +183,7 @@ char* client_decrypt_msg(message_encrypted_o* msg) {
 	decrypt_len += block_size;
 	
 	//clean ups
-	EVP_CIPGER_CTX_cleanup(decryption_ctx);
+	EVP_CIPHER_CTX_cleanup(decryption_ctx);
 	
 	return decrypted_msg;
 	
