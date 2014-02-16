@@ -155,12 +155,12 @@ int clientThread(void* data) {
       printf( "String received: %s", inBuff);
       // Message containing PEER infomation
       if(strncmp(inBuff, "PEERS ", 6) == 0) {
-	char ip[100];
+	char ip[INET_ADDRSTRLEN];
 	strcpy(ip, inBuff+6);
 	printf("%s", ip);
 	peer_o* peer = (peer_o*)malloc(sizeof(peer));
 	peer->peer_id = idTracker;
-	strcpy(peer->address, ip);
+	strncpy(peer->address, ip, INET_ADDRSTRLEN);
 	peer->socket_fd = 0;
 	peer->open_con = 0;
 	peer->ttl = 30;
