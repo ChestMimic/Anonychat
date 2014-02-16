@@ -241,7 +241,7 @@ void client_hash_add_msg(GHashTable* hash_table, char* msg) {
 */
 
 int client_has_seen_msg(GHashTable* hash_table, char* msg) {
-	if (g_hash_table_contains(hash_table, msg)) {
+	if (g_hash_table_lookup(hash_table, msg)) {
 		return 1; // it is in the hash table, we've seen the msg
 	}
 	return 0; // not in the hash table, we haven't seen the msg
