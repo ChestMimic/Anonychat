@@ -1,2 +1,6 @@
 Anonymous IRC.
-Ben was here.
+
+Directory:
+ac-client-server - code for message handling client/server
+ac-lib - message structure and list structure implementations
+ac-name-server - code to handle central connection server
