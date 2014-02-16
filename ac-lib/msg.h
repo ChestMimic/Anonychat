@@ -8,6 +8,7 @@
 #define ENCRYPTION_HEADER "AC_ENC_FW"
 
 #define MESSAGE_PURGE_TIME (30) // the purge time of a message in secconds
+#define DEFAULT_PEER_TIMEOUT (30) // the default peer timeout
 
 /** Struct representing a peer on the network
 */
@@ -48,6 +49,12 @@ struct _rsa_ctx {
 
 typedef struct _rsa_ctx rsa_ctx_o;
 
+/** Creates a new peer with the given ip address and default time to live
+	@param ip_addr The ip address of the peer
+	@return A pointer to a peer_o struct
+*/	
+
+peer_o* create_peer(char* ip_addr);
 
 /** Determines if the string a starts with the string b,
 	@param a cstring a

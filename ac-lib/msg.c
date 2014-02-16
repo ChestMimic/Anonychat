@@ -7,6 +7,8 @@
 #include "list.h"
 
 
+int peer_id = 0;
+
 /*
 	GLIB Hash Table Reference 
 	https://developer.gnome.org/glib/2.37/glib-Hash-Tables.html
@@ -14,6 +16,21 @@
 	OpenSSL Crypt Library Reference
 	https://www.openssl.org/docs/crypto/crypto.html
 */
+
+
+/** Creates a new peer with the given ip address and default time to live
+	@param ip_addr The ip address of the peer
+	@return A pointer to a peer_o struct
+*/	
+
+peer_o* create_peer(char* ip_addr) {
+	peer_o* peer = (peer_o*) malloc(sizeof(peer_o));
+	peer-> peer_id = peer_id++;
+	strncpy(peer->address, ip_addr, INET_ADDRSTRLEN);
+	peer->ttl = DEFAULT_PEER_TIMEOUT;
+	peer->open_con = 0;
+	return peer;
+}
 
 /** Determines if the string a starts with the string b,
 	@param a cstring a
