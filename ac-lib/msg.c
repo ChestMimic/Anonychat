@@ -2,6 +2,8 @@
 #include <arpa/inet.h>
 #include <time.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <openssl/pem.h>
 
 #include "msg.h"
 #include "list.h"
@@ -86,6 +88,73 @@ void client_initialize_crypto() {
 void client_cleanup_crypto() {
 	EVP_cleanup();
 	ERR_free_strings();
+}
+
+/** Loads a Public key from the file at the path specified
+	@param file_path cstring containing the path of the file to load
+	@return A pointer to the EVP_PKEY struct representing the public key, or NULL
+		if an error occured
+*/
+
+EVP_PKEY* client_open_pub_key(char* file_path) {	
+	//open the file for reading
+	FILE* fp = fopen(file_path, "r");
+	if (fp == NULL) {
+		//couldnt open file
+		return NULL;
+	}	
+	
+	//file is open lets read it into an EVP_PKEY
+	EVP_PKEY* pkey = (EVP_PKEY*) malloc(sizeof(EVP_PKEY));
+	RSA* rsa_key = PEM_read_RSA_PUBKEY(fp, NULL, 0, NULL);
+	
+	if (rsa_key == NULL || pkey == NULL) {
+		//error creating reading key from file, or malloc failed
+		return NULL;
+	}
+	
+	if (!EVP_PKEY_set1_RSA(pkey, rsa_key)) {
+		//error setting pkey.
+		return NULL;
+	}
+	
+	int res = fclose(fp);
+	
+	return pkey;	
+}
+
+
+/** Loads a Private key from the file at the path specified
+	@param file_path cstring containing the path of the file to load
+	@return A pointer to the EVP_PKEY struct representing the private key, or NULL
+		if an error occured
+*/
+
+EVP_PKEY* client_open_priv_key(char* file_path) {
+	//open the file for reading
+	FILE* fp = fopen(file_path, "r");
+	if (fp == NULL) {
+		//couldnt open file
+		return NULL;
+	}	
+	
+	//file is open lets read it into an EVP_PKEY
+	EVP_PKEY* pkey = (EVP_PKEY*) malloc(sizeof(EVP_PKEY));
+	RSA* rsa_key = PEM_read_RSAPrivateKey(fp, NULL, 0, NULL);
+	
+	if (rsa_key == NULL || pkey == NULL) {
+		//error creating reading key from file, or malloc failed
+		return NULL;
+	}
+	
+	if (!EVP_PKEY_set1_RSA(pkey, rsa_key)) {
+		//error setting pkey.
+		return NULL;
+	}
+	
+	int res = fclose(fp);
+	
+	return pkey;
 }
 
 /** Encrypt the given msg with the given public key

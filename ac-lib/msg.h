@@ -98,6 +98,23 @@ void client_initialize_crypto();
 
 void client_cleanup_crypto();
 
+/** Loads a Public key from the file at the path specified
+	@param file_path cstring containing the path of the file to load
+	@return A pointer to the EVP_PKEY struct representing the public key, or NULL
+		if an error occured
+*/
+
+EVP_PKEY* client_open_pub_key(char* file_path);
+
+
+/** Loads a Private key from the file at the path specified
+	@param file_path cstring containing the path of the file to load
+	@return A pointer to the EVP_PKEY struct representing the private key, or NULL
+		if an error occured
+*/
+
+EVP_PKEY* client_open_priv_key(char* file_path);
+
 /** Attempts to decypt the given msg
 	@param msg Pointer a message_encrypted_o which contains the msg, ek, and iv
 	@return A pointer to the decypted message, or NULL if 
