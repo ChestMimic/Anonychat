@@ -90,6 +90,34 @@ void client_cleanup_crypto() {
 	ERR_free_strings();
 }
 
+/** Creates an rsa_ctx_o, initializes it, and returns a pointer to it
+	@return A pointer to the newly created rsa_ctx, or NULL if an error occured
+*/
+
+rsa_ctx_o* client_create_rsa_ctx() {
+	rsa_ctx_o* rsa_ctx = (rsa_ctx_o*) malloc(sizeof(rsa_ctx));
+	
+	if (rsa_ctx == NULL) {
+		//malloc failed.. *tear
+		return NULL;
+	}
+	
+	EVP_CIPHER_CTX_init(&(rsa_ctx->rsa_encrypt_ctx));
+	EVP_CIPHER_CTX_init(&(rsa_ctx->rsa_decrypt_ctx));
+	
+	return rsa_ctx;
+}
+
+/** Cleans up the specified rsa_ctx
+	@param rsa_ctx Pointer to the rsa_ctx_o to clean up
+	@return 1 if successful, 0 otherwise
+*/
+
+int client_clean_rsa_ctx(rsa_ctx_o* rsa_ctx) {
+	free(rsa_ctx);
+	return 1;
+}
+
 /** Loads a Public key from the file at the path specified
 	@param file_path cstring containing the path of the file to load
 	@return A pointer to the EVP_PKEY struct representing the public key, or NULL
@@ -165,12 +193,12 @@ EVP_PKEY* client_open_priv_key(char* file_path) {
 	@return 0 if successful, error code otherwise
 */
 
-int client_encrypt_msg(const unsigned char* msg, EVP_PKEY* public_key, message_encrypted_o* res) {
+int client_encrypt_msg(rsa_ctx_o* rsa_ctx, const unsigned char* msg, EVP_PKEY* public_key, message_encrypted_o* res) {
 	int msg_enc_len = 0;
 	int block_size = 0;
 	int msg_len = 0;
 	
-	EVP_CIPHER_CTX* encryption_ctx;
+	EVP_CIPHER_CTX* encryption_ctx = &(rsa_ctx->rsa_encrypt_ctx);
 	
 	res->encrypted_key = (unsigned char*) malloc(EVP_PKEY_size(public_key));
 	res->init_vector = (unsigned char*) malloc(EVP_MAX_IV_LENGTH);
@@ -225,20 +253,21 @@ int client_encrypt_msg(const unsigned char* msg, EVP_PKEY* public_key, message_e
 }
 
 /** Attempts to decypt the given msg
+	@param rsa_ctx Pointer to an struct containing the rsa context
 	@param msg Pointer a message_encrypted_o which contains the msg, ek, and iv
+	@param private_key Pointer to an EVP_PKEY, which contains the private key to decrypt the
+		message with
 	@return A pointer to the decypted message, or NULL if 
 		unable to decrypt
 */
 
-char* client_decrypt_msg(message_encrypted_o* msg) {
+char* client_decrypt_msg(rsa_ctx_o* rsa_ctx, message_encrypted_o* msg, EVP_PKEY* private_key) {
 	int decrypt_len = 0;
 	int block_size = 0;
-	int encrypted_msg_len; // Probally just set to a max size
 	
-	int encryption_key_len;
-	
-	EVP_PKEY *private_key;
-	EVP_CIPHER_CTX* decryption_ctx; // descryption context
+	int encrypted_msg_len = msg->encrypted_msg_len; // strlen, it while processing the msg
+	int encryption_key_len = msg->encrypted_key_len;
+	EVP_CIPHER_CTX* decryption_ctx = &(rsa_ctx->rsa_decrypt_ctx);
 	
 	unsigned char* decrypted_msg = (unsigned char*) malloc(encrypted_msg_len);
 	
