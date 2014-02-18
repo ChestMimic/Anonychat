@@ -57,13 +57,18 @@ int str_starts_with(const char* a, const char* b) {
 void* client_handle(void* arg) {
 	client* client_o = (client*) arg; // cast the argument into client struct
 	int client_socket = client_o->socket_fd; // the socket that this client is connected on		
-	struct sockaddr_in* ipv4_addr = (struct sockaddr_in*) &(client_o->client_addr); //client addr
-	int ip_addr = ipv4_addr->sin_addr.s_addr; //address int form.	
-	//copy the ip address into the client struct
-	inet_ntop(AF_INET, &ip_addr, client_o->address, sizeof(client_o->address));	
+	struct sockaddr_in* ipv4_addr = (struct sockaddr_in*) &(client_o->client_addr); //client addr	
+	ipv4_addr->sin_family = AF_INET;
+	
+	int res = getnameinfo((struct sockaddr*) ipv4_addr, sizeof(ipv4_addr), client_o->address, NI_MAXHOST,
+		client_o->port, NI_MAXSERV, NI_NUMERICHOST);
 		
+	if (res) {
+		printf("Error geting hostname: %s\n", gai_strerror(res));
+	}
 	pthread_mutex_lock(&priting_mutex); //lock the printing mutex before we print this.
-	printf("Connection started from %s on Socket: %d \n", client_o->address, client_socket);
+	printf("Connection started from %s:%s on Socket: %d \n", client_o->address,client_o->port,
+		 client_socket);
 	pthread_mutex_unlock(&priting_mutex);
 	
 	//send the initial peer request
@@ -78,7 +83,6 @@ void* client_handle(void* arg) {
 	pthread_mutex_unlock(&(client_list->mutex)); // release mutex when done
 	
 	char buffer [SERVER_MAX_MESSAGE + 1];
-	int res;
 	while ( (res = recv(client_socket, buffer, SERVER_MAX_MESSAGE, 0))) {
 		buffer[res] = '\0';
 		printf("Received: %s \n", buffer);
