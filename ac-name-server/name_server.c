@@ -60,8 +60,8 @@ void* client_handle(void* arg) {
 	struct sockaddr_in* ipv4_addr = (struct sockaddr_in*) &(client_o->client_addr); //client addr	
 	ipv4_addr->sin_family = AF_INET;
 	
-	int res = getnameinfo((struct sockaddr*) ipv4_addr, sizeof(ipv4_addr), client_o->address, NI_MAXHOST,
-		client_o->port, NI_MAXSERV, NI_NUMERICHOST);
+	int res = getnameinfo((struct sockaddr*) ipv4_addr, sizeof(struct sockaddr_in), client_o->address, NI_MAXHOST,
+		client_o->port, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
 		
 	if (res) {
 		printf("Error geting hostname: %s\n", gai_strerror(res));
