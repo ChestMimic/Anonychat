@@ -35,7 +35,13 @@ int removeConnection(node uno, node dos){
 }
 
 node combineNodesToGraph(node group[], int minConnections){
-
+	//for each node in group[]
+		//add connection with * minConnections like so
+			//1. connect to next cieling(minConnections/2) in array 
+				//later ones in array loop back to start, so for an array of 8. 1->2, 2->3, ... 8->1 for minConnections of 2
+			//2. for remainder of minConnections, randomly pick from the far half. Expand choice range for collisions (already on list)
+	//In cases where minConnections exceeds possible connections (approximatley n-1 of group size), ignore and assume max
+	//return last node operated on to act as head
 }
 
 int nodeInGraph(node head, node target){
@@ -47,5 +53,5 @@ int numberOfConnections(node n){
 }
 
 int addNodeToGraph(node head, node target, int minConnections){
-
+	//Assuming graph is built by combineNodesToGraph, random selection of connections should be satisfactory.
 }
