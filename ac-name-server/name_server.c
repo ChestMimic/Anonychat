@@ -174,7 +174,9 @@ char* client_peers_rand(client* client_o, int max_msg_size) {
 				continue;
 			}
 			//we found a peer that is now us,
-			strncat(msg, client_p->address, max_msg_size); 
+			strncat(msg, client_p->address, max_msg_size);
+			strncat(msg, ":", max_msg_size);
+			strncat(msg, client_p->port, max_msg_size); 
 			strncat(msg, " ", max_msg_size); //add a space
 			break;		
 		}
@@ -210,6 +212,8 @@ char* client_peers_static(client* client_o, int max_msg_size) {
 		}
 		//copy the ip address into the message
 		strncat(msg, client_p->address, max_msg_size);
+		strncat(msg, ":", max_msg_size);
+		strncat(msg, client_p->port, max_msg_size); 
 		strncat(msg, " ", max_msg_size); //add a space
 	}
 	if (strlen(msg) > 0) {
