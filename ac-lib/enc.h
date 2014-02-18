@@ -82,6 +82,21 @@ char* client_decrypt_msg(rsa_ctx_o* rsa_ctx, message_encrypted_o* msg, EVP_PKEY*
 int client_encrypt_msg(rsa_ctx_o* rsa_ctx, const unsigned char* msg, EVP_PKEY* public_key,
 	 message_encrypted_o* res);
 
+/** Parses an encrytped message struct into a string
+	@param encrypted_msg A pointer to the encrypted_msg_o containing the encrypted message
+	@param dest A pointer to a cstring to store the string in, free after use
+	@return The lenght of the string
+*/
+
+int parse_encrypted_msg_str(message_encryted_o* encrypted_msg, char** dest);
+
+/** Parses the given string into a encrypted message struct
+	@param msg The encrypted message to parse
+	@param res pointer to an message_encrypted_o struct to place the results
+	@return 1 if sucess, 0 otherwise
+*/
+
+int parse_str_encrypted_msg(char* msg, message_encrypted_o* res);
 
 
 #endif
