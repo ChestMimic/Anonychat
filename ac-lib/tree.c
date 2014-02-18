@@ -22,6 +22,8 @@ int addConnection(node uno, node, dos){
 }
 
 int removeConnection(node uno, node dos){
+	//note: this function intentionally ignores the minConnections value. 
+
 	//check both have connection to each other
 	//remove uno from dos
 		//remove uno from connections list
@@ -40,7 +42,7 @@ node combineNodesToGraph(node group[], int minConnections){
 			//1. connect to next cieling(minConnections/2) in array 
 				//later ones in array loop back to start, so for an array of 8. 1->2, 2->3, ... 8->1 for minConnections of 2
 			//2. for remainder of minConnections, randomly pick from the far half. Expand choice range for collisions (already on list)
-	//In cases where minConnections exceeds possible connections (approximatley n-1 of group size), ignore and assume max
+	//In cases where minConnections exceeds possible connections per node (approximatley n-1 of group size), ignore and assume max
 	//return last node operated on to act as head
 }
 
