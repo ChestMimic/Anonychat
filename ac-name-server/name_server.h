@@ -1,7 +1,6 @@
 #ifndef NAME_SERVER_H
 #define NAME_SERVER_H
 
-#include <netdb.h>
 
 #define SERVER_BACKLOG (10) // the number of clients that can be queued
 #define SERVER_DEF_PORT "6958" // the default port the server will listen on
@@ -14,8 +13,7 @@
 struct _client {
 	int socket_fd; // the socket descriptor for this client
 	struct sockaddr_storage client_addr; // struct storing the client address
-	char address[NI_MAXHOST]; // the string containing the address of the client
-	char port[NI_MAXSERV]; //the string contanining the port of the client
+	char address[INET_ADDRSTRLEN]; // the string containing the address of the client
 	pthread_t* client_thread; // pointer to the thread that this client is executing on
 
 };
