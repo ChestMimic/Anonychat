@@ -13,7 +13,8 @@
 struct _client {
 	int socket_fd; // the socket descriptor for this client
 	struct sockaddr_storage client_addr; // struct storing the client address
-	char address[INET_ADDRSTRLEN]; // the string containing the address of the client
+	char address[NI_MAXHOST]; // the string containing the address of the client
+	char port[NI_MAXSERV]; // the string containing the port of the client
 	pthread_t* client_thread; // pointer to the thread that this client is executing on
 
 };
