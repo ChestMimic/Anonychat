@@ -5,6 +5,8 @@
 #define SERVER_BACKLOG (10) // the number of clients that can be queued
 #define SERVER_DEF_PORT "6958" // the default port the server will listen on
 
+#define CLIENT_PEER_DEF_PORT "4758" // default client port
+
 #define SERVER_MAX_MESSAGE (512) // the maximum message size in bytes
 
 #define PEER_POOL_SIZE (5) // the default peer pool size to send to the client
