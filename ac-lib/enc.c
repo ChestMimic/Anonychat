@@ -129,7 +129,8 @@ EVP_PKEY* client_open_priv_key(char* file_path) {
 	@return 0 if successful, error code otherwise
 */
 
-int client_encrypt_msg(rsa_ctx_o* rsa_ctx, const unsigned char* msg, EVP_PKEY* public_key, message_encrypted_o* res) {
+int client_encrypt_msg(rsa_ctx_o* rsa_ctx, const unsigned char* msg, EVP_PKEY* public_key, 
+	message_encrypted_o* res) {
 	int msg_enc_len = 0;
 	int block_size = 0;
 	int msg_len = 0;
@@ -251,16 +252,6 @@ char* client_decrypt_msg(rsa_ctx_o* rsa_ctx, message_encrypted_o* msg, EVP_PKEY*
 	@return The lenght of the string
 */
 
-/*
-struct _message_encrypted {
-	unsigned char* encrypted_msg; // The message encrypted with the encrypted key
-	unsigned char* encrypted_key; //The encrypted key, which is encrypted with the RSA pub key
-	unsigned char* init_vector; // The IV used during encryption
-	int encrypted_msg_len; // the length of encrypted_msg
-	int encrypted_key_len; // the length of the encrypted key
-};
-*/
-
 int parse_encrypted_msg_str(message_encrypted_o* encrypted_msg, char** dest) {
 	//determine the length of the parsed message
 	int encoded_len = Base64encode_len(encrypted_msg->encrypted_msg_len);
@@ -298,6 +289,38 @@ int parse_encrypted_msg_str(message_encrypted_o* encrypted_msg, char** dest) {
 	@return 1 if sucess, 0 otherwise
 */
 
-int parse_str_encrypted_msg(char* msg, message_encrypted_o* res) {
+/*
+struct _message_encrypted {
+	unsigned char* encrypted_msg; // The message encrypted with the encrypted key
+	unsigned char* encrypted_key; //The encrypted key, which is encrypted with the RSA pub key
+	unsigned char* init_vector; // The IV used during encryption
+	int encrypted_msg_len; // the length of encrypted_msg
+	int encrypted_key_len; // the length of the encrypted key
+};
+*/
 
+int parse_str_encrypted_msg(char* msg, message_encrypted_o* res) {
+	
+	char* tok = strtok(msg, " ");
+	//tok is the base64 encoded msg
+	int len = base64decode_len(tok); //length of msg decoded
+	res->encrypted_msg = (unsigned char*) malloc(len);
+	res->encrypted_msg_len = base64decode(res->encrypted_msg, tok);
+	
+	tok = strtok(NULL, " ");
+	//tok is the base64 encoded key
+	len = base64decode_len(tok); //length of key decoded
+	res->encrypted_key = (unsigned char*) malloc(len);
+	res->encrypted_key_len = base64decode(res->encrypted_key, tok);
+	
+	tok = strtok(NULL, " ");
+	//tok is the base64 encoded key
+	len = base64decode_len(tok); //length of key decoded
+	res->init_vector = (unsigned char*) malloc(len);
+	res->init_vector_len = base64decode(res->init_vector, tok);
+	
+	//msg should be parsed.
+	
+	return 1;
+	
 }

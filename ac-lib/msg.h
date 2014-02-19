@@ -31,6 +31,7 @@ struct _message_hash {
 
 typedef struct _message_hash message_hash_o;
 
+//TODO: create a function to clean up this msg, need to free all 3 char pointers
 struct _message_encrypted {
 	unsigned char* encrypted_msg; // The message encrypted with the encrypted key
 	unsigned char* encrypted_key; //The encrypted key, which is encrypted with the RSA pub key
