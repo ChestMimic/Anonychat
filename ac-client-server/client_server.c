@@ -18,15 +18,16 @@
 
 int clientThread(void *);
 int inputThread(void *);
+void connectToPeer(peer_o* peer, void* data);
 
 // List of peers for a client
 list* peer_list;
 unsigned int idTracker = 0;
+int portNo; // Your port number
 
 int main (int argc, char **argv) {
   
   // All variables and such
-  int portNo; // Your port number
   int fd, fd2;
   struct sockaddr_in sa, ca;
   int lsa = sizeof(sa);
@@ -39,7 +40,7 @@ int main (int argc, char **argv) {
   char ip_output_buffer[BUFFER_SIZE]; // Sending buffer
 
   // Input arguements
-  if ( argc < 1 )  {
+  if ( argc < 3 )  {
         printf( "Usage: %s <hostname or IP Address, Port Number>\n", argv[0]);
         exit(0);
   }
@@ -136,13 +137,18 @@ int clientThread(void* data) {
   //printf( "New thread: \nID: %ld \nPriority: %d\n", myprioID, cprio);
   //printf("Data passed to the new thread: %d\n", *((int*)data));
 
-  char init[100];
-  strcpy(init, "Established connection to new client");
+
+  char port[100];
   
   //printf("%s\n", init);
 
+  strncpy(port, "PORT ", sizeof(port));
+  char no[100]; 
+  sprintf(no, "%d\n", portNo);
+  strncat(port, no, strlen(no));
+
   // Send init string
-  send(*(int*)data, init, strlen(init), 0);
+  send(*(int*)data, port, strlen(port), 0);
   //printf("Sent string: %s\n", init);
   bzero(ip_output_buffer, CHUNK_SIZE);
   
@@ -166,6 +172,9 @@ int clientThread(void* data) {
 	peer->ttl = 30;
 	list_add(peer_list, &peer);
 	idTracker++;
+	if(strlen(ip) >= INET_ADDRSTRLEN - 1) {
+	  connectToPeer(peer, data);
+        }
       }
     }
       bzero(inBuff, CHUNK_SIZE);
@@ -174,7 +183,42 @@ int clientThread(void* data) {
   return 0;
 }
 
-void connectToPeer() {
+void connectToPeer(peer_o* peer, void* data) {
+ 
+  struct sockaddr_in pa;
+  int lpa = sizeof(pa);
+  
+  // If already connected to peer, return
+  int i = 0;
+  for( i = 0; i < list_size(peer_list); i++) {
+    peer_o* tp = (peer_o*)list_item_at(peer_list, i);
+    if(strncmp(tp->address, peer->address, INET_ADDRSTRLEN - 1) == 0) {
+      return;
+    }
+    //if( *(int*)data == peer->socket_fd) {
+    //  return;
+    //}
+  }
+
+  if ((peer->socket_fd = socket ( AF_INET, SOCK_STREAM, 0 )) < 0)   {
+      printf( "The socket call failed\n");
+      exit(1);
+  }
+  
+  pa.sin_family       = AF_INET;
+  pa.sin_port         = htons(portNo);     // client & server see same port
+  pa.sin_addr.s_addr  = inet_addr(peer->address); // the kernel assigns the IP ad
+  
+  if (connect(peer->socket_fd, (struct sockaddr *)&pa, lpa) == -1)  {
+     perror( "Failed to connect");
+  } else {
+     char init[100];
+     peer->open_con = 1;
+     int out = newThread((void*) (*clientThread), &peer->socket_fd);
+     // Send connect message
+     strcpy(init, "Established connection to new client\n");
+     send(peer->socket_fd, init, strlen(init), 0);
+  }
   
 }
 
@@ -203,6 +247,11 @@ int inputThread(void* data) {
   printf("Hello user. Please enter your message.\n" );
   while(0 == 0) {
     scanf("%s", message);
+    int i = 0;
+    for( i = 0; i < list_size(peer_list); i++) {
+      peer_o* tp = (peer_o*)list_item_at(peer_list, i);
+      send(tp->socket_fd, message, strlen(message), 0);
+    }
     send(*(int*)data, message, strlen(message), 0);
     printf("Message sent\n");
     bzero(message, CHUNK_SIZE);
