@@ -1,6 +1,8 @@
 #include <openssl/pem.h>
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
+#include <string.h>
+#include <stdlib.h>
 
 #include "base64.h"
 
@@ -259,7 +261,7 @@ struct _message_encrypted {
 };
 */
 
-int parse_encrypted_msg_str(message_encryted_o* encrypted_msg, char** dest) {
+int parse_encrypted_msg_str(message_encrypted_o* encrypted_msg, char** dest) {
 	//determine the length of the parsed message
 	int encoded_len = Base64encode_len(encrypted_msg->encrypted_msg_len);
 	encoded_len += Base64encode_len(encrypted_msg->encrypted_key_len);
@@ -289,7 +291,6 @@ int parse_encrypted_msg_str(message_encryted_o* encrypted_msg, char** dest) {
 	return encoded_len;	
 	
 }
-strncat(tmp, 
 
 /** Parses the given string into a encrypted message struct
 	@param msg The encrypted message to parse

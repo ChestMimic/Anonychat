@@ -88,7 +88,7 @@ int client_encrypt_msg(rsa_ctx_o* rsa_ctx, const unsigned char* msg, EVP_PKEY* p
 	@return The lenght of the string
 */
 
-int parse_encrypted_msg_str(message_encryted_o* encrypted_msg, char** dest);
+int parse_encrypted_msg_str(message_encrypted_o* encrypted_msg, char** dest);
 
 /** Parses the given string into a encrypted message struct
 	@param msg The encrypted message to parse
