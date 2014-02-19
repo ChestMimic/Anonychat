@@ -180,6 +180,11 @@ int client_encrypt_msg(rsa_ctx_o* rsa_ctx, const unsigned char* msg, EVP_PKEY* p
 	
 	msg_enc_len += block_size;
 	
+	//update the length fields in the encoded message struct
+	res->encrypted_msg_len = msg_enc_len;
+	res->encrypted_key_len = encrypted_key_len;
+	res->init_vector_len = init_vector_length;
+	
 	//clean up
 	EVP_CIPHER_CTX_cleanup(encryption_ctx);
 	
@@ -244,9 +249,47 @@ char* client_decrypt_msg(rsa_ctx_o* rsa_ctx, message_encrypted_o* msg, EVP_PKEY*
 	@return The lenght of the string
 */
 
-int parse_encrypted_msg_str(message_encryted_o* encrypted_msg, char** dest) {
+/*
+struct _message_encrypted {
+	unsigned char* encrypted_msg; // The message encrypted with the encrypted key
+	unsigned char* encrypted_key; //The encrypted key, which is encrypted with the RSA pub key
+	unsigned char* init_vector; // The IV used during encryption
+	int encrypted_msg_len; // the length of encrypted_msg
+	int encrypted_key_len; // the length of the encrypted key
+};
+*/
 
+int parse_encrypted_msg_str(message_encryted_o* encrypted_msg, char** dest) {
+	//determine the length of the parsed message
+	int encoded_len = Base64encode_len(encrypted_msg->encrypted_msg_len);
+	encoded_len += Base64encode_len(encrypted_msg->encrypted_key_len);
+	encoded_len += Base64encode_len(encrypted_msg->init_vector_len);
+	encoded_len += 3; // add length of the two spaces + null terminator
+	
+	(*dest) = (char*) malloc(encoded_len);
+	char* tmp = (char*) malloc(encoded_len);
+	
+	int len = Base64encode(tmp, encrypted_msg->encrypted_msg, encrypted_msg->encrypted_msg_len);
+	strncpy((*dest), tmp, len);
+	strncpy((*dest), " ", 2); //add the space delim
+	
+	memset(tmp, 0, encoded_len); //zero out the memory
+	
+	len = Base64encode(tmp, encrypted_msg->encrypted_key, encrypted_msg->encrypted_key_len);
+	strncpy((*dest), tmp, len);
+	strncpy((*dest), " ", 2);
+	
+	memset(tmp, 0, encoded_len); //zero out the memory
+	
+	len = Base64encode(tmp, encrypted_msg->init_vector, encrypted_msg->init_vector_len);
+	strncpy((*dest), tmp, len);
+	
+	free(tmp); // free the memory used by the encoding
+	
+	return encoded_len;	
+	
 }
+strncat(tmp, 
 
 /** Parses the given string into a encrypted message struct
 	@param msg The encrypted message to parse

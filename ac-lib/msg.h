@@ -37,6 +37,7 @@ struct _message_encrypted {
 	unsigned char* init_vector; // The IV used during encryption
 	int encrypted_msg_len; // the length of encrypted_msg
 	int encrypted_key_len; // the length of the encrypted key
+	int init_vector_len; // the length of the init vector
 };
 
 typedef struct _message_encrypted message_encrypted_o; 
