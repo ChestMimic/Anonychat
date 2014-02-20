@@ -222,15 +222,11 @@ void connectToPeer(peer_o* peer, void* data) {
       exit(1);
   }
   
+  // Remove newline character
   peer->port[strcspn(peer->port, "\n")] = '\0';
 
-  char temp[5];
-  strncpy(temp, peer->port, sizeof(temp));
-  temp[5] = '\0';
-  //printf("%s\n", temp);
-
   pa.sin_family       = AF_INET;
-  pa.sin_port         = htons(4756);     // client & server see same port
+  pa.sin_port         = htons(atoi(peer->port));
   pa.sin_addr.s_addr  = inet_addr(peer->address); // the kernel assigns the IP ad
   //printf("%s", peer->port);
   printf("Trying to connect to another peer s2\n");
