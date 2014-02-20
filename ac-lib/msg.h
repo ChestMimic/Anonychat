@@ -13,6 +13,7 @@
 struct _peer {
 	int peer_id; // the id of the peer
 	char address[NI_MAXHOST]; // the IPv4 address of the peer
+	char port[NI_MAXSERV]; // the port the client is listening to peers on
 	int socket_fd; // the open socket with the peer
 	int open_con; // 1 if there is an open connection with the peer, 0 if not
 	int ttl; //the time to live of this peer, in seconds

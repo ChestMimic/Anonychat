@@ -61,11 +61,13 @@ void* client_handle(void* arg) {
 	ipv4_addr->sin_family = AF_INET;
 	
 	int res = getnameinfo((struct sockaddr*) ipv4_addr, sizeof(struct sockaddr_in), client_o->address, 
-		NI_MAXHOST,	client_o->port, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV);
+		NI_MAXHOST,	NULL, 0, NI_NUMERICHOST);
 		
 	if (res) {
 		printf("Error getting client info: %s\n", gai_strerror(res));
 	}
+		
+	strncpy(client_o->port, CLIENT_PEER_DEF_PORT, NI_MAXSERV); //copy in the default port
 		
 	pthread_mutex_lock(&priting_mutex); //lock the printing mutex before we print this.
 	printf("Connection started from %s:%s on Socket: %d \n", client_o->address, client_o->port,
@@ -93,6 +95,19 @@ void* client_handle(void* arg) {
 		if (str_starts_with(buffer, "PEERREQ")) {
 			//peer request message
 			client_send_peers(client_o); // client requested peers, send them
+		}
+		else if (str_starts_with(buffer, "PORTUPD")) {
+			char* tok = strtok(buffer, " ");
+			tok = strtok(NULL, " ");
+			if (tok == NULL) {
+				printf("Client sent us an invalid PORTUPD, ignoring \n");
+				continue; // continue onward!
+			}
+			
+			strncpy(client_o->port, tok, NI_MAXSERV);
+			printf("Client %s on socket %d updated thier port to %s \n", client_o->address, 
+				client_socket, client_o->port);
+			
 		}
 		
 		memset(buffer,0, SERVER_MAX_MESSAGE + 1);

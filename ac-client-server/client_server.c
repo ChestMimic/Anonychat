@@ -247,15 +247,19 @@ int inputThread(void* data) {
   //printf( "New thread: \nID: %ld \nPriority: %d\n", myprioID, cprio);
   //printf("Data passed to the new thread: %d\n", *((int*)data));
   
-  char message[BUFFER_SIZE];
-
+  char* message = (char*) malloc(BUFFER_SIZE);
+  size_t buf_len = BUFFER_SIZE - 1;
   // Wait while connections establish
   sleep(1);
 
   // Handle user input
   printf("Hello user. Please enter your message.\n" );
   while(0 == 0) {
-    scanf("%s", message);
+    int len = getline(&message, &buf_len, stdin);
+	
+	printf("Read!: |%s|\n", message);
+	
+	message[len] = '\0';
     int i = 0;
     for( i = 0; i < list_size(peer_list); i++) {
       peer_o* tp = (peer_o*)list_item_at(peer_list, i);
