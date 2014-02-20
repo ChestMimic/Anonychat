@@ -1,5 +1,6 @@
 #include "tree.h"
 #include <stdlib.h>
+#include <math.h>
 
 int compareNodes(node* uno, node* dos){
 	if(uno == dos){
@@ -15,14 +16,14 @@ int addConnection(node* uno, node* dos){
 	//allocate space to uno->connections if necessary
 	uno->connections = realloc(uno->connections, sizeof(node)*(uno->numConnections + 1));
 	//add pointer to dos at end
-	uno->connections[numConnections] = *dos;
+	uno->connections[uno->numConnections] = dos;
 	//increase uno's counter
 	uno->numConnections = uno->numConnections +1;
 
 	//add uno to dos
 	dos->connections = realloc(dos->connections, sizeof(node)*(dos->numConnections + 1));
 	//add pointer to dos at end
-	dos->connections[numConnections] = *uno;
+	dos->connections[dos->numConnections] = uno;
 	//increase uno's counter
 	dos->numConnections = dos->numConnections +1;
 
@@ -31,7 +32,7 @@ int addConnection(node* uno, node* dos){
 
 
 
-node combineNodesToGraph(node* group[], int minConnections, int size){
+node* combineNodesToGraph(node* group[], int minConnections, int size){
 	
 	if(size < (minConnections - 1)){
 		//for each node in group[]
@@ -59,19 +60,19 @@ node combineNodesToGraph(node* group[], int minConnections, int size){
 					if(subCountB % 2 == 0){
 					//even number go short
 						if(size < (count + (size/2))){
-							addConnection(group[count], group[size - count+(size/2)-ceil(subCountB/2)]);
+							addConnection(group[count], group[(int) (size - count+(size/2)-ceil(subCountB/2))]);
 						}
 						else{
-							addConnection(group[count], group[count+(size/2)-ceil(subCountB/2)]);
+							addConnection(group[count], group[(int) (count+(size/2)-ceil(subCountB/2))]);
 						}
 					}
 					else{
 					//far number go long
 						if(size < (count + (size/2))){
-							addConnection(group[count], group[size - count+(size/2)+ceil(subCountB/2)]);
+							addConnection(group[count], group[(int) (size - count+(size/2)+ceil(subCountB/2))]);
 						}
 						else{
-							addConnection(group[count], group[count+(size/2)+ceil(subCountB/2)]);
+							addConnection(group[count], group[(int) (count+(size/2)+ceil(subCountB/2))]);
 						}
 					}
 				}
@@ -108,15 +109,16 @@ node combineNodesToGraph(node* group[], int minConnections, int size){
 }
 
 
-int numberOfConnections(node n){
+int numberOfConnections(node* n){
 	return n->numConnections;
 }
 
 
-node* createNode(){
+node* createNode(void* data){
 	node* n;
+	n->data = data;
 	n->numConnections = 0;
-	n->connections = (node*) malloc(sizeof(*n));
+	n->connections = malloc(sizeof(*n));
 
 	return n;
 }
