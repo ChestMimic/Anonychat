@@ -43,6 +43,7 @@ int list_add(list* list, void* val);
 
 void* list_remove(list* list, void* val);
 
+
 /** Returns the size of the list
 	@param list The list
 	@return The size of the list

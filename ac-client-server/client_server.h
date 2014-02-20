@@ -17,6 +17,17 @@ struct _name_server {
 
 typedef struct _name_server name_server_o;
 
+/** Struct representing a client connected as a peer
+*/
+
+struct _client {
+	int client_id; // the id of this client
+	int socket_fd; // the socket descriptor the client is connected on
+	int open_con; // 1 if there is an open connection, 0 if not
+	pthread_t* handler_thread; // the thread to handle responses from clients
+}
+
+typedef struct _client client_o;
 
 /** Prints the appropriate usage of this program
 */
@@ -65,12 +76,19 @@ void* name_server_handle(void* arg);
 
 int connect_to_peer(peer_o* peer);
 
+/** Initializes the socket to listen for connections on
+	@param arg A pointer to the int representing the socket descriptor
+	@return 1 if there was an error, 0 if sucessfully exited.
+*/
+
+void* listen_for_clients(void* arg);
+
 /** Function that will handle messages received from the specified peer
-	@param arg A pointer to a peer struct
+	@param arg A pointer to a client struct
 	@return TODO: define
 */
 
-void* peer_handle(void* arg);
+void* client_handle(void* arg);
 
 /** Function that will handle any command line input that the user enters
 	@param arg TODO: define

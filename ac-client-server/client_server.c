@@ -174,32 +174,63 @@ void* name_server_handle(void* arg) {
 	
 }
 
-/** Function that will handle messages received from the specified peer
+/** Function that will handle messages received from the specified client
 	@param arg A pointer to a peer struct
 	@return TODO: define
 */
 
-void* peer_handle(void* arg) {
-	// we will handle a peer.
+void* client_handle(void* arg) {
+	// we will handle a connected client
 	//basicly just listen for messages from others for now? yea?
-	
-	peer_o* peer = (peer_o*) arg;
+
+	client_o* client = (client_o*) arg;
 	
 	char* buffer = (char*) malloc(BUFFER_SIZE + 1);
 	int res;
 	
-	while ( (res = recv(peer->socket_fd, buffer, BUFFER_SIZE, 0))) {
+	while ( (res = recv(client->socket_fd, buffer, BUFFER_SIZE, 0))) {
 		buffer[res] = '\0'; //add a null terminator just in case		
-		printf("Received: |%s| from peer: %d \n", buffer, peer->peer_id);		
+		printf("Received: |%s| from client: %d \n", buffer, client->client_id);		
 	}
 	
-	printf("Disconnected from peer: %d \n", peer->peer_id);
+	printf("Disconnected from client: %d \n", client->client_id);
 	
 	// peer has disconnected, open connection is false.
-	peer->socket_fd = -1;
-	peer->open_con = 0;
+	close(client->socket_fd); // close the socket descriptor.
+	client->socket_fd = -1;
+	client->open_con = 0;
 	
+	//TODO: Add something to free the client, this will probally error.
+	free(client->handler_thread);
+	free(client);		
+
 	return;
+}
+
+/** Function that will parse the peers from the peer message from name server, into
+		the peer list
+	@param peer_list A pointer to a list struct containing the current peers
+	@param peer_msg A cstring containing the peer message from the name server
+*/
+
+int parse_peers(list* peer_list, char* peer_msg) {
+
+}
+
+/** Removes all elements from the peer list, and frees up thier memory
+	@param peer_list A pointer to a list struct that contains the list of peers
+	@return 0 if sucessful, 1 otherwise
+*/
+
+int clean_peers_list(list* peer_list) {
+	while (list_size(peer_list) > 0) {
+		peer_o* tmp_peer = list_get_item_at(peer_list, 0);
+		list_remove(peer_list, tmp_peer);
+		
+		//TODO: before freeing the peer struct, terminate the peer thread
+		//free(tmp_peer->peer_thread);
+		//free(tmp_peer);
+	}
 }
 
 /** Establishes a conenction to the specified name server
@@ -260,11 +291,84 @@ int connect_to_peer(peer_o* peer) {
 	}
 	
 	peer->socket_fd = socket_fd;
-	peer->open_con = 1;
+	peer->open_con = 1;	
+	return socket_fd;
 	
-	//start the thread to handle the peer	
-	peer->peer_thread = (pthread_t*) malloc(sizeof(pthread_t));	
-	pthread_create(peer->peer_thread, NULL, &peer_handle, (void*) peer);
+}
+
+
+/** Initializes the socket to listen for connections on
+	@param arg A pointer to the int representing the socket descriptor
+	@return 1 if there was an error, 0 if sucessfully exited.
+*/
+
+void* listen_for_clients(void* arg) {
+	int socket_fd = *(arg);
+	
+	int server_sock = init_server(port);
+	
+}
+
+/** Sets up the socket the server will use to listen on for new clients
+	@param port A cstring that contains the port to listen on
+	@return The socket descriptor of the socket that was created, -1 if unsucessful
+*/
+
+int init_server(char* port) {
+	struct addrinfo hints;
+	struct addrinfo* server_info;
+	struct addrinfo* server_connect;
+	
+	int socket_fd = -1;
+	
+	int res = 0; //generic results code
+	
+	memset(&hints, 0, sizeof(hints));
+	
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM; // tcp
+	hints_ai_flags = AI_PASSIVE;
+	
+	res = getaddrinfo(NULL, port, &hints, &server_info);
+	
+	if (res) { //couldnt get address info
+		printf("Error occured while retreiving our addess info. Couldnt start server \n");
+		return -1;
+	}
+	
+	for (server_connect = server_info; server_connect != NULL;
+		server_connect = server_connect->ai_next) {
+			
+		socket_fd = socket(server_connect->ai_family, server_connect->ai_socktype,
+			server_connect->ai_protocol);
+			
+			
+		if (socket_fd == -1) {
+			//cannot bind to this address try again
+			continue;
+		}
+		
+		int yes = 1;
+		res = setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
+		
+		if (res == -1) {
+			close(socket_fd);
+			socket_fd = -1;
+			continue;
+		}
+		
+		res = bind(socket_fd, server_connect->ai_addr, server_connect->ai_addrlen);
+		
+		if (res = -1) {
+			close(socket_fd);
+			socket_fd = -1;
+			continue;
+		}
+		
+		break; // we bound successfuly
+	}
+	
+	free(server_info);
 	
 	return socket_fd;
 	
