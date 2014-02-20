@@ -155,7 +155,7 @@ void client_send_peers(client* client_o) {
 		free(to_cat);
 	}
 	
-	strncat(msg, "\r\n", SERVER_MAX_MESSAGE);
+	strncat(msg, "\n", SERVER_MAX_MESSAGE);
 	
 	printf("Message to send: %s \n", msg);
 	
