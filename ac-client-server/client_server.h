@@ -25,7 +25,7 @@ struct _client {
 	int socket_fd; // the socket descriptor the client is connected on
 	int open_con; // 1 if there is an open connection, 0 if not
 	pthread_t* handler_thread; // the thread to handle responses from clients
-}
+};
 
 typedef struct _client client_o;
 

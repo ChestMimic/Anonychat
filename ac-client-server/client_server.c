@@ -43,109 +43,38 @@ void print_usage() {
 
 int main (int argc, char **argv) {
   
-  char* address_name_server; // the address of the name server
-  char* port_name_server; // the port of the name server
-  char* port_peers; // the port to listen for peer connections on
-  
-  if (argc != 4) {	// If there are not 4 arguments, error
-	print_usage();
-	return 1;
-  }
-  
-  address_name_server = argv[1]; // name server address is 2nd argument
-  port_name_server = argv[2]; // name server port is 3rd argument
-  port_peers = argv[3]; // peer port is 4th argument
-  
-  // All variables and such
-  int fd, fd2;
-  struct sockaddr_in sa, ca;
-  int lsa = sizeof(sa);
-  int lca = sizeof(ca);
-  char *ptr, **pptr;
-  char str[INET6_ADDRSTRLEN];
-  struct hostent     *hptr;
-  char IPAddress[100];
-  char ip_input_buffer[BUFFER_SIZE]; // Received buffer
-  char ip_output_buffer[BUFFER_SIZE]; // Sending buffer
+	char* address_name_server; // the address of the name server
+	char* port_name_server; // the port of the name server
+	char* port_peers; // the port to listen for peer connections on
 
-  // Input arguements
-  if ( argc != 3 )  {
-        printf( "Usage: %s <hostname or IP Address, Port Number>\n", argv[0]);
-        exit(0);
-  }
+	if (argc != 4) {	// If there are not 4 arguments, error
+		print_usage();
+		return 1;
+	}
 
-  //ptr = *++argv;       // Get the argument after the program name
-  if ( (hptr = gethostbyname(argv[1])) == NULL) {
-      printf("gethostbyname error for host: %s: %s\n", ptr, hstrerror(h_errno));
-      exit(0);
-  }
-
-  pptr = hptr->h_addr_list;   // Assumes address type is AF_INET
-
-  for ( ; *pptr != NULL; pptr++) {
-      strcpy( IPAddress,  inet_ntop(hptr->h_addrtype, *pptr, str, sizeof(str)));
-      printf("\taddress: %s\n", IPAddress );
-  }
-
-
-
-  // Initialize list of peers
-  peer_list = list_create();
-  
-  // Set port number
-  portNo = atoi(argv[1]);
-  printf("Your port: %d\n", portNo);
-
-  if ((fd = socket ( AF_INET, SOCK_STREAM, 0 )) < 0)   {
-      printf( "The socket call failed\n");
-      exit(1);
-  }
-
-  if ((fd2 = socket ( AF_INET, SOCK_STREAM, 0 )) < 0)   {
-      printf( "The socket call failed\n");
-      exit(1);
-  }
-
-  ca.sin_family       = AF_INET;
-  ca.sin_port         = htons(6958);     // client & server see same port
-  ca.sin_addr.s_addr  = inet_addr(IPAddress); // the kernel assigns the IP ad
-
-  if (connect(fd, (struct sockaddr *)&ca, lca) == -1)  {
-     perror( "Failed to connect");
-  } else {
-   // int out = newThread((void*) (*clientThread), &fd);
-    //int ou2 = newThread((void*) (*inputThread), &fd);
-  }
-
-  char req[100];
-  strcpy(req, "PORTUPD ");
-  char no[100]; 
-  sprintf(no, "%d\n", portNo);
-  strncat(req, no, strlen(no));
-  send(fd, req, strlen(req), 0);
-
-  sa.sin_family       = AF_INET;
-  sa.sin_port         = htons(portNo);     // client & server see same port
-  sa.sin_addr.s_addr  = htonl(INADDR_ANY); // the kernel assigns the IP ad
-
-  // Do a bind of that socket
-  bind(fd2, (struct sockaddr *) &sa, sizeof(sa));
-
-  listen(fd2, 5);
-  int fdListen = fd2;
-  int len = sizeof(sa);
-
-  while(0 == 0) {
-    // Do the accept
-    int fdConn = accept(fdListen, (struct sockaddr*) &sa, &len);
-    printf("Connection\n");
-    if(fdConn == -1) {
-      printf("Error");
-    }
-    //int out = newThread((void*) (*clientThread), &fdConn);
-    //int ou2 = newThread((void*) (*inputThread), &fdConn);
-
-  }
+	address_name_server = argv[1]; // name server address is 2nd argument
+	port_name_server = argv[2]; // name server port is 3rd argument
+	port_peers = argv[3]; // peer port is 4th argument
+	
+	name_server_o name_server;
+	strncpy(name_server.address, address_name_server, NI_MAXHOST);
+	strncpy(name_server.port, port_name_server, NI_MAXSERV);
+	
+	//connect to the name server
+	int res = connect_to_name_server(&name_server);
+	
+	if (res) {
+		printf("Unable to connect to name server \n");
+		return 0;
+	}
+	
+	//inform the name server of the port to use
+	res = update_port(&name_server, port_peers);  
+	
+	printf("We have connected to the name server, and sent new port, waiting for peers n such \n");
+	
+	//not sure what else we need to do here. maybe just wait for threads to end probally.
+	while (1) { // WOOHOO }
 }
 
 /** Function that will handle messages received from the name server
@@ -209,12 +138,24 @@ void* client_handle(void* arg) {
 
 /** Function that will parse the peers from the peer message from name server, into
 		the peer list
-	@param peer_list A pointer to a list struct containing the current peers
+	@param peer_list A pointer to a list struct containing the current peers, without the "PEERS "
 	@param peer_msg A cstring containing the peer message from the name server
 */
 
 int parse_peers(list* peer_list, char* peer_msg) {
+	
+	char* ip_port_tok = strtok(peer_msg, " ");
+	
+	while (ip_port_tok != NULL) {
+		//strstr
+		
+		
+		ip_port_tok = strtok(NULL, " ");
+	}
+	
+		
 
+	
 }
 
 /** Removes all elements from the peer list, and frees up thier memory
@@ -224,13 +165,11 @@ int parse_peers(list* peer_list, char* peer_msg) {
 
 int clean_peers_list(list* peer_list) {
 	while (list_size(peer_list) > 0) {
-		peer_o* tmp_peer = list_get_item_at(peer_list, 0);
+		peer_o* tmp_peer = (peer_o*) list_item_at(peer_list, 0);
 		list_remove(peer_list, tmp_peer);
-		
-		//TODO: before freeing the peer struct, terminate the peer thread
-		//free(tmp_peer->peer_thread);
-		//free(tmp_peer);
+		free(tmp_peer);
 	}
+	//this should have removed all elements
 }
 
 /** Establishes a conenction to the specified name server
@@ -303,9 +242,8 @@ int connect_to_peer(peer_o* peer) {
 */
 
 void* listen_for_clients(void* arg) {
-	int socket_fd = *(arg);
-	
-	int server_sock = init_server(port);
+	int socket_fd = *( (int*) arg);
+
 	
 }
 
@@ -327,7 +265,7 @@ int init_server(char* port) {
 	
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM; // tcp
-	hints_ai_flags = AI_PASSIVE;
+	hints.ai_flags = AI_PASSIVE;
 	
 	res = getaddrinfo(NULL, port, &hints, &server_info);
 	
