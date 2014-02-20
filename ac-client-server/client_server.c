@@ -126,7 +126,18 @@ int main (int argc, char **argv) {
     if(fdConn == -1) {
       printf("Error");
     }
-    int out = newThread((void*) (*clientThread), &fdConn);
+    // Create a peer
+    peer_o* peer = (peer_o*)malloc(sizeof(peer));
+    peer->peer_id = idTracker;
+    peer->socket_fd = fdConn;
+    peer->open_con = 1;
+    peer->ttl = 30;
+    strcpy(peer->port, "NA");
+    strcpy(peer->address, "NA");
+    idTracker++;
+    list_add(peer_list, peer);
+    // new thread
+    int out = newThread((void*) (*clientThread), &peer->socket_fd);
   }
 }
 
@@ -144,20 +155,6 @@ int clientThread(void* data) {
   cprio = getpriority(PRIO_PROCESS, 0);
   printf("Made new client thread\n");
 
-  // DEPRECATED
-  //char port[100];
-  
-  //printf("%s\n", init);
-
-  //strncpy(port, "PORT ", sizeof(port));
-  //char no[100]; 
-  //sprintf(no, "%d\n", portNo);
-  //strncat(port, no, strlen(no));
-
-  // Send init string
-  //send(*(int*)data, port, strlen(port), 0);
-  //printf("Sent string: %s\n", init);
-
   bzero(ip_output_buffer, CHUNK_SIZE);
   
   // Receive 
@@ -173,23 +170,22 @@ int clientThread(void* data) {
 	char* temp = inBuff + 6;
 	ipf = strtok(temp, ":");
 	if(strlen(temp) > 8 ) {
-	  printf("%s\n", temp);
-	  peer_o* peer = (peer_o*)malloc(sizeof(peer));
-	  peer->peer_id = idTracker;
-	  strncpy(peer->address, ipf, NI_MAXHOST);
 	  char* temp2;
-	  temp2 = strtok(NULL, ":");
-	  strncpy(peer->port, temp2, 5); 
-	  if(temp2 == NULL) {
-	    printf("ERROR!!!\n");
+	  temp2 = strtok(NULL, " ");
+	  while(temp2 != NULL) {
+	    printf("%s\n", temp);
+	    peer_o* peer = (peer_o*)malloc(sizeof(peer));
+	    peer->peer_id = idTracker;
+	    strncpy(peer->address, ipf, NI_MAXHOST);
+	    strncpy(peer->port, temp2, 5); 
+	    printf("%s", peer->port);
+	    peer->open_con = 0;
+	    peer->ttl = 30;
+	    idTracker++;
+	    connectToPeer(peer, data);
+	    ipf = strtok(NULL, ":");
+	    temp2 = strtok(NULL, " ");
 	  }
-	  printf("%s", peer->port);
-	  peer->open_con = 0;
-	  peer->ttl = 30;
-	  idTracker++;
-	  //if(strlen(ipf) >= INET_ADDRSTRLEN - 1) {
-	  connectToPeer(peer, data);
-	  //}
 	}
       }
     }
@@ -273,9 +269,9 @@ int inputThread(void* data) {
     message[len] = '\0';
     int i = 0;
     for( i = 0; i < list_size(peer_list); i++) {
-      peer_o* tp = (peer_o*)malloc(sizeof(tp));
-      tp = (peer_o*)list_item_at(peer_list, i);
+      peer_o* tp = (peer_o*)list_item_at(peer_list, i);
       send(tp->socket_fd, message, strlen(message), 0);
+      //printf("Sent to %d\n", tp->socket_fd);
     }
     send(*(int*)data, message, strlen(message), 0);
     printf("Message sent to %d clients and name-server\n", list_size(peer_list));
