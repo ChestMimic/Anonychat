@@ -31,12 +31,29 @@ int addConnection(node uno, node dos){
 
 int removeConnection(node uno, node dos){
 	//note: this function intentionally ignores the minConnections value. 
-
+	int count = 0;
+	for(count = 0; count < uno->numConnections; count++){
 	//check both have connection to each other
-	//remove uno from dos
-		//remove uno from connections list
-		//shift space in array as neccessary
-		//decrement dos' counter
+		//remove uno from dos
+		if(compareNodes(dos, uno[count]){
+			//remove uno from connections list
+			//shift space in array as neccessary
+			//decrement dos' counter
+		}
+			
+	}
+	
+	count = 0;
+	for(count = 0; count < dos->numConnections; count++){
+	//check both have connection to each other
+		//remove uno from dos
+		if(compareNodes(uno, dos[count]){
+			//remove uno from connections list
+			//shift space in array as neccessary
+			//decrement dos' counter
+		}
+			
+	}
 
 	//remove dos from uno
 		//remove dos from connections list
