@@ -22,6 +22,7 @@ void connectToPeer(peer_o* peer, void* data);
 
 // List of peers for a client
 list* peer_list;
+list* socket_list;
 unsigned int idTracker = 0;
 int portNo; // Your port number
 
@@ -205,7 +206,7 @@ void connectToPeer(peer_o* peer, void* data) {
   
   printf("Trying to connect to another peer s1\n");
 
-  // If already connected to peer, return
+  // If already connected to peer, retu(peer_o*)list_item_at(peer_list, i)rn
   int i = 0;
   //for( i = 0; i < list_size(peer_list); i++) {
   //peer_o* tp = (peer_o*)list_item_at(peer_list, i);
@@ -238,7 +239,7 @@ void connectToPeer(peer_o* peer, void* data) {
      peer->open_con = 1;
      int out = newThread((void*) (*clientThread), &peer->socket_fd);
      // Add to list of peers
-     list_add(peer_list, &peer);
+     list_add(peer_list, peer);
      // Send connect message
      strcpy(init, "Established connection to new client\n");
      send(peer->socket_fd, init, strlen(init), 0);
@@ -272,7 +273,8 @@ int inputThread(void* data) {
     message[len] = '\0';
     int i = 0;
     for( i = 0; i < list_size(peer_list); i++) {
-      peer_o* tp = (peer_o*)list_item_at(peer_list, i);
+      peer_o* tp = (peer_o*)malloc(sizeof(tp));
+      tp = (peer_o*)list_item_at(peer_list, i);
       send(tp->socket_fd, message, strlen(message), 0);
     }
     send(*(int*)data, message, strlen(message), 0);
