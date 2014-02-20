@@ -260,6 +260,8 @@ int inputThread(void* data) {
     printf("Message sent\n");
     bzero(message, CHUNK_SIZE);
   }
+  
+  free(message);
 
   return 0;
 }
