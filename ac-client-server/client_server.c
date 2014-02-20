@@ -101,7 +101,10 @@ int main (int argc, char **argv) {
   }
 
   char req[100];
-  strcpy(req, "PORTUPD");
+  strcpy(req, "PORTUPD ");
+  char no[100]; 
+  sprintf(no, "%d\n", portNo);
+  strncat(req, no, strlen(no));
   send(fd, req, strlen(req), 0);
 
   sa.sin_family       = AF_INET;
@@ -130,7 +133,7 @@ int clientThread(void* data) {
   
   // variables
   unsigned int cprio, myprioID;
-  char inBuff[BUFFER_SIZE];
+  char* inBuff = (char*)malloc(BUFFER_SIZE);
   char ip_output_buffer[BUFFER_SIZE];
 
   // Thread things
@@ -158,29 +161,31 @@ int clientThread(void* data) {
   
   // Receive 
   while(0 == 0) {
-    if (recv( *((int*)data), inBuff, sizeof(inBuff) - 2, 0 ) <= 0 ) {
+    if (recv( *((int*)data), inBuff, BUFFER_SIZE, 0 ) <= 0 ) {
       printf( "Error encountered: Terminating\n");
       exit(0);
     } else {
       printf( "String received: %s", inBuff);
       // Message containing PEER infomation
       if(strncmp(inBuff, "PEERS ", 6) == 0) {
-	char ip[INET_ADDRSTRLEN];
 	char* ipf;
-	strncpy(ip, inBuff+6, INET_ADDRSTRLEN);
-	ipf = strtok(ip, ":");
-	printf("%s\n", ip);
-	peer_o* peer = (peer_o*)malloc(sizeof(peer));
-	peer->peer_id = idTracker;
-	strncpy(peer->address, ipf, INET_ADDRSTRLEN);
-	peer->socket_fd = 0;
-	peer->open_con = 0;
-	peer->ttl = 30;
-	list_add(peer_list, &peer);
-	idTracker++;
-	//if(strlen(ipf) >= INET_ADDRSTRLEN - 1) {
+	char* temp = inBuff + 6;
+	ipf = strtok(temp, ":");
+	if(strlen(temp) > 8 ) {
+	  printf("%s\n", inBuff);
+	  peer_o* peer = (peer_o*)malloc(sizeof(peer));
+	  peer->peer_id = idTracker;
+	  strncpy(peer->address, ipf, NI_MAXHOST);
+	  peer->socket_fd = 0;
+	  strncpy(peer->port, strtok(NULL, ":"), NI_MAXSERV);
+	  peer->open_con = 0;
+	  peer->ttl = 30;
+	  list_add(peer_list, &peer);
+	  idTracker++;
+	  //if(strlen(ipf) >= INET_ADDRSTRLEN - 1) {
 	  connectToPeer(peer, data);
 	  //}
+	}
       }
     }
       bzero(inBuff, CHUNK_SIZE);
@@ -214,7 +219,7 @@ void connectToPeer(peer_o* peer, void* data) {
   }
   
   pa.sin_family       = AF_INET;
-  pa.sin_port         = htons(peer->);     // client & server see same port
+  pa.sin_port         = peer->port;     // client & server see same port
   pa.sin_addr.s_addr  = inet_addr(peer->address); // the kernel assigns the IP ad
   
   printf("Trying to connect to another peer s2\n");
