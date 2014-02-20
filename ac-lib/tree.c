@@ -1,7 +1,7 @@
 #include "tree.h"
 #include <stdlib.h>
 
-int compareNodes(node uno, node dos){
+int compareNodes(node* uno, node* dos){
 	if(uno == dos){
 		return 1;
 	}
@@ -10,7 +10,7 @@ int compareNodes(node uno, node dos){
 	}
 }
 
-int addConnection(node uno, node dos){
+int addConnection(node* uno, node* dos){
 	//add dos to uno
 	//allocate space to uno->connections if necessary
 	uno->connections = realloc(uno->connections, sizeof(node)*(uno->numConnections + 1));
@@ -29,39 +29,9 @@ int addConnection(node uno, node dos){
 	return 0;
 }
 
-int removeConnection(node uno, node dos){
-	//note: this function intentionally ignores the minConnections value. 
-	int count = 0;
-	for(count = 0; count < uno->numConnections; count++){
-	//check both have connection to each other
-		//remove uno from dos
-		if(compareNodes(dos, uno[count]){
-			//remove uno from connections list
-			//shift space in array as neccessary
-			//decrement dos' counter
-		}
-			
-	}
-	
-	count = 0;
-	for(count = 0; count < dos->numConnections; count++){
-	//check both have connection to each other
-		//remove uno from dos
-		if(compareNodes(uno, dos[count]){
-			//remove uno from connections list
-			//shift space in array as neccessary
-			//decrement dos' counter
-		}
-			
-	}
 
-	//remove dos from uno
-		//remove dos from connections list
-		//shift space in array as neccessary
-		//decrement uno's counter
-}
 
-node combineNodesToGraph(node group[], int minConnections, int size){
+node combineNodesToGraph(node* group[], int minConnections, int size){
 	
 	if(size < (minConnections - 1)){
 		//for each node in group[]
@@ -137,22 +107,16 @@ node combineNodesToGraph(node group[], int minConnections, int size){
 	return group[size-1];
 }
 
-int nodeInGraph(node head, node target){
-
-}
 
 int numberOfConnections(node n){
 	return n->numConnections;
 }
 
-int addNodeToGraph(node head, node target, int minConnections){
-	//Assuming graph is built by combineNodesToGraph, random selection of connections should be satisfactory.
-}
 
-node createNode(){
-	node n;
+node* createNode(){
+	node* n;
 	n->numConnections = 0;
-	n->connections = malloc(sizeof(*n));
+	n->connections = (node*) malloc(sizeof(*n));
 
 	return n;
 }
