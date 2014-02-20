@@ -17,10 +17,8 @@ typedef struct _queue queue;
 
 queue enqueue(node* n, queue* q);
 
-queue dequeue(node* n, queue* q);
+queueItem dequeue(node* n, queue* q);
 
 node* breadthFirstSearch(node* n, node* n);
-
-int queueContains(node* n, queue* q);
 
 #endif

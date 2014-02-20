@@ -11,24 +11,31 @@ queue enqueue(node* n, queue* q){
 	}
 }
 
-queue dequeue(node* n, queue* q){
+queueItem dequeue(queue* q){
 	if(q->lst == NULL){
-		//start adding here
+		return 0;
 	}
 	else{
-		//queue has items, just follow to node and remove
-			//at target, take next and add to previous to close gap
-			// A->B->C becomes 
-			// A-| B |->C
-			//   V-->/\
+		return q->lst;
+
 	}
-	return q;
-}
-
-node* breadthFirstSearch(node* n, node* n){
-
-}
-
-int queueContains(node* n, queue* q){
 	
 }
+
+node* breadthFirstSearch(node* alpha, node* target){
+	//Followed pseudocode from http://en.wikipedia.org/wiki/Breadth-first_search
+
+	//create queue
+	//add alpha to queue
+	// while Q is not empty,
+		//dequeue top element
+		//if match, 
+			//return element
+		//else
+		//for all the connections element has,
+			//queue new items (check performed by enqueue())
+	//if queue becomes empty, target not found
+		//return null
+
+}
+
