@@ -133,16 +133,18 @@ int main (int argc, char **argv) {
 
   listen(fd2, 5);
   int fdListen = fd2;
-  int len = sizeof(ca);
+  int len = sizeof(sa);
 
   while(0 == 0) {
     // Do the accept
-    int fdConn = accept(fdListen, (struct sockaddr*) &ca, &len);
+    int fdConn = accept(fdListen, (struct sockaddr*) &sa, &len);
+    printf("Connection\n");
     if(fdConn == -1) {
       printf("Error");
     }
     //int out = newThread((void*) (*clientThread), &fdConn);
     //int ou2 = newThread((void*) (*inputThread), &fdConn);
+
   }
 }
 
