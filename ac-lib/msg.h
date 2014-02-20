@@ -3,6 +3,7 @@
 
 #include <glib.h>
 #include <netdb.h>
+#include <pthread.h>
 
 #define MESSAGE_PURGE_TIME (30) // the purge time of a message in secconds
 #define DEFAULT_PEER_TIMEOUT (30) // the default peer timeout
@@ -17,6 +18,7 @@ struct _peer {
 	int socket_fd; // the open socket with the peer
 	int open_con; // 1 if there is an open connection with the peer, 0 if not
 	int ttl; //the time to live of this peer, in seconds
+	pthread_t* peer_thread; // thread for this peer handler
 };
 
 typedef struct _peer peer_o;
