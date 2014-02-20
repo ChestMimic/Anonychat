@@ -4,6 +4,10 @@
 queue enqueue(node* n, queue* q){
 	if(q->lst == NULL){
 		//start adding here
+		queueItem qI = (queueItem*) malloc(sizeof(queueItem));
+		qI->value = n;
+		qI->next = NULL;
+		q->lst = qI;
 	}
 	else{
 		//queue has items, just follow to end and add
