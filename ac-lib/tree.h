@@ -23,7 +23,7 @@ int removeConnection(node uno, node dos);
 
 //Takes array of nodes and connects them all, with a minimum number of connections per node
 //return "head" node
-node combineNodesToGraph(node group[], int minConnections);
+node* combineNodesToGraph(node group[], int minConnections);
 
 //Takes target and looks to see if it is, in any way connected to head
 //If yes, return number of hops(matching returns 0, one hop is 1, etc)
@@ -36,5 +36,7 @@ int numberOfConnections(node n);
 //adds a node into a graph.
 //
 int addNodeToGraph(node head, node target, int minConnections);
+
+node createNode();
 
 #endif
