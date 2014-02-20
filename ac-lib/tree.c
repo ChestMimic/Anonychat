@@ -69,9 +69,24 @@ node combineNodesToGraph(node group[], int minConnections, int size){
 			int subCountB = 0;
 			for(subCountB = 0; subCountB < remPerNode; subCountB++){
 				if(subCountB != 0){
+					if(subCountB % 2 == 0){
 					//even number go short
-
+						if(size < (count + (size/2))){
+							addConnection(group[count], group[size - count+(size/2)-ceil(subCountB/2)]);
+						}
+						else{
+							addConnection(group[count], group[count+(size/2)-ceil(subCountB/2)]);
+						}
+					}
+					else{
 					//far number go long
+						if(size < (count + (size/2))){
+							addConnection(group[count], group[size - count+(size/2)+ceil(subCountB/2)]);
+						}
+						else{
+							addConnection(group[count], group[count+(size/2)+ceil(subCountB/2)]);
+						}
+					}
 				}
 				else{//first choice here is always opposite on circle
 					if(size < (count + (size/2))){
@@ -86,7 +101,19 @@ node combineNodesToGraph(node group[], int minConnections, int size){
 	}
 	else{
 	//In cases where minConnections exceeds possible connections per node (approximatley n-1 of group size), ignore minConnections and assume max
-	
+	//aka add everyone to everyone else
+		int count = 0;
+		for(count = 0; count < size; count++){
+			int subCount = 0;
+			for(subCount = 0; subCount < size; subCount++){
+				if(count == subCount){
+					//do nothing, same numbers
+				}
+				else{
+					addConnection(group[count], group[subCount]);
+				}
+			}
+		}
 		
 	}//return last node operated on to act as head
 
