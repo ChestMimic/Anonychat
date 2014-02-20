@@ -90,7 +90,7 @@ int main (int argc, char **argv) {
   }
 
   ca.sin_family       = AF_INET;
-  ca.sin_port         = htons(portNo);     // client & server see same port
+  ca.sin_port         = htons(6958);     // client & server see same port
   ca.sin_addr.s_addr  = inet_addr(IPAddress); // the kernel assigns the IP ad
 
   if (connect(fd, (struct sockaddr *)&ca, lca) == -1)  {
@@ -99,6 +99,10 @@ int main (int argc, char **argv) {
     int out = newThread((void*) (*clientThread), &fd);
     int ou2 = newThread((void*) (*inputThread), &fd);
   }
+
+  char req[100];
+  strcpy(req, "PORTUPD");
+  send(fd, req, strlen(req), 0);
 
   sa.sin_family       = AF_INET;
   sa.sin_port         = htons(portNo);     // client & server see same port
@@ -162,19 +166,21 @@ int clientThread(void* data) {
       // Message containing PEER infomation
       if(strncmp(inBuff, "PEERS ", 6) == 0) {
 	char ip[INET_ADDRSTRLEN];
-	strcpy(ip, inBuff+6);
-	printf("%s", ip);
+	char* ipf;
+	strncpy(ip, inBuff+6, INET_ADDRSTRLEN);
+	ipf = strtok(ip, ":");
+	printf("%s\n", ip);
 	peer_o* peer = (peer_o*)malloc(sizeof(peer));
 	peer->peer_id = idTracker;
-	strncpy(peer->address, ip, INET_ADDRSTRLEN);
+	strncpy(peer->address, ipf, INET_ADDRSTRLEN);
 	peer->socket_fd = 0;
 	peer->open_con = 0;
 	peer->ttl = 30;
 	list_add(peer_list, &peer);
 	idTracker++;
-	if(strlen(ip) >= INET_ADDRSTRLEN - 1) {
+	//if(strlen(ipf) >= INET_ADDRSTRLEN - 1) {
 	  connectToPeer(peer, data);
-        }
+	  //}
       }
     }
       bzero(inBuff, CHUNK_SIZE);
@@ -188,6 +194,8 @@ void connectToPeer(peer_o* peer, void* data) {
   struct sockaddr_in pa;
   int lpa = sizeof(pa);
   
+  printf("Trying to connect to another peer s1\n");
+
   // If already connected to peer, return
   int i = 0;
   for( i = 0; i < list_size(peer_list); i++) {
@@ -196,8 +204,8 @@ void connectToPeer(peer_o* peer, void* data) {
       return;
     }
     //if( *(int*)data == peer->socket_fd) {
-    //  return;
-    //}
+    // return;
+     // }
   }
 
   if ((peer->socket_fd = socket ( AF_INET, SOCK_STREAM, 0 )) < 0)   {
@@ -206,9 +214,10 @@ void connectToPeer(peer_o* peer, void* data) {
   }
   
   pa.sin_family       = AF_INET;
-  pa.sin_port         = htons(portNo);     // client & server see same port
+  pa.sin_port         = htons(peer->);     // client & server see same port
   pa.sin_addr.s_addr  = inet_addr(peer->address); // the kernel assigns the IP ad
   
+  printf("Trying to connect to another peer s2\n");
   if (connect(peer->socket_fd, (struct sockaddr *)&pa, lpa) == -1)  {
      perror( "Failed to connect");
   } else {
