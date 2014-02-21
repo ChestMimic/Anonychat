@@ -1,6 +1,9 @@
 #ifndef CLIENT_SERVER_H
 #define CLIENT_SERVER_H
 
+#define DEFAULT_PEER_PORT "4758"
+#define PEER_SERVER_BACKLOG (5)
+
 #include <pthread.h>
 
 /** Struct representing a name server
@@ -17,6 +20,18 @@ struct _name_server {
 
 typedef struct _name_server name_server_o;
 
+/** Struct to represent the peer server
+*/
+
+struct _peer_server {
+	char port[NI_MAXSERV]; // the port to bind to
+	int socket_fd; // the socket the server is bound to
+	int open_con; // 1 if there is an open connection, 0 if not
+	pthread_t* peer_thread; // the thread that is handling the serv
+};
+
+typedef struct _peer_server peer_server_o;
+
 /** Struct representing a client connected as a peer
 */
 
@@ -24,6 +39,7 @@ struct _client {
 	int client_id; // the id of this client
 	int socket_fd; // the socket descriptor the client is connected on
 	int open_con; // 1 if there is an open connection, 0 if not
+	struct sockaddr_storage client_addr; // address of the client
 	pthread_t* handler_thread; // the thread to handle responses from clients
 };
 
@@ -97,6 +113,19 @@ void* client_handle(void* arg);
 
 void* input_handle(void* arg);
 
+/** Initializes the socket to listen for connections on
+	@param arg A pointer to the peer_server struct
+	@return 1 if there was an error, 0 if sucessfully exited.
+*/
+
+void* listen_for_clients(void* arg);
+
+/** Sets up the socket the server will use to listen on for new clients
+	@param Pointer to a peer_server which contains the port to connect to
+	@return The socket descriptor of the socket that was created, -1 if unsucessful
+*/
+
+int init_server(peer_server_o* peer_server);
 
 
 #endif

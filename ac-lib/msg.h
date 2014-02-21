@@ -48,10 +48,11 @@ typedef struct _message_encrypted message_encrypted_o;
 
 /** Creates a new peer with the given ip address and default time to live
 	@param ip_addr The ip address of the peer
+	@param port The port for the peer
 	@return A pointer to a peer_o struct
 */	
 
-peer_o* create_peer(char* ip_addr);
+peer_o* create_peer(char* ip_addr, char* port);
 
 /** Determines if the string a starts with the string b,
 	@param a cstring a

@@ -22,13 +22,15 @@ int peer_id = 0;
 
 /** Creates a new peer with the given ip address and default time to live
 	@param ip_addr The ip address of the peer
+	@param port The port for the peer
 	@return A pointer to a peer_o struct
 */	
 
-peer_o* create_peer(char* ip_addr) {
+peer_o* create_peer(char* ip_addr, char* port) {
 	peer_o* peer = (peer_o*) malloc(sizeof(peer_o));
 	peer-> peer_id = peer_id++;
-	strncpy(peer->address, ip_addr, INET_ADDRSTRLEN);
+	strncpy(peer->address, ip_addr, NI_MAXHOST);
+	strncpy(peer->port, port, NI_MAXSERV);
 	peer->ttl = DEFAULT_PEER_TIMEOUT;
 	peer->open_con = 0;
 	return peer;

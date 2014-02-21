@@ -19,21 +19,20 @@
 #define         BUFFER_SIZE     512
 #define         CHUNK_SIZE 512
 
-//int clientThread(void *);
-//int inputThread(void *);
-//void connectToPeer(peer_o* peer, void* data);
-
-int idTracker;
 
 // List of peers for a client
 list* peer_list;
 
+// list of all connected clients
+list* client_list;
+
 //indicates whether or not we are still running
 int running = 1; 
 
-int portNo; // Your port number
+//counter for client ids
+int client_id = 0;
 
-pthread_mutex_t priting_mutex; // mutex for printing
+pthread_mutex_t printing_mutex; // mutex for printing
 
 void print_usage() {
 	printf("Usage: \n");
@@ -47,23 +46,44 @@ int main (int argc, char **argv) {
 	char* port_name_server; // the port of the name server
 	char* port_peers; // the port to listen for peer connections on
 
-	if (argc != 4) {	// If there are not 4 arguments, error
+	if (argc < 3) {	// If there are not 4 arguments, error
 		print_usage();
 		return 1;
 	}
 
 	address_name_server = argv[1]; // name server address is 2nd argument
 	port_name_server = argv[2]; // name server port is 3rd argument
-	port_peers = argv[3]; // peer port is 4th argument
+	
+	if (argc == 4) {
+		port_peers = argv[3]; // peer port is 4th argument
+	}
+	else {
+		port_peers = DEFAULT_PEER_PORT;
+	}
+	
+	//initialize mutexes
+	pthread_mutex_init(&printing_mutex, NULL);
+	
+	//initialize peer_list
+	peer_list = list_create();
+	client_list = list_create();
 	
 	name_server_o name_server;
 	strncpy(name_server.address, address_name_server, NI_MAXHOST);
 	strncpy(name_server.port, port_name_server, NI_MAXSERV);
 	
+	//lets setup the server before we conenct to name server
+	peer_server_o peer_server;
+	strncpy(peer_server.port, port_peers, NI_MAXSERV);
+	int server_fd = init_server(&peer_server);
+	
+	pthread_create(peer_server.peer_thread, NULL, &listen_for_clients, 
+		(void*) &peer_server);
+	
 	//connect to the name server
 	int res = connect_to_name_server(&name_server);
 	
-	if (res) {
+	if (!res) {
 		printf("Unable to connect to name server \n");
 		return 0;
 	}
@@ -71,10 +91,12 @@ int main (int argc, char **argv) {
 	//inform the name server of the port to use
 	res = update_port(&name_server, port_peers);  
 	
-	printf("We have connected to the name server, and sent new port, waiting for peers n such \n");
+	printf("We have connected to the name server, and sent new port,"
+		" waiting for peers n such \n");
 	
-	//not sure what else we need to do here. maybe just wait for threads to end probally.
-	while (1) { // WOOHOO }
+	//wait for the name server handler thread to finish.
+	//if it does, we will drop out, can't do much without the name server
+	pthread_join(*(name_server.name_thread), NULL);
 }
 
 /** Function that will handle messages received from the name server
@@ -92,6 +114,16 @@ void* name_server_handle(void* arg) {
 	while ( (res = recv(name_server->socket_fd, buffer, BUFFER_SIZE, 0))) {
 		buffer[res] = '\0'; // add a null terminator just in case
 		printf("Recevied |%s| from name server! \n");
+		
+		//parse the peers message
+		if (str_starts_with(buffer, "PEERS ")) {
+			parse_peers(peer_list, buffer + 6);
+			//we parsed the peers now lets connect
+			int failed = connect_to_peers(peer_list);
+			if (failed) {
+				printf("Failed to connect to %d peers \n", failed);
+			}
+		}
 	}
 	
 	printf("Disconnected from name server \n");
@@ -104,7 +136,7 @@ void* name_server_handle(void* arg) {
 }
 
 /** Function that will handle messages received from the specified client
-	@param arg A pointer to a peer struct
+	@param arg A pointer to a client struct
 	@return TODO: define
 */
 
@@ -129,6 +161,11 @@ void* client_handle(void* arg) {
 	client->socket_fd = -1;
 	client->open_con = 0;
 	
+	//remove the client from the client list
+	pthread_mutex_lock(&(client_list->mutex));
+	list_remove(client_list, client);
+	pthread_mutex_unlock(&(client_list->mutex));
+	
 	//TODO: Add something to free the client, this will probally error.
 	free(client->handler_thread);
 	free(client);		
@@ -138,24 +175,69 @@ void* client_handle(void* arg) {
 
 /** Function that will parse the peers from the peer message from name server, into
 		the peer list
-	@param peer_list A pointer to a list struct containing the current peers, without the "PEERS "
+	@param peer_list A pointer to a list struct containing the current peers,
+		without the "PEERS "
 	@param peer_msg A cstring containing the peer message from the name server
+	@return 0 if sucessful, 1 otherwise
 */
 
-int parse_peers(list* peer_list, char* peer_msg) {
-	
-	char* ip_port_tok = strtok(peer_msg, " ");
+int parse_peers(list* peer_list, char* peer_msg) {	
+	if (strlen(peer_msg) < 1) {
+		return 1; // no peers to parse
+	}
+	//clean out the existing peers
+	clean_peers_list(peer_list);
+			
+	char* save_ptr;
+	char* ip_port_tok = strtok_r(peer_msg, " ", &save_ptr);	
 	
 	while (ip_port_tok != NULL) {
-		//strstr
 		
+		
+		char* ip_addr = strtok(ip_port_tok, ":");
+		char* port = strtok(NULL, ":");
+		
+		if (ip_addr == NULL || port == NULL) {
+			//error parsing this port.
+			printf("Error parsing %s \n", ip_port_tok);
+			continue;
+		}		
 		
 		ip_port_tok = strtok(NULL, " ");
+		peer_o* peer = create_peer(ip_addr, port);
+		printf("Created peer %s:%s, with id %d \n", ip_addr, port, peer->peer_id);
+		
+		pthread_mutex_lock(&(peer_list->mutex));
+		list_add(peer_list, (void*) peer);
+		pthread_mutex_unlock(&(peer_list->mutex));
+		ip_port_tok = strtok_r(NULL, " ", &save_ptr);
+	}	
+	
+	return 0;
+}
+
+/** Connects to every peer in the specified peer list
+	@param peer_list The list of peers to connect to
+	@retun 0 if sucessful, otherwise number of peers that failed to connect
+*/
+
+int connect_to_peers(list* peer_list) {
+	int failed = 0;
+	
+	int i=0;
+	for (i=0;i < list_size(peer_list); i++) {
+		peer_o* to_con = list_item_at(peer_list, i);
+		if (!to_con->open_con) {
+			//only connect if we are not alraedy connected
+			int res = connect_to_peer(to_con);
+			if (res == -1) {
+				failed ++;
+				//we failed to connect to a peer
+			}
+		}
 	}
 	
-		
-
-	
+	return failed;
 }
 
 /** Removes all elements from the peer list, and frees up thier memory
@@ -164,12 +246,17 @@ int parse_peers(list* peer_list, char* peer_msg) {
 */
 
 int clean_peers_list(list* peer_list) {
+	pthread_mutex_lock(&(peer_list->mutex));
 	while (list_size(peer_list) > 0) {
 		peer_o* tmp_peer = (peer_o*) list_item_at(peer_list, 0);
 		list_remove(peer_list, tmp_peer);
+		if (tmp_peer->open_con) {
+			close(tmp_peer->socket_fd);
+		}
 		free(tmp_peer);
 	}
-	//this should have removed all elements
+	pthread_mutex_unlock(&(peer_list->mutex));
+	return 0;
 }
 
 /** Establishes a conenction to the specified name server
@@ -242,8 +329,34 @@ int connect_to_peer(peer_o* peer) {
 */
 
 void* listen_for_clients(void* arg) {
-	int socket_fd = *( (int*) arg);
+	peer_server_o* peer_server = (peer_server_o*) arg;
+	int socket_fd = peer_server->socket_fd;
 
+	int res = listen(socket_fd, PEER_SERVER_BACKLOG);
+	
+	while (running) {
+		
+		struct sockaddr_storage client_addr;
+		socklen_t sin_size = sizeof(client_addr);
+		
+		int client_socket_fd = accept(socket_fd, (struct sockaddr*) &client_addr,
+			&sin_size);
+			
+		if (client_socket_fd == -1) {
+			printf("An error occured while trying to accept a client... \n");
+			continue; // try and accept more clients
+		}
+		
+		client_o* client = (client_o*) malloc(sizeof(client_o));
+		client->client_id = client_id++;
+		client->socket_fd = client_socket_fd;
+		client->open_con = 1;
+		client->client_addr = client_addr;
+		
+		//start the client thread
+		pthread_create(client->handler_thread, NULL, &client_handle, (void*) client);
+		
+	}
 	
 }
 
@@ -252,7 +365,7 @@ void* listen_for_clients(void* arg) {
 	@return The socket descriptor of the socket that was created, -1 if unsucessful
 */
 
-int init_server(char* port) {
+int init_server(peer_server_o* peer_server) {
 	struct addrinfo hints;
 	struct addrinfo* server_info;
 	struct addrinfo* server_connect;
@@ -267,7 +380,7 @@ int init_server(char* port) {
 	hints.ai_socktype = SOCK_STREAM; // tcp
 	hints.ai_flags = AI_PASSIVE;
 	
-	res = getaddrinfo(NULL, port, &hints, &server_info);
+	res = getaddrinfo(NULL, peer_server->port, &hints, &server_info);
 	
 	if (res) { //couldnt get address info
 		printf("Error occured while retreiving our addess info. Couldnt start server \n");
