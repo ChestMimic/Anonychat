@@ -9,6 +9,7 @@
 #include       <time.h>
 #include       <pthread.h>
 #include       <sys/resource.h>
+#include	   <errno.h>
 
 
 #include       "thread_util.h"
@@ -60,7 +61,7 @@ int main (int argc, char **argv) {
 	else {
 		port_peers = DEFAULT_PEER_PORT;
 	}
-	
+
 	//initialize mutexes
 	pthread_mutex_init(&printing_mutex, NULL);
 	
@@ -75,10 +76,18 @@ int main (int argc, char **argv) {
 	//lets setup the server before we conenct to name server
 	peer_server_o peer_server;
 	strncpy(peer_server.port, port_peers, NI_MAXSERV);
+	peer_server.peer_thread = (pthread_t*) malloc(sizeof(pthread_t));
+	
 	int server_fd = init_server(&peer_server);
 	
 	pthread_create(peer_server.peer_thread, NULL, &listen_for_clients, 
 		(void*) &peer_server);
+	
+	//setup user input
+	
+	//thread for user input
+	pthread_t user_input_thread;
+	pthread_create(&user_input_thread, NULL, &input_handle, NULL);
 	
 	//connect to the name server
 	int res = connect_to_name_server(&name_server);
@@ -97,6 +106,7 @@ int main (int argc, char **argv) {
 	//wait for the name server handler thread to finish.
 	//if it does, we will drop out, can't do much without the name server
 	pthread_join(*(name_server.name_thread), NULL);
+	running = 0;
 }
 
 /** Function that will handle messages received from the name server
@@ -339,12 +349,13 @@ void* listen_for_clients(void* arg) {
 		struct sockaddr_storage client_addr;
 		socklen_t sin_size = sizeof(client_addr);
 		
+		
 		int client_socket_fd = accept(socket_fd, (struct sockaddr*) &client_addr,
 			&sin_size);
 			
 		if (client_socket_fd == -1) {
 			printf("An error occured while trying to accept a client... \n");
-			continue; // try and accept more clients
+			continue;
 		}
 		
 		client_o* client = (client_o*) malloc(sizeof(client_o));
@@ -352,6 +363,8 @@ void* listen_for_clients(void* arg) {
 		client->socket_fd = client_socket_fd;
 		client->open_con = 1;
 		client->client_addr = client_addr;
+		client->handler_thread = (pthread_t*) malloc(sizeof(pthread_t));
+		
 		
 		//start the client thread
 		pthread_create(client->handler_thread, NULL, &client_handle, (void*) client);
@@ -396,6 +409,7 @@ int init_server(peer_server_o* peer_server) {
 			
 		if (socket_fd == -1) {
 			//cannot bind to this address try again
+			printf("Couldn't bind to this addres \n");
 			continue;
 		}
 		
@@ -405,14 +419,17 @@ int init_server(peer_server_o* peer_server) {
 		if (res == -1) {
 			close(socket_fd);
 			socket_fd = -1;
+			printf("Socket opt failed \n");
 			continue;
 		}
 		
 		res = bind(socket_fd, server_connect->ai_addr, server_connect->ai_addrlen);
 		
-		if (res = -1) {
+		if (res == -1) {
 			close(socket_fd);
 			socket_fd = -1;
+			printf("Bind failed err: %s\n", strerror(errno));
+			
 			continue;
 		}
 		
@@ -420,6 +437,10 @@ int init_server(peer_server_o* peer_server) {
 	}
 	
 	free(server_info);
+	
+	printf("Inited server with a socket of %d \n", socket_fd);
+	
+	peer_server->socket_fd = socket_fd;
 	
 	return socket_fd;
 	
@@ -491,6 +512,9 @@ void* input_handle(void* arg) {
 		int i;
 		for (i=0;i<list_size(peer_list); i++) {
 			peer_o* to_send = list_item_at(peer_list, i);
+			
+			printf("Sending message |%s| to peer %d \n", input_buffer, to_send->peer_id);
+			
 			int res = send_msg_peer(to_send, input_buffer);
 			if (res == -1) {
 				//connection to the peer was not open :(
