@@ -364,9 +364,10 @@ void listen_for_clients(int socket_fd) {
 		
 		pthread_mutex_lock(&priting_mutex);
 		if (client_socket_fd == -1) {
-			printf("Error occured while trying to accept a client...\n");
+			printf("Error occured while trying to accept a client. Port is occupied. Is there another program using port 6958?\n");
 			pthread_mutex_unlock(&priting_mutex);
-			continue; // couldnt accept client, continue on
+			exit(1);
+			//continue; // couldnt accept client, continue on
 		}		
 		pthread_mutex_unlock(&priting_mutex);
 		
