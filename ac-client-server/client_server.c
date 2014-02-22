@@ -107,6 +107,7 @@ int main (int argc, char **argv) {
 	//if it does, we will drop out, can't do much without the name server
 	pthread_join(*(name_server.name_thread), NULL);
 	running = 0;
+	printf("We are exiting \n");
 }
 
 /** Function that will handle messages received from the name server

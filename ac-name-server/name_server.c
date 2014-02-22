@@ -83,6 +83,7 @@ void* client_handle(void* arg) {
 	
 	client_send_peers(client_o);
 	
+	
 	pthread_mutex_unlock(&(client_list->mutex)); // release mutex when done
 	
 	char buffer [SERVER_MAX_MESSAGE + 1];
@@ -107,6 +108,20 @@ void* client_handle(void* arg) {
 			strncpy(client_o->port, tok, NI_MAXSERV);
 			printf("Client %s on socket %d updated thier port to %s \n", client_o->address, 
 				client_socket, client_o->port);
+				
+			//probally not the best place for this,,
+			//TODO: Move / figure out where to put this
+			//lets send the peers to all other clients
+			if (list_size(client_list) <= PEER_POOL_SIZE) {
+				int i = 0;
+				for (i = 0; i < list_size(client_list); i++) {
+					client* to_send = (client*) list_item_at(client_list, i);
+					if (to_send->socket_fd == client_socket) {
+						continue;
+					}
+					client_send_peers(to_send);
+				}
+			}
 			
 		}
 		
