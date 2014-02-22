@@ -5,6 +5,7 @@
 #include <openssl/evp.h>
 
 #include "msg.h"
+#include "base64.h"
 
 /** Encryption context struct, contains the contexts for RSA
 		encryption and decryption
