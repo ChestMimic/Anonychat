@@ -18,7 +18,6 @@ struct _peer {
 	int socket_fd; // the open socket with the peer
 	int open_con; // 1 if there is an open connection with the peer, 0 if not
 	int ttl; //the time to live of this peer, in seconds
-	pthread_t* peer_thread; // thread for this peer handler
 };
 
 typedef struct _peer peer_o;
@@ -49,10 +48,11 @@ typedef struct _message_encrypted message_encrypted_o;
 
 /** Creates a new peer with the given ip address and default time to live
 	@param ip_addr The ip address of the peer
+	@param port The port for the peer
 	@return A pointer to a peer_o struct
 */	
 
-peer_o* create_peer(char* ip_addr);
+peer_o* create_peer(char* ip_addr, char* port);
 
 /** Determines if the string a starts with the string b,
 	@param a cstring a

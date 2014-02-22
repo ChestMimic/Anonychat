@@ -146,6 +146,9 @@ void client_send_peers(client* client_o) {
 	
 	if (num_peers > total_peers) {
 		char* to_cat = client_peers_static(client_o, msg_size);		
+		if (to_cat == NULL) {
+			return; // no peers to send
+		}
 		strncat(msg, to_cat, SERVER_MAX_MESSAGE);
 		free(to_cat);
 	}
@@ -154,8 +157,6 @@ void client_send_peers(client* client_o) {
 		strncat(msg, to_cat, SERVER_MAX_MESSAGE);
 		free(to_cat);
 	}
-	
-	strncat(msg, "\n", SERVER_MAX_MESSAGE);
 	
 	printf("Message to send: %s \n", msg);
 	
@@ -167,7 +168,7 @@ void client_send_peers(client* client_o) {
 	@param client_o The client who is requesting the peers
 	@param max_msg_size  The maximum size of the message
 	@return A pointer to a cstring containing the list of peers, seperated by a space,
-		should be freed after use
+		should be freed after use, or NULL if there are no peers to send
 */
 
 char* client_peers_rand(client* client_o, int max_msg_size) {
@@ -220,6 +221,10 @@ char* client_peers_static(client* client_o, int max_msg_size) {
 	msg[0] = '\0';
 	//if num peers is greater than total peers, we can just add the whole list
 	int total_peers = list_size(client_list);
+	
+	if (total_peers == 1) {
+		return NULL;
+	}
 	
 	int i;
 	for (i = 0; i <total_peers; i++) {
