@@ -26,7 +26,18 @@ node* combineNodesToGraph(node* group[], int minConnections, int size);
 //Return the number of IMMEDIATE connections to a node
 int numberOfConnections(node* n);
 
+/** Creates a node with the specified data
+	@data A pointer to the data that the node should contain
+	@return A pointer to the newly created node struct
+*/
 
-node* createNode();
+node* createNode(void* data);
+
+/** Cleans up the given node and returns a pointer to the data that the node contains
+	@param n The node to clean up
+	@return A pointer to this nodes data
+*/
+
+void* cleanupNode(node* n);
 
 #endif

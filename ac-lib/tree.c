@@ -115,10 +115,21 @@ int numberOfConnections(node* n){
 
 
 node* createNode(void* data){
-	node* n;
+	node* n = (node*) malloc(sizeof(node));
 	n->data = data;
 	n->numConnections = 0;
-	n->connections = malloc(sizeof(*n));
+	n->connections = malloc(sizeof(node*));
 
 	return n;
+}
+
+/** Cleans up the given node and returns a pointer to the data that the node contains
+	@param n The node to clean up
+	@return A pointer to this nodes data
+*/
+
+void* cleanupNode(node* n) {
+	void* data = n->data;
+	free(n);
+	return data;g	
 }
