@@ -10,6 +10,7 @@
 #include       <pthread.h>
 #include       <sys/resource.h>
 #include	   <errno.h>
+#include       "enc.h"
 
 
 #include       "thread_util.h"
@@ -33,12 +34,25 @@ int running = 1;
 //counter for client ids
 int client_id = 0;
 
+// The rsa struct for encryption
+rsa_ctx_o* rsa_encryp;
+
+// The rsa struct for decryption
+rsa_ctx_o* rsa_decryp;
+
 pthread_mutex_t printing_mutex; // mutex for printing
 
 void print_usage() {
 	printf("Usage: \n");
 	printf("\t	client-server name-server-addr name-server-port peer-port \n");
 	printf("\t ex: client-server 192.168.1.105 6958 4758 \n");
+}
+
+void init_crypto() {
+  client_initialize_crypto();
+  rsa_encryp = client_create_rsa_ctx();
+  rsa_decryp = client_create_rsa_ctx();
+  
 }
 
 int main (int argc, char **argv) {

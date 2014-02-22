@@ -4,8 +4,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "base64.h"
-
 #include "enc.h"
 
 
@@ -303,21 +301,21 @@ int parse_str_encrypted_msg(char* msg, message_encrypted_o* res) {
 	
 	char* tok = strtok(msg, " ");
 	//tok is the base64 encoded msg
-	int len = base64decode_len(tok); //length of msg decoded
+	int len = Base64decode_len(tok); //length of msg decoded
 	res->encrypted_msg = (unsigned char*) malloc(len);
-	res->encrypted_msg_len = base64decode(res->encrypted_msg, tok);
+	res->encrypted_msg_len = Base64decode(res->encrypted_msg, tok);
 	
 	tok = strtok(NULL, " ");
 	//tok is the base64 encoded key
-	len = base64decode_len(tok); //length of key decoded
+	len = Base64decode_len(tok); //length of key decoded
 	res->encrypted_key = (unsigned char*) malloc(len);
-	res->encrypted_key_len = base64decode(res->encrypted_key, tok);
+	res->encrypted_key_len = Base64decode(res->encrypted_key, tok);
 	
 	tok = strtok(NULL, " ");
 	//tok is the base64 encoded key
-	len = base64decode_len(tok); //length of key decoded
+	len = Base64decode_len(tok); //length of key decoded
 	res->init_vector = (unsigned char*) malloc(len);
-	res->init_vector_len = base64decode(res->init_vector, tok);
+	res->init_vector_len = Base64decode(res->init_vector, tok);
 	
 	//msg should be parsed.
 	

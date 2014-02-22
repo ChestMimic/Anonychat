@@ -7,8 +7,8 @@ GCC=gcc $(CFLAGS) $(INC)
 
 all: client_server
 
-client_server: thread_util.o client_server.o $(LIB)/list.o $(LIB)/msg.o
-	$(GCC) -lpthread -g thread_util.o client_server.o $(LIB)/list.o $(LIB)/msg.o -o client_server -lssl -lcrypto -lglib-2.0 -ldl
+client_server: thread_util.o client_server.o $(LIB)/base64.o $(LIB)/list.o $(LIB)/msg.o $(LIB)/enc.o 
+	$(GCC) -lpthread -g thread_util.o client_server.o $(LIB)/base64.o $(LIB)/list.o $(LIB)/msg.o $(LIB)/enc.o -o client_server -lssl -lcrypto -lglib-2.0 -ldl
 
 thread_util.o: thread_util.c thread_util.h
 	$(GCC) -c thread_util.c
