@@ -92,6 +92,8 @@ int main (int argc, char **argv) {
 	strncpy(peer_server.port, port_peers, NI_MAXSERV);
 	peer_server.peer_thread = (pthread_t*) malloc(sizeof(pthread_t));
 	
+	//call init crypto here
+	
 	int server_fd = init_server(&peer_server);
 	
 	pthread_create(peer_server.peer_thread, NULL, &listen_for_clients, 
@@ -112,7 +114,7 @@ int main (int argc, char **argv) {
 	}
 	
 	//inform the name server of the port to use
-	res = update_port(&name_server, port_peers);  
+	res = update_port(&name_server, peer_server.port);  
 	
 	printf("We have connected to the name server, and sent new port,"
 		" waiting for peers n such \n");
