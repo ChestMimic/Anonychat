@@ -110,9 +110,10 @@ int main (int argc, char **argv) {
 	//inform the name server of the port to use
 	res = update_port(&name_server, peer_server.port);  
 	
-	printf("We have connected to the name server, and sent new port,"
-		" waiting for peers n such \n");
-	
+	printf("You are free to type messages! Format username (SPACE) message body \n");
+	//thread for user input
+	pthread_t user_input_thread;
+	pthread_create(&user_input_thread, NULL, &input_handle, NULL);
 	//wait for the name server handler thread to finish.
 	//if it does, we will drop out, can't do much without the name server
 	pthread_join(*(name_server.name_thread), NULL);
@@ -509,6 +510,17 @@ int connect_to_host(char* address, char* port) {
 	@return TODO: define
 */
 
+/** Parsing messages yay 
+	Format:
+		|username msg body|
+		
+		Username will be the name of the user to send the message to
+		msg body will be the body of the message
+		Message body can contain spaces, however username cannot.
+		Username and Message body are space delim
+		aka, The first characters before the space are used as the username
+*/
+
 void* input_handle(void* arg) {
 	//allocate space for the input buffer
 	char* input_buffer = (char*) malloc(BUFFER_SIZE);
@@ -541,5 +553,14 @@ void* input_handle(void* arg) {
 	free(input_buffer); // free the allocated memory
 	
 	return 0;	
+}
+
+/** Parses and sends the message that the user has typed in
+	@param msg A cstring contaning the message to parses
+	@param len The length of the message
+	@return 0 if sucessful, 1 otherwise
+*/
+int input_send_msg(char* msg, int len) {
+
 }
 
