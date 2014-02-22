@@ -31,6 +31,8 @@ list* peer_list;
 //indicates whether or not we are still running
 int running = 1; 
 
+list* socket_list;
+
 int portNo; // Your port number
 
 pthread_mutex_t priting_mutex; // mutex for printing
@@ -163,6 +165,7 @@ void* name_server_handle(void* arg) {
 	while ( (res = recv(name_server->socket_fd, buffer, BUFFER_SIZE, 0))) {
 		buffer[res] = '\0'; // add a null terminator just in case
 		printf("Recevied |%s| from name server! \n");
+
 	}
 	
 	printf("Disconnected from name server \n");
@@ -227,6 +230,7 @@ int connect_to_name_server(name_server_o* name_server) {
 		 (void*) name_server);
 	
 	return socket_fd;
+
 }
 
 /** Informs the name server of the port we are listening on for peer
@@ -312,6 +316,7 @@ int connect_to_host(char* address, char* port) {
 		printf("An error occured while trying to connect to host: %s:%s \n",
 			address, port);
 		return -1;
+
 
 }
 
