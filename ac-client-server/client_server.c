@@ -35,10 +35,10 @@ int running = 1;
 int client_id = 0;
 
 // The rsa struct for encryption
-struct rsa_ctx_0* rsa_encryp;
+rsa_ctx_o* rsa_encryp;
 
 // The rsa struct for decryption
-struct rsa_ctx_0* rsa_decryp;
+rsa_ctx_o* rsa_decryp;
 
 pthread_mutex_t printing_mutex; // mutex for printing
 
