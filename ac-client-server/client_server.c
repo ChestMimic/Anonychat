@@ -138,7 +138,7 @@ void* name_server_handle(void* arg) {
 	
 	while ( (res = recv(name_server->socket_fd, buffer, BUFFER_SIZE, 0))) {
 		buffer[res] = '\0'; // add a null terminator just in case
-		printf("Recevied |%s| from name server! \n");
+		printf("Recevied |%s| from name server! \n", buffer);
 		
 		//parse the peers message
 		if (str_starts_with(buffer, "PEERS ")) {
