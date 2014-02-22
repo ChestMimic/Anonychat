@@ -37,9 +37,6 @@ int client_id = 0;
 // The rsa struct for encryption
 rsa_ctx_o* rsa_encryp;
 
-// The rsa struct for decryption
-rsa_ctx_o* rsa_decryp;
-
 pthread_mutex_t printing_mutex; // mutex for printing
 
 void print_usage() {
@@ -51,8 +48,7 @@ void print_usage() {
 void init_crypto() {
   client_initialize_crypto();
   rsa_encryp = client_create_rsa_ctx();
-  rsa_decryp = client_create_rsa_ctx();
-  
+
 }
 
 int main (int argc, char **argv) {
@@ -91,8 +87,6 @@ int main (int argc, char **argv) {
 	peer_server_o peer_server;
 	strncpy(peer_server.port, port_peers, NI_MAXSERV);
 	peer_server.peer_thread = (pthread_t*) malloc(sizeof(pthread_t));
-	
-	//call init crypto here
 	
 	int server_fd = init_server(&peer_server);
 	
