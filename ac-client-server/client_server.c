@@ -102,7 +102,7 @@ int main (int argc, char **argv) {
 	//connect to the name server
 	int res = connect_to_name_server(&name_server);
 	
-	if (!res) {
+	if (res == -1) {
 		printf("Unable to connect to name server \n");
 		return 0;
 	}
