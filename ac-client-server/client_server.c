@@ -64,22 +64,33 @@ void print_usage() {
 
 void init_crypto() {
 	client_initialize_crypto();
-	rsa_encrypt_ctx = client_create_rsa_ctx();
+	rsa_encrypt_ctx = client_create_rsa_ctx(); //MEMORY CORRUPTION ERE
 
 	public_key_hash_table = key_create_hash_table();
 	
 	// Ben's things
 	DIR *directory;
 	struct dirent *dir_o;
+	
+	char name[100];
+	strncpy(name, "./pub_key/", 100);
+	
 	printf("Reading directories\n");
-	directory = opendir("home/bnkorza/Anonychat/ac-client-server/");
-	printf("Directory opened\n");
+	directory = opendir(name);
+	printf("test\n");
+	
+	
 	if (directory != NULL) {
-	  while ((dir_o = readdir(directory)) != NULL) {
-	    printf("%s\n", dir_o->d_name);
-	  }
-	  closedir(directory);
+		printf("Directory opened\n");
+		while ((dir_o = readdir(directory)) != NULL) {
+			printf("%s\n", dir_o->d_name);
+		}
+		closedir(directory);
 	}
+	else {
+		printf("Directory could not be opened \n");
+	}
+	
 	printf("Done reading\n");	
 }
 
@@ -147,10 +158,10 @@ int main (int argc, char **argv) {
 	
 	//inform the name server of the port to use
 	res = update_port(&name_server, peer_server.port);  	
-
+	
 	// Init crypto
 	init_crypto();
-
+	
 	//start user input now
 	pthread_t user_input_thread;
 	pthread_create(&user_input_thread, NULL, &input_handle, NULL);
@@ -158,6 +169,7 @@ int main (int argc, char **argv) {
 	//if it does, we will drop out, can't do much without the name server
 	pthread_join(*(name_server.name_thread), NULL);
 	running = 0;
+	
 	printf("We are exiting \n");
 }
 
@@ -231,8 +243,8 @@ void* client_handle(void* arg) {
 	pthread_mutex_unlock(&(client_list->mutex));
 	
 	//TODO: Add something to free the client, this will probally error.
-	free(client->handler_thread);
-	free(client);		
+	//free(client->handler_thread);
+	//free(client);		
 
 	return;
 }
@@ -364,7 +376,7 @@ int update_port(name_server_o* name_server, char* port) {
 	
 	strncpy(msg, "PORTUPD ", strlen("PORTUPD "));
 	strncat(msg, port, NI_MAXSERV);
-	
+	printf("MSG |%s|\n", msg);
 	return send_msg(name_server->socket_fd, msg, msg_len);
 }
 
@@ -491,7 +503,7 @@ int init_server(peer_server_o* peer_server) {
 		break; // we bound successfuly
 	}
 	
-	free(server_info);
+	//free(server_info); //dont think this needs to be freed.
 	
 	printf("Inited server with a socket of %d \n", socket_fd);
 	
@@ -591,6 +603,8 @@ void* input_handle(void* arg) {
 	@param len The length of the message
 	@return 0 if sucessful, 1 otherwise
 */
+
+
 int input_send_msg(char* input, int len) {
 	char* first_colon = strchr(input, ':');
 	(*first_colon) = '\0'; // set it to terminator char
@@ -619,12 +633,14 @@ int input_send_msg(char* input, int len) {
 	return 0; // we sent all the messages
 }
 
+
 /** Parses the message received from a client. Which means decoding and decrypting 
 		the message and takign appropriate action if the message was intended for us
 	@param The message received
 	@param len The length of the message
 	@return 0 if sucessful, 1 otherwise
 */
+
 
 int client_parse_msg(char* msg, int len) {
 	
@@ -649,6 +665,7 @@ int client_parse_msg(char* msg, int len) {
 	//send to all of our peers!
 	client_send_to_all_peers(msg); // send orig, not decoded
 }
+
 
 /** Sends the given message to all of our peers
 	@param msg The message to send

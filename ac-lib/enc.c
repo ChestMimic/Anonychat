@@ -29,7 +29,7 @@ void client_cleanup_crypto() {
 */
 
 rsa_ctx_o* client_create_rsa_ctx() {
-	rsa_ctx_o* rsa_ctx = (rsa_ctx_o*) malloc(sizeof(rsa_ctx));
+	rsa_ctx_o* rsa_ctx = (rsa_ctx_o*) malloc(sizeof(rsa_ctx_o));
 	
 	if (rsa_ctx == NULL) {
 		//malloc failed.. *tear
