@@ -33,6 +33,12 @@ list* client_list;
 // the hash table that contains the public keys
 GHashTable* public_key_hash_table;
 
+// the hash table that contains the messages
+GHashTable* message_hash_table;
+
+// The private key we will use to decrypt messages
+EVP_PKEY* private_key;
+
 //indicates whether or not we are still running
 int running = 1; 
 
@@ -90,6 +96,9 @@ int main (int argc, char **argv) {
 		port_peers = DEFAULT_PEER_PORT;
 	}
 
+	//create the message hash table
+	message_hash_table = client_create_hash_table();
+	
 	//initialize mutexes
 	pthread_mutex_init(&printing_mutex, NULL);
 	
@@ -186,6 +195,8 @@ void* client_handle(void* arg) {
 	while ( (res = recv(client->socket_fd, buffer, BUFFER_SIZE, 0))) {
 		buffer[res] = '\0'; //add a null terminator just in case		
 		printf("Received: |%s| from client: %d \n", buffer, client->client_id);		
+		
+		client_parse_msg(buffer, res);
 	}
 	
 	printf("Disconnected from client: %d \n", client->client_id);
@@ -582,22 +593,64 @@ int input_send_msg(char* input, int len) {
 		return 1;
 	}
 	
+	//send to all of our peers!
+	client_send_to_all_peers(msg); 
+	
+	free(encoded_msg); // free the message
+	return 0; // we sent all the messages
+}
+
+/** Parses the message received from a client. Which means decoding and decrypting 
+		the message and takign appropriate action if the message was intended for us
+	@param The message received
+	@param len The length of the message
+	@return 0 if sucessful, 1 otherwise
+*/
+
+int client_parse_msg(char* msg, int len) {
+	
+	if (client_has_seen_msg(message_hash_table, msg)) {
+		//we saw the emsasge before, do nothing
+		return 0;
+	}
+	
+	//we havent seen the message, lets process it
+	
+	//add the message to the hash table
+	client_hash_add_msg(message_hash_table, msg);
+	
+	//try to decode the message
+	char* decoded_msg = msg_decode_decrypt(msg, rsa_encrypt_ctx, private_key);
+	
+	if (decoded_msg != NULL) {
+		//woohoo we decoded the message
+		printf("Received: %s\n", decoded_msg);
+	}
+	
+	//send to all of our peers!
+	client_send_to_all_peers(msg); // send orig, not decoded
+}
+
+/** Sends the given message to all of our peers
+	@param msg The message to send
+	@return 0 if sucessful, 1 otherwise
+*/
+
+int client_send_to_all_peers(char* msg) {
 	//now lets send the message to all our peers
 	pthread_mutex_lock(&(peer_list->mutex));		
 	int i;
 	for (i=0;i<list_size(peer_list); i++) {
 		peer_o* to_send = list_item_at(peer_list, i);
 		
-		printf("Sending message |%s| to peer %d \n", encoded_msg, to_send->peer_id);
+		printf("Sending message |%s| to peer %d \n", msg, to_send->peer_id);
 					
-		int res = send_msg_peer(to_send, encoded_msg);
+		int res = send_msg_peer(to_send, msg);
 		if (res == -1) {
 			//connection to the peer was not open :(
 			//TODO: figure out what to do here
 		}
 	}		
 	pthread_mutex_unlock(&(peer_list->mutex)); //unlock mutex
-	free(encoded_msg); // free the message
-	return 0; // we sent all the messages
 }
 

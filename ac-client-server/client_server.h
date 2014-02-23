@@ -144,5 +144,21 @@ void cleanup_crypto();
 */
 int input_send_msg(char* input, int len);
 
+/** Parses the message received from a client. Which means decoding and decrypting 
+		the message and takign appropriate action if the message was intended for us
+	@param The message received
+	@param len The length of the message
+	@return 0 if sucessful, 1 otherwise
+*/
+
+int client_parse_msg(char* msg, int len);
+
+/** Sends the given message to all of our peers
+	@param msg The message to send
+	@return 0 if sucessful, 1 otherwise
+*/
+
+int client_send_to_all_peers(char* msg);
+
 
 #endif
