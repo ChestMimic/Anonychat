@@ -20,7 +20,6 @@
 #include       "list.h"
 #include       "client_server.h"
 #include       "enc.h"
-
 #include       "key_table.h"
 
 #define         BUFFER_SIZE     512
@@ -59,8 +58,8 @@ pthread_mutex_t mht_mutex; // message hash table mutex
 
 void print_usage() {
 	printf("Usage: \n");
-	printf("\t	client-server name-server-addr name-server-port peer-port \n");
-	printf("\t ex: client-server 192.168.1.105 6958 4758 \n");
+	printf("\t	client-server name-server-addr name-server-port private-key peer-port \n");
+	printf("\t ex: client-server 192.168.1.105 6958 mykey 4758 \n");
 }
 
 /** Initializes the lib crypto context, the rsa encryption context
@@ -96,13 +95,7 @@ void init_crypto() {
 			ext++; // move past the period
 			if (strncmp(ext, "pub", 4) == 0) {
 				printf("%s keyname \n", dir_o->d_name);
-				EVP_PKEY* key; 
-				key = client_open_pub_key(dir_o->d_name);
-				if(key == NULL) {
-				  printf("ERROR: Key is null\n");
-				} else {
-				  key_hash_add(public_key_hash_table, dir_o->d_name, key);
-				}
+				
 			}
 		}
 		
@@ -129,6 +122,7 @@ int main (int argc, char **argv) {
 	char* address_name_server; // the address of the name server
 	char* port_name_server; // the port of the name server
 	char* port_peers; // the port to listen for peer connections on
+	char* pkey_name; // the name of the private key to load
 
 	if (argc < 3) {	// If there are not 4 arguments, error
 		print_usage();
@@ -137,9 +131,10 @@ int main (int argc, char **argv) {
 
 	address_name_server = argv[1]; // name server address is 2nd argument
 	port_name_server = argv[2]; // name server port is 3rd argument
+	pkey_name = argv[3]; // private key name is the 4th argument
 	
-	if (argc == 4) {//we saw the emsasge before, do nothing
-		port_peers = argv[3]; // peer port is 4th argument
+	if (argc == 5) {//we saw the emsasge before, do nothing
+		port_peers = argv[4]; // peer port is 4th argument
 	}
 	else {
 		port_peers = DEFAULT_PEER_PORT;
