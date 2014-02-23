@@ -107,7 +107,7 @@ int parse_str_encrypted_msg(char* msg, message_encrypted_o* res);
 		if an error occured
 */
 
-char* msg_encrypt_encode(char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* public_key);
+char* msg_encrypt_encode(const char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* public_key);
 
 /** Decodes and decryprs the given message with the specified private key
 	@param msg A cstring containing the base64 endoed message to decrypt

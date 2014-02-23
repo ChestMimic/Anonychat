@@ -58,7 +58,7 @@ void init_crypto() {
 	client_initialize_crypto();
 	rsa_encrypt_ctx = client_create_rsa_ctx();
 
-	private_key_hash_table = key_create_hash_table();
+	public_key_hash_table = key_create_hash_table();
 }
 
 /** Cleans up the crypto, and frees any unnecesary memory
@@ -547,25 +547,8 @@ void* input_handle(void* arg) {
 			len --;
 		}	
 		input_buffer[len] = '\0'; //overwrite the \n with \0
-			
-		//lock the peer list mutex
-		pthread_mutex_lock(&(peer_list->mutex));		
-		//for now send any message the user enters to each peer
-		int i;
-		for (i=0;i<list_size(peer_list); i++) {
-			peer_o* to_send = list_item_at(peer_list, i);
-			
-			printf("Sending message |%s| to peer %d \n", input_buffer, to_send->peer_id);
-						
-			input_send_msg(input_buffer, len);
-			int res = send_msg_peer(to_send, input_buffer);
-			if (res == -1) {
-				//connection to the peer was not open :(
-				//lets NOT open a connection while we have the
-				//	list mutex though
-			}
-		}		
-		pthread_mutex_unlock(&(peer_list->mutex)); //unlock mutex
+
+	
 	}
 	
 	free(input_buffer); // free the allocated memory
@@ -585,12 +568,36 @@ int input_send_msg(char* input, int len) {
 	char* msg = first_colon + 1;
 	
 	printf("Send Message |%s|  to |%s| \n", msg, name);
-	EVP_PKEY* rsa_key = key_get_by_name(public_key_hash_table, name);
+	EVP_PKEY* pub_key = key_get_by_name(public_key_hash_table, name);
 	
-	if (rsa_key == NULL) {
+	if (pub_key == NULL) {
 		printf("Unable to send message, No public key for %s exists.\n", name);
 		return 1;
 	}
+	//now we will encrypt the message
 	
+	char* encoded_msg = msg_encrypt_encode(msg, rsa_encrypt_ctx, pub_key);
+	if (encoded_msg == NULL) {
+		//we couldnt encode the message;
+		return 1;
+	}
+	
+	//now lets send the message to all our peers
+	pthread_mutex_lock(&(peer_list->mutex));		
+	int i;
+	for (i=0;i<list_size(peer_list); i++) {
+		peer_o* to_send = list_item_at(peer_list, i);
+		
+		printf("Sending message |%s| to peer %d \n", encoded_msg, to_send->peer_id);
+					
+		int res = send_msg_peer(to_send, encoded_msg);
+		if (res == -1) {
+			//connection to the peer was not open :(
+			//TODO: figure out what to do here
+		}
+	}		
+	pthread_mutex_unlock(&(peer_list->mutex)); //unlock mutex
+	free(encoded_msg); // free the message
+	return 0; // we sent all the messages
 }
 

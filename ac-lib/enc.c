@@ -336,7 +336,7 @@ int parse_str_encrypted_msg(char* msg, message_encrypted_o* res) {
 */
 
 char* msg_encrypt_encode(const char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* public_key) {
-	message_encryped_o* encrypted_msg = (message_encrypted_o*) 
+	message_encrypted_o* encrypted_msg = (message_encrypted_o*) 
 		malloc(sizeof(message_encrypted_o));
 	int ret = client_encrypt_msg(rsa_ctx, msg, public_key, encrypted_msg);
 	if (ret) {
@@ -348,9 +348,14 @@ char* msg_encrypt_encode(const char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* public_k
 	ret = parse_encrypted_msg_str(encrypted_msg, encoded_msg);
 	if (!ret) {
 		printf("Couldnt encoded message \n");
+		free(encrypted_msg);
+		free(encoded_msg);
 		return NULL;
 	}
-	return *encoded_msg;	
+	//TODO: Check if this works correctly.
+	char* tmp = *encoded_msg;
+	free(encoded_msg);
+	return tmp;
 }
 
 /** Decodes and decryprs the given message with the specified private key
@@ -362,12 +367,13 @@ char* msg_encrypt_encode(const char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* public_k
 */
 
 char* msg_decode_decrypt(char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* private_key) {
-	message_encryped_o* encrypted_msg = (message_encrypted_o*) 
+	message_encrypted_o* encrypted_msg = (message_encrypted_o*) 
 		malloc(sizeof(message_encrypted_o));
 		
 	int ret = parse_str_encrypted_msg(msg, encrypted_msg);
 	if (!ret) {
 		printf("Couldn't decode the string \n");
+		free(encrypted_msg);
 		return NULL;
 	}	
 	
