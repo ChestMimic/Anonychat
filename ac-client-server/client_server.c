@@ -9,16 +9,18 @@
 #include       <time.h>
 #include       <pthread.h>
 #include       <sys/resource.h>
-#include	   <errno.h>
+#include       <errno.h>
+#include       <dirent.h>
+#include       <sys/types.h>
 
 
 #include       "thread_util.h"
 #include       "msg.h"
 #include       "list.h"
-#include	   "client_server.h"
+#include       "client_server.h"
 #include       "enc.h"
 
-#include		"key_table.h"
+#include       "key_table.h"
 
 #define         BUFFER_SIZE     512
 #define         CHUNK_SIZE 512
@@ -65,6 +67,20 @@ void init_crypto() {
 	rsa_encrypt_ctx = client_create_rsa_ctx();
 
 	public_key_hash_table = key_create_hash_table();
+	
+	// Ben's things
+	DIR *directory;
+	struct dirent *dir_o;
+	printf("Reading directories\n");
+	directory = opendir("home/bnkorza/Anonychat/ac-client-server/");
+	printf("Directory opened\n");
+	if (directory != NULL) {
+	  while ((dir_o = readdir(directory)) != NULL) {
+	    printf("%s\n", dir_o->d_name);
+	  }
+	  closedir(directory);
+	}
+	printf("Done reading\n");	
 }
 
 /** Cleans up the crypto, and frees any unnecesary memory
@@ -131,6 +147,9 @@ int main (int argc, char **argv) {
 	
 	//inform the name server of the port to use
 	res = update_port(&name_server, peer_server.port);  	
+
+	// Init crypto
+	init_crypto();
 
 	//start user input now
 	pthread_t user_input_thread;
