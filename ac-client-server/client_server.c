@@ -96,7 +96,13 @@ void init_crypto() {
 			ext++; // move past the period
 			if (strncmp(ext, "pub", 4) == 0) {
 				printf("%s keyname \n", dir_o->d_name);
-				
+				EVP_PKEY* key; 
+				key = client_open_pub_key(dir_o->d_name);
+				if(key == NULL) {
+				  printf("ERROR: Key is null\n");
+				} else {
+				  key_hash_add(public_key_hash_table, dir_o->d_name, key);
+				}
 			}
 		}
 		
