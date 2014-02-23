@@ -14,12 +14,13 @@
 
 #include "name_server.h"
 #include "list.h"
+#include "tree.h"
 
 
 /** list of clients connected to the server */
 list* client_list;
 
-pthread_mutex_t priting_mutex; //mutex for updating list
+pthread_mutex_t priting_mutex; 
 
 int main(int argc, char* argv[]) {
 
@@ -179,7 +180,7 @@ void client_send_peers(client* client_o) {
 
 }
 
-/** Crafts the peer message to send to the client when the number o peers is above the peer threshold
+/** Crafts the peer message to send to the client when the number of peers is above the peer threshold
 	@param client_o The client who is requesting the peers
 	@param max_msg_size  The maximum size of the message
 	@return A pointer to a cstring containing the list of peers, seperated by a space,
@@ -385,4 +386,14 @@ void listen_for_clients(int socket_fd) {
 void print_usage() {
 	printf("Usage: \n");
 	printf("\t ./name_server");
+}
+
+
+void manage_graph(){
+	pthread_mutex_lock(&(client_list->mutex));
+	//Part 1: create randomly arranged array
+	node* randArray = malloc(sizeof(node)*(client_list->size));
+	//Part 2: Create graph from array (using tree's functions)
+	//Part 3: Send out results to nodes
+	pthread_mutex_unlock(&(client_list->mutex));
 }

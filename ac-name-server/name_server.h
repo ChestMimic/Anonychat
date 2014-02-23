@@ -87,5 +87,12 @@ int init_server(char* port);
 
 void listen_for_clients(int socket_fd);
 
+/** Assign all nodes in list to an array in random order, 
+	determine peers, and then send those peers to the nodes
+	
+*/
+
+void manage_graph();
+
 
 #endif
