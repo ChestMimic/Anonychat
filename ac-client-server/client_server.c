@@ -243,8 +243,8 @@ void* client_handle(void* arg) {
 	pthread_mutex_unlock(&(client_list->mutex));
 	
 	//TODO: Add something to free the client, this will probally error.
-	//free(client->handler_thread);
-	//free(client);		
+	free(client->handler_thread);
+	free(client);		
 
 	return;
 }
