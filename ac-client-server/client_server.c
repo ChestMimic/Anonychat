@@ -12,6 +12,7 @@
 #include       <errno.h>
 #include       <dirent.h>
 #include       <sys/types.h>
+#include	   <unistd.h>
 
 
 #include       "thread_util.h"
@@ -51,6 +52,10 @@ int client_id = 0;
 rsa_ctx_o* rsa_encrypt_ctx;
 
 pthread_mutex_t printing_mutex; // mutex for printing
+
+pthread_mutex_t pkht_mutex; // public key hash table mutex
+
+pthread_mutex_t mht_mutex; // message hash table mutex
 
 void print_usage() {
 	printf("Usage: \n");
@@ -97,6 +102,7 @@ void init_crypto() {
 		printf("Directory could not be opened \n");
 	}
 	
+	
 	printf("Done reading\n");	
 }
 
@@ -122,7 +128,7 @@ int main (int argc, char **argv) {
 	address_name_server = argv[1]; // name server address is 2nd argument
 	port_name_server = argv[2]; // name server port is 3rd argument
 	
-	if (argc == 4) {
+	if (argc == 4) {//we saw the emsasge before, do nothing
 		port_peers = argv[3]; // peer port is 4th argument
 	}
 	else {
@@ -134,10 +140,16 @@ int main (int argc, char **argv) {
 	
 	//initialize mutexes
 	pthread_mutex_init(&printing_mutex, NULL);
+	pthread_mutex_init(&pkht_mutex, NULL);
+	pthread_mutex_init(&mht_mutex, NULL);
 	
 	//initialize peer_list
 	peer_list = list_create();
 	client_list = list_create();
+	
+	// Initialize the crypto + public keys
+	init_crypto();
+	
 	
 	name_server_o name_server;
 	strncpy(name_server.address, address_name_server, NI_MAXHOST);
@@ -165,12 +177,14 @@ int main (int argc, char **argv) {
 	//inform the name server of the port to use
 	res = update_port(&name_server, peer_server.port);  	
 	
-	// Init crypto
-	init_crypto();
-	
 	//start user input now
 	pthread_t user_input_thread;
 	pthread_create(&user_input_thread, NULL, &input_handle, NULL);
+	
+	//start message purging thread
+	pthread_t msg_purge_thread;
+	pthread_create(&msg_purge_thread, NULL, &client_purge_msg_hash, NULL);
+	
 	//wait for the name server handler thread to finish.
 	//if it does, we will drop out, can't do much without the name server
 	pthread_join(*(name_server.name_thread), NULL);
@@ -581,6 +595,8 @@ int connect_to_host(char* address, char* port) {
 		aka, The first characters before the space are used as the username
 */
 
+
+
 void* input_handle(void* arg) {
 	//allocate space for the input buffer
 	char* input_buffer = (char*) malloc(BUFFER_SIZE);
@@ -619,7 +635,6 @@ int input_send_msg(char* input, int len) {
 	
 	printf("Send Message |%s|  to |%s| \n", msg, name);
 	EVP_PKEY* pub_key = key_get_by_name(public_key_hash_table, name);
-	
 	if (pub_key == NULL) {
 		printf("Unable to send message, No public key for %s exists.\n", name);
 		return 1;
@@ -650,8 +665,10 @@ int input_send_msg(char* input, int len) {
 
 int client_parse_msg(char* msg, int len) {
 	
+	pthread_mutex_lock(&mht_mutex);
 	if (client_has_seen_msg(message_hash_table, msg)) {
 		//we saw the emsasge before, do nothing
+		pthread_mutex_unlock(&mht_mutex);
 		return 0;
 	}
 	
@@ -659,6 +676,8 @@ int client_parse_msg(char* msg, int len) {
 	
 	//add the message to the hash table
 	client_hash_add_msg(message_hash_table, msg);
+	
+	pthread_mutex_unlock(&mht_mutex);
 	
 	//try to decode the message
 	char* decoded_msg = msg_decode_decrypt(msg, rsa_encrypt_ctx, private_key);
@@ -694,5 +713,26 @@ int client_send_to_all_peers(char* msg) {
 		}
 	}		
 	pthread_mutex_unlock(&(peer_list->mutex)); //unlock mutex
+}
+
+/** Thread responsible for purging the msg hash table of old messages
+
+	Will call the purge function every PURGE_FREQUENCY seconds
+*/
+
+void* client_purge_msg_hash(void* arg) {
+
+	while (running) {
+
+		sleep( PURGE_FREQUENCY); // sleep for purge frequency seconds
+
+		pthread_mutex_lock(&mht_mutex);
+		//clean up the messages	
+		client_purge_msg(message_hash_table);
+	
+		pthread_mutex_unlock(&mht_mutex);
+	
+	}
+
 }
 
