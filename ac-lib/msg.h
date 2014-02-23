@@ -134,6 +134,4 @@ unsigned int client_purge_msg(GHashTable* hash_table);
 
 gboolean purge_message(gpointer key, gpointer val, gpointer data);
 
-
-
 #endif

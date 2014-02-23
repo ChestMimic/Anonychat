@@ -57,10 +57,10 @@ rsa_key_o* key_hash_add(GHashTable* hash_table, char* name, EVP_PKEY* key) ;
 /** Retreives the rsa key with the given name from the specified GHashTable
 	@param hash_table A pointer to the GHashTable to lookup the name in
 	@param key_name A cstring containing the name of the key to look up
-	@param A pointer to the rsa key struct, NULL if doesnt exist
+	@param A pointer to the EVP_PKEY with the given name
 */
 
-rsa_key_o* key_get_by_name(GHashTable* hash_table, char* key_name);
+EVP_PKEY* key_get_by_name(GHashTable* hash_table, char* key_name);
 
 /** Cleans up the GHashTable and frees all of the rsa_key structs
 	@param hash_table The hashtable to clean up

@@ -30,8 +30,8 @@ list* peer_list;
 // list of all connected clients
 list* client_list;
 
-// the hash table that contains the private keys
-GHashTable* private_key_hash_table;
+// the hash table that contains the public keys
+GHashTable* public_key_hash_table;
 
 //indicates whether or not we are still running
 int running = 1; 
@@ -585,5 +585,12 @@ int input_send_msg(char* input, int len) {
 	char* msg = first_colon + 1;
 	
 	printf("Send Message |%s|  to |%s| \n", msg, name);
+	EVP_PKEY* rsa_key = key_get_by_name(public_key_hash_table, name);
+	
+	if (rsa_key == NULL) {
+		printf("Unable to send message, No public key for %s exists.\n", name);
+		return 1;
+	}
+	
 }
 
