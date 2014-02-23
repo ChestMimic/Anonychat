@@ -88,14 +88,18 @@ void init_crypto() {
 	if (directory != NULL) {
 		printf("Directory opened\n");
 		while ((dir_o = readdir(directory)) != NULL) {
-		  char* endstr = dir_o->d_name + (strlen(dir_o->d_name) - 4);
-		  if(strncmp(endstr, ".pub", 4) == 0) {
-		    char* key_name;
-		    strncmp(key_name, dir_o->d_name, sizeof(dir_o->d_name - 4));
-		    printf("%s\n", key_name);
-		    //key_hash_add(public_key_hash_table, key_name, EVP_PKEY);
-		  }
+			char* ext = strrchr(dir_o->d_name, '.');
+			if (ext == NULL) {
+				continue; // ignore this file
+			}
+			*ext = '\0';
+			ext++; // move past the period
+			if (strncmp(ext, "pub", 4) == 0) {
+				printf("%s keyname \n", dir_o->d_name);
+				
+			}
 		}
+		
 		closedir(directory);
 	}
 	else {
@@ -149,7 +153,6 @@ int main (int argc, char **argv) {
 	
 	// Initialize the crypto + public keys
 	init_crypto();
-	
 	
 	name_server_o name_server;
 	strncpy(name_server.address, address_name_server, NI_MAXHOST);
