@@ -83,7 +83,13 @@ void init_crypto() {
 	if (directory != NULL) {
 		printf("Directory opened\n");
 		while ((dir_o = readdir(directory)) != NULL) {
-			printf("%s\n", dir_o->d_name);
+		  char* endstr = dir_o->d_name + (strlen(dir_o->d_name) - 4);
+		  if(strncmp(endstr, ".pub", 4) == 0) {
+		    char* key_name;
+		    strncmp(key_name, dir_o->d_name, sizeof(dir_o->d_name - 4));
+		    printf("%s\n", key_name);
+		    //key_hash_add(public_key_hash_table, key_name, EVP_PKEY);
+		  }
 		}
 		closedir(directory);
 	}
