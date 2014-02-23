@@ -577,7 +577,7 @@ void* input_handle(void* arg) {
 			len --;
 		}	
 		input_buffer[len] = '\0'; //overwrite the \n with \0
-
+		input_send_msg(input_buffer, len);
 	
 	}
 	
