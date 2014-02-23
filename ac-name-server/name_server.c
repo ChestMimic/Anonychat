@@ -390,10 +390,32 @@ void print_usage() {
 
 
 void manage_graph(){
+	time_t t;
+	srand((unsigned) time(&t));
+
 	pthread_mutex_lock(&(client_list->mutex));
 	//Part 1: create randomly arranged array
 	node* randArray = malloc(sizeof(node)*(client_list->size));
+	//convert linked list to array of nodes
+	int counter = 0;
+	list_elm* here = client_list->head;
+	while(counter < client_list->size){
+		randArray[counter] = *(node *) createNode(here->val);
+		here = here->next;
+		counter++;
+	}
+
+	//use Fisher-Yates modern shuffle (http://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#The_modern_algorithm) to shuffle array
+	for(counter = (client_list->size) - 1; counter > 0; counter--){
+		int num = rand() % counter;
+		//exchange
+		node temp = randArray[num];
+		randArray[num] = randArray[counter];
+		randArray[counter] = temp;
+	}
+	
 	//Part 2: Create graph from array (using tree's functions)
+
 	//Part 3: Send out results to nodes
 	pthread_mutex_unlock(&(client_list->mutex));
 }
