@@ -3,6 +3,7 @@
 
 #define DEFAULT_PEER_PORT "4758"
 #define PEER_SERVER_BACKLOG (5)
+#define PURGE_FREQUENCY (30) // the purge frequency of messages in seconds
 
 #include <pthread.h>
 
@@ -159,6 +160,13 @@ int client_parse_msg(char* msg, int len);
 */
 
 int client_send_to_all_peers(char* msg);
+
+/** Thread responsible for purging the msg hash table of old messages
+
+	Will call the purge function every PURGE_FREQUENCY seconds
+*/
+
+void* client_purge_msg_hash(void* arg);
 
 
 #endif
