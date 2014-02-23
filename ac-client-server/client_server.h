@@ -127,5 +127,22 @@ void* listen_for_clients(void* arg);
 
 int init_server(peer_server_o* peer_server);
 
+/** Initializes the lib crypto context, the rsa encryption context
+		and loads the public / private keys into memory
+*/
+void init_crypto();
+
+/** Cleans up the crypto, and frees any unnecesary memory
+*/
+
+void cleanup_crypto();
+
+/** Parses and sends the message that the user has typed in
+	@param input A cstring contaning the message to parses
+	@param len The length of the message
+	@return 0 if sucessful, 1 otherwise
+*/
+int input_send_msg(char* input, int len);
+
 
 #endif

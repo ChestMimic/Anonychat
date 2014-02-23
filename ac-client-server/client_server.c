@@ -10,13 +10,15 @@
 #include       <pthread.h>
 #include       <sys/resource.h>
 #include	   <errno.h>
-#include       "enc.h"
 
 
 #include       "thread_util.h"
 #include       "msg.h"
 #include       "list.h"
 #include	   "client_server.h"
+#include       "enc.h"
+
+#include		"key_table.h"
 
 #define         BUFFER_SIZE     512
 #define         CHUNK_SIZE 512
@@ -28,6 +30,9 @@ list* peer_list;
 // list of all connected clients
 list* client_list;
 
+// the hash table that contains the private keys
+GHashTable* private_key_hash_table;
+
 //indicates whether or not we are still running
 int running = 1; 
 
@@ -35,7 +40,7 @@ int running = 1;
 int client_id = 0;
 
 // The rsa struct for encryption
-rsa_ctx_o* rsa_encryp;
+rsa_ctx_o* rsa_encrypt_ctx;
 
 pthread_mutex_t printing_mutex; // mutex for printing
 
@@ -45,10 +50,23 @@ void print_usage() {
 	printf("\t ex: client-server 192.168.1.105 6958 4758 \n");
 }
 
-void init_crypto() {
-  client_initialize_crypto();
-  rsa_encryp = client_create_rsa_ctx();
+/** Initializes the lib crypto context, the rsa encryption context
+		and loads the public / private keys into memory
+*/
 
+void init_crypto() {
+	client_initialize_crypto();
+	rsa_encrypt_ctx = client_create_rsa_ctx();
+
+	private_key_hash_table = key_create_hash_table();
+}
+
+/** Cleans up the crypto, and frees any unnecesary memory
+*/
+
+void cleanup_crypto() {
+	client_cleanup_crypto();
+	free (rsa_encrypt_ctx);
 }
 
 int main (int argc, char **argv) {
@@ -91,13 +109,8 @@ int main (int argc, char **argv) {
 	int server_fd = init_server(&peer_server);
 	
 	pthread_create(peer_server.peer_thread, NULL, &listen_for_clients, 
-		(void*) &peer_server);
-	
-	//setup user input
-	
-	//thread for user input
-	pthread_t user_input_thread;
-	pthread_create(&user_input_thread, NULL, &input_handle, NULL);
+		(void*) &peer_server);	
+
 	
 	//connect to the name server
 	int res = connect_to_name_server(&name_server);
@@ -108,10 +121,9 @@ int main (int argc, char **argv) {
 	}
 	
 	//inform the name server of the port to use
-	res = update_port(&name_server, peer_server.port);  
-	
-	printf("You are free to type messages! Format username (SPACE) message body \n");
-	//thread for user input
+	res = update_port(&name_server, peer_server.port);  	
+
+	//start user input now
 	pthread_t user_input_thread;
 	pthread_create(&user_input_thread, NULL, &input_handle, NULL);
 	//wait for the name server handler thread to finish.
@@ -512,7 +524,7 @@ int connect_to_host(char* address, char* port) {
 
 /** Parsing messages yay 
 	Format:
-		|username msg body|
+		|username:msg body|
 		
 		Username will be the name of the user to send the message to
 		msg body will be the body of the message
@@ -526,10 +538,15 @@ void* input_handle(void* arg) {
 	char* input_buffer = (char*) malloc(BUFFER_SIZE);
 	size_t buffer_len = BUFFER_SIZE -1; // allow room for the \0
 	
+	//let user know its time
+	printf("You are free to type messages! Format username (SPACE) message body \n");
 	//listen for user input while we are running
 	while (running) {
-		int len = getline(&input_buffer, &buffer_len, stdin);		
-		input_buffer[len] = '\0'; // add the null terminator just in case	
+		int len = getline(&input_buffer, &buffer_len, stdin);	
+		if (len > 0) {
+			len --;
+		}	
+		input_buffer[len] = '\0'; //overwrite the \n with \0
 			
 		//lock the peer list mutex
 		pthread_mutex_lock(&(peer_list->mutex));		
@@ -539,7 +556,8 @@ void* input_handle(void* arg) {
 			peer_o* to_send = list_item_at(peer_list, i);
 			
 			printf("Sending message |%s| to peer %d \n", input_buffer, to_send->peer_id);
-			
+						
+			input_send_msg(input_buffer, len);
 			int res = send_msg_peer(to_send, input_buffer);
 			if (res == -1) {
 				//connection to the peer was not open :(
@@ -556,11 +574,16 @@ void* input_handle(void* arg) {
 }
 
 /** Parses and sends the message that the user has typed in
-	@param msg A cstring contaning the message to parses
+	@param input A cstring contaning the message to parses
 	@param len The length of the message
 	@return 0 if sucessful, 1 otherwise
 */
-int input_send_msg(char* msg, int len) {
-
+int input_send_msg(char* input, int len) {
+	char* first_colon = strchr(input, ':');
+	(*first_colon) = '\0'; // set it to terminator char
+	char* name = input;
+	char* msg = first_colon + 1;
+	
+	printf("Send Message |%s|  to |%s| \n", msg, name);
 }
 
