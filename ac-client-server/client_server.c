@@ -86,10 +86,10 @@ void load_public_keys() {
 	DIR *directory;
 	struct dirent *dir_o;
 	
-	char* name = "./pub_key/";
+	char* pub_key_dir = "./pub_key/";
 	
 	printf("Reading directories\n");
-	directory = opendir(name);
+	directory = opendir(pub_key_dir);
 	printf("test\n");
 	
 	
@@ -98,11 +98,11 @@ void load_public_keys() {
 		while ((dir_o = readdir(directory)) != NULL) {			
 			
 			//the full path to the file to load
-			int full_path_len = strlen(dir_o->d_name) + strlen("./pub_key/") + 1;
+			int full_path_len = strlen(dir_o->d_name) + strlen(pub_key_dir) + 1;
 			char* full_path = (char*) malloc(full_path_len);
 			memset(full_path, 0, full_path_len);
 			
-			strncat(full_path, "./pub_key/", full_path_len);
+			strncat(full_path, pub_key_dir, full_path_len);
 			strncat(full_path, dir_o->d_name, full_path_len);			
 		
 			//extract the key name from all .pub files
