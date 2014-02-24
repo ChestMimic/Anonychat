@@ -59,39 +59,21 @@ pthread_mutex_t mht_mutex; // message hash table mutex
 
 void print_usage() {
 	printf("Usage: \n");
-	printf("\t	client-server name-server-addr name-server-port peer-port private-key\n");
-	printf("\t ex: client-server 192.168.1.105 6958 4758 mykey\n");
+	printf("\t	client-server name-server-addr name-server-port peer-port \n");
+	printf("\t ex: client-server 192.168.1.105 6958 4758 \n");
 }
 
 /** Initializes the lib crypto context, the rsa encryption context
 		and loads the public / private keys into memory
-	@param private_key A cstring containing the name of the private key to load
 */
 
-void init_crypto(char* pk_file_name) {
+void init_crypto() {
 	client_initialize_crypto();
 	rsa_encrypt_ctx = client_create_rsa_ctx(); //MEMORY CORRUPTION ERE
 
 	public_key_hash_table = key_create_hash_table();
 	
-	//load the private key
-	
-	int pkname_len = strlen(pk_file_name) + strlen("./priv_key/") 
-		+ strlen(".pem") + 1;
-	char* pkname = (char*) malloc(pkname_len);
-	memset(pkname, '\0', pkname_len);
-	
-	strncat(pkname, "./priv_key/", pkname_len);
-	strncat(pkname, pk_file_name, pkname_len);
-	strncat(pkname, ".pem", pkname_len);
-	
-	private_key = client_open_priv_key(pkname);
-	
-	if (private_key == NULL) {
-		printf("Unable to open private key %s\n", pkname);
-	}
-	
-	//load the public keys
+	// Ben's things
 	DIR *directory;
 	struct dirent *dir_o;
 	
@@ -124,10 +106,11 @@ void init_crypto(char* pk_file_name) {
 			*ext = '\0';
 			ext++; // move past the period
 			if (strncmp(ext, "pub", 4) == 0) {
+				printf("%s keyname \n", key_name);
 				EVP_PKEY* key; 
 				key = client_open_pub_key(full_path);
 				if(key == NULL) {
-				  printf("ERROR: Unable to open public key %s\n", key_name);
+				  printf("ERROR: Key is null\n");
 				} else {
 				  key_hash_add(public_key_hash_table, key_name, key);
 				}
@@ -159,19 +142,21 @@ int main (int argc, char **argv) {
 	char* address_name_server; // the address of the name server
 	char* port_name_server; // the port of the name server
 	char* port_peers; // the port to listen for peer connections on
-	char* private_key; // the private_key name to use
 
-	if (argc < 5) {	// If there are not 6 arguments, error
+	if (argc < 3) {	// If there are not 4 arguments, error
 		print_usage();
 		return 1;
 	}
 
 	address_name_server = argv[1]; // name server address is 2nd argument
 	port_name_server = argv[2]; // name server port is 3rd argument
-	port_peers = argv[3]; // peer port is 4th argument
-	private_key = argv[4];
-
-
+	
+	if (argc == 4) {//we saw the emsasge before, do nothing
+		port_peers = argv[3]; // peer port is 4th argument
+	}
+	else {
+		port_peers = DEFAULT_PEER_PORT;
+	}
 
 	//create the message hash table
 	message_hash_table = client_create_hash_table();
@@ -186,7 +171,7 @@ int main (int argc, char **argv) {
 	client_list = list_create();
 	
 	// Initialize the crypto + public keys
-	init_crypto(private_key);
+	init_crypto();
 	
 	name_server_o name_server;
 	strncpy(name_server.address, address_name_server, NI_MAXHOST);
