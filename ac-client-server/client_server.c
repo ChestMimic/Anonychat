@@ -69,41 +69,102 @@ void print_usage() {
 
 void init_crypto() {
 	client_initialize_crypto();
-	rsa_encrypt_ctx = client_create_rsa_ctx(); //MEMORY CORRUPTION ERE
+	//rsa_encrypt_ctx = client_create_rsa_ctx(); //MEMORY CORRUPTION ERE
 
 	public_key_hash_table = key_create_hash_table();
 	
-	// Ben's things
+	//lets load the private key
+	//load_private_key("mykey.pem");
+	
+	//lets load the public keys
+	load_public_keys();
+	
+}
+
+/** Loads the private key with the given name
+	@param key_name The name of the private key to load, (with file ext)
+*/
+
+void load_private_key(char* key_name) {
+	printf("Loading private key... %s\n", key_name);
+	char* private_key_dir = "./priv_key/";
+	
+	int private_key_path_len = strlen(private_key_dir) + strlen(key_name) + 1;
+	char* private_key_path = (char*) malloc(private_key_path_len);
+	
+	//copy over the dir + keyname
+	strncpy(private_key_path, private_key_dir, private_key_path_len);
+	strncat(private_key_path, key_name, private_key_path_len);
+	
+	printf("Why we seg fault\n");
+	// The function client_open_priv_key, might not be using the
+	//	correct function to open the private key.
+	private_key = client_open_priv_key(private_key_path);
+	if (private_key == NULL) {
+		printf("Unable to open private key %s\n", private_key_path);
+	}
+	
+	free(private_key_path);
+	
+}
+
+/** Loads the public keys to be used for encrypting messages
+
+*/
+
+void load_public_keys() {
 	DIR *directory;
 	struct dirent *dir_o;
 	
-	char name[100];
-	strncpy(name, "./pub_key/", 100);
+	char* pub_key_dir = "./pub_key/";
 	
 	printf("Reading directories\n");
-	directory = opendir(name);
+	directory = opendir(pub_key_dir);
 	printf("test\n");
 	
 	
 	if (directory != NULL) {
 		printf("Directory opened\n");
-		while ((dir_o = readdir(directory)) != NULL) {
-			char* ext = strrchr(dir_o->d_name, '.');
+		while ((dir_o = readdir(directory)) != NULL) {			
+			
+			//the full path to the file to load
+			int full_path_len = strlen(dir_o->d_name) + strlen(pub_key_dir) + 1;
+			char* full_path = (char*) malloc(full_path_len);
+			memset(full_path, 0, full_path_len);
+			
+			strncat(full_path, pub_key_dir, full_path_len);
+			strncat(full_path, dir_o->d_name, full_path_len);			
+		
+			//extract the key name from all .pub files
+			char* key_name = (char*) malloc(strlen(dir_o->d_name) + 1);
+			strncpy(key_name, dir_o->d_name, strlen(dir_o->d_name) + 1);
+			//memset(key_name, 0, strlen(dir_o->d_name) + 1); // zero out key name
+			//printf("KeyName: |%s|\n", key_name);
+			
+			char* ext = strrchr(key_name, '.');
 			if (ext == NULL) {
+				printf("Skipping file %s \n", dir_o->d_name);
 				continue; // ignore this file
 			}
+			//printf("EXTENSION |%s|\n", ext);
 			*ext = '\0';
 			ext++; // move past the period
-			if (strncmp(ext, "pub", 4) == 0) {
-				printf("%s keyname \n", dir_o->d_name);
-				EVP_PKEY* key; 
-				key = client_open_pub_key(dir_o->d_name);
+			if (strncmp(ext, "pub", strlen("pub") + 1) == 0) {
+				printf("Opening key %s\n", full_path);
+				EVP_PKEY* key = client_open_pub_key(full_path);
 				if(key == NULL) {
-				  printf("ERROR: Key is null\n");
-				} else {
-				  key_hash_add(public_key_hash_table, dir_o->d_name, key);
+					printf("ERROR: Key is null\n");
+				} 
+				else {
+					printf("About to add %s to the hash table.\n", key_name);
+					key_hash_add(public_key_hash_table, key_name, key);
 				}
 			}
+			else {
+				printf("File extension of %s is not pub, is |%s| \n", dir_o->d_name, ext);
+			}
+			free(key_name); // free the key name
+			free(full_path); // free the full path
 		}
 		
 		closedir(directory);
@@ -139,7 +200,7 @@ int main (int argc, char **argv) {
 	port_name_server = argv[2]; // name server port is 3rd argument
 	
 	if (argc == 4) {//we saw the emsasge before, do nothing
-		port_peers = argv[3]; // peer port is 4th argument
+		port_peers = argv[3];
 	}
 	else {
 		port_peers = DEFAULT_PEER_PORT;
@@ -156,9 +217,10 @@ int main (int argc, char **argv) {
 	//initialize peer_list
 	peer_list = list_create();
 	client_list = list_create();
-	
+
 	// Initialize the crypto + public keys
 	init_crypto();
+
 	
 	name_server_o name_server;
 	strncpy(name_server.address, address_name_server, NI_MAXHOST);
@@ -167,6 +229,7 @@ int main (int argc, char **argv) {
 	//lets setup the server before we conenct to name server
 	peer_server_o peer_server;
 	strncpy(peer_server.port, port_peers, NI_MAXSERV);
+	printf("Peer Server Port: %s\n", peer_server.port);
 	peer_server.peer_thread = (pthread_t*) malloc(sizeof(pthread_t));
 	
 	int server_fd = init_server(&peer_server);
@@ -182,8 +245,7 @@ int main (int argc, char **argv) {
 		printf("Unable to connect to name server \n");
 		return 0;
 	}
-	
-	//inform the name server of the port to use
+	//inform the name server of the port to use.
 	res = update_port(&name_server, peer_server.port);  	
 	
 	//start user input now
@@ -402,10 +464,10 @@ int connect_to_name_server(name_server_o* name_server) {
 int update_port(name_server_o* name_server, char* port) {
 	int msg_len = strlen("PORTUPD ") + NI_MAXSERV + 1;
 	char* msg = (char*) malloc(msg_len);
-	
-	strncpy(msg, "PORTUPD ", strlen("PORTUPD "));
-	strncat(msg, port, NI_MAXSERV);
-	printf("MSG |%s|\n", msg);
+		
+	strncpy(msg, "PORTUPD ", msg_len);
+	strncat(msg, port, msg_len);
+
 	return send_msg(name_server->socket_fd, msg, msg_len);
 }
 
