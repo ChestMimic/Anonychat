@@ -6,6 +6,33 @@
 
 #include "enc.h"
 
+void print_hex(unsigned char* bytes, int len) {
+	int i=0;
+	for (i=0;i<len;i++) {
+		printf("%02X", bytes[i]);
+	}
+	printf("\n");
+}
+
+void print_msg_struct(message_encrypted_o* msg) {
+	printf("EM: ");
+	print_hex(msg->encrypted_msg, msg->encrypted_msg_len);
+	
+	printf("EK: ");
+	print_hex(msg->encrypted_key, msg->encrypted_key_len);
+	
+	printf("IV: ");
+	print_hex(msg->init_vector, msg->init_vector_len);
+	/*
+	printf("EM |%s|\n", msg->encrypted_msg);
+	printf("EK |%s|\n", msg->encrypted_key);
+	printf("IV |%s|\n", msg->init_vector);*/
+	
+	
+	printf("EML %d\n", msg->encrypted_msg_len);
+	printf("EKL %d\n", msg->encrypted_key_len);
+	printf("IVL %d\n", msg->init_vector_len);
+}
 
 /** Initializes the OpenSSL crypto library for use
 */
@@ -212,31 +239,46 @@ char* client_decrypt_msg(rsa_ctx_o* rsa_ctx, message_encrypted_o* msg,
 	
 	int encrypted_msg_len = msg->encrypted_msg_len; // strlen, it while processing the msg
 	int encryption_key_len = msg->encrypted_key_len;
+	int init_vector_len = msg->init_vector_len;
+	
 	EVP_CIPHER_CTX* decryption_ctx = &(rsa_ctx->rsa_decrypt_ctx);
 	
-	unsigned char* decrypted_msg = (unsigned char*) malloc(encrypted_msg_len);
+	unsigned char* decrypted_msg = (unsigned char*) malloc(encrypted_msg_len 
+		+ init_vector_len + 1);
+		
+	memset(decrypted_msg, 0, encrypted_msg_len + init_vector_len + 1);
+	printf("DecryptedMsg: |%s|\n", (char*)decrypted_msg);
 	
 	int res = EVP_OpenInit(decryption_ctx, EVP_aes_256_cbc(), msg->encrypted_key,
 		encryption_key_len, msg->init_vector, private_key);
-		
+	
+	
 	if (!res) {
 		//failed to initialize the decrypt
+		printf("Failed to initialize the decrypt \n");
 		return NULL;
 	}
+	
+	printf("DecryptedMsg: |%s|\n", (char*)decrypted_msg);
 	
 	res = EVP_OpenUpdate(decryption_ctx, decrypted_msg + decrypt_len, &block_size,
 		msg->encrypted_msg, encrypted_msg_len);
 	
 	if (!res) {
 		//failed to update the decrypt
+		printf("Failed to update the decrypt \n");
 		return NULL;
 	}
+	
+	printf("DecryptedMsg: |%s|\n", (char*)decrypted_msg);
 	decrypt_len += block_size;
 	
 	res = EVP_OpenFinal(decryption_ctx, decrypted_msg + decrypt_len, &block_size);
 	
 	if (!res) {
 		//failed to finalize the decrypt
+		printf("Failed to finalize the decrypt \n");
+		printf("Decrypted msg: |%s| \n", decrypted_msg);
 		return NULL;
 	}
 	
@@ -244,6 +286,9 @@ char* client_decrypt_msg(rsa_ctx_o* rsa_ctx, message_encrypted_o* msg,
 	
 	//clean ups
 	EVP_CIPHER_CTX_cleanup(decryption_ctx);
+	
+	printf("DecryptedMsg: |%s|\n", (char*)decrypted_msg);
+	printf("Decrypted_len: %d BlockSize: %d\n", decrypt_len, block_size);
 	
 	return decrypted_msg;
 	
@@ -351,6 +396,8 @@ char* msg_encrypt_encode(const char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* public_k
 		return NULL;
 	}
 	
+	print_msg_struct(encrypted_msg);
+	
 	char** encoded_msg = (char**) malloc(sizeof(char**));
 	ret = parse_encrypted_msg_str(encrypted_msg, encoded_msg);
 	if (!ret) {
@@ -384,6 +431,12 @@ char* msg_decode_decrypt(char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* private_key) {
 		return NULL;
 	}	
 	
+	
+	encrypted_msg->encrypted_msg_len--;
+	print_msg_struct(encrypted_msg);
+	
+	
 	return client_decrypt_msg(rsa_ctx, encrypted_msg, private_key);
 }
+
 
