@@ -139,6 +139,12 @@ void init_crypto();
 
 void load_public_keys();
 
+/** Loads the private key with the given name
+	@param key_name The name of the private key to load, (with file ext)
+*/
+
+void load_private_key(char* key_name);
+
 /** Cleans up the crypto, and frees any unnecesary memory
 */
 
