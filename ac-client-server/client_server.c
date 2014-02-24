@@ -97,7 +97,7 @@ void load_public_keys() {
 		printf("Directory opened\n");
 		while ((dir_o = readdir(directory)) != NULL) {
 			
-			//printf("Alice? %s \n", dir_o->d_name);
+			printf("Alice? |%s| \n", dir_o->d_name);
 			
 			//the full path to the file to load
 			int full_path_len = strlen(dir_o->d_name) + 25;
@@ -106,16 +106,26 @@ void load_public_keys() {
 			strncat(full_path, "./pub_key/", full_path_len);
 			strncat(full_path, dir_o->d_name, full_path_len);
 			
+			
+			printf("Alice? |%s| \n", dir_o->d_name);
 			//extract the key name from all .pub files
 			char* key_name = (char*) malloc(strlen(dir_o->d_name));
 			strncpy(key_name, dir_o->d_name, strlen(dir_o->d_name));
+			printf("Alice? |%s| \n", dir_o->d_name);
 			char* ext = strrchr(key_name, '.');
+			printf("Alice? |%s| \n", dir_o->d_name);
+			//shit gets added after this point....
+			printf("1EXTENSION |%s|\n", ext);
 			if (ext == NULL) {
 				printf("Skipping file %s \n", dir_o->d_name);
 				continue; // ignore this file
 			}
+			//printf("EXTENSION |%s|\n", ext);
 			*ext = '\0';
+			printf("2EXTENSION |%s|\n", ext);
 			ext++; // move past the period
+			printf("3EXTENSION |%s|\n", ext);
+			printf("Alice? |%s| \n", dir_o->d_name);
 			if (strncmp(ext, "pub", 4) == 0) {
 				printf("%s keyname \n", key_name);
 				EVP_PKEY* key; 
