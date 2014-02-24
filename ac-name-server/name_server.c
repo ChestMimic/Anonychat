@@ -147,7 +147,7 @@ void* client_handle(void* arg) {
 	@param client_o A pointer to a client structure in which to send the peers to
 */
 
-void client_send_peers(client* client_o) {
+void client_send_peers(client* client_o, node* graph) {
 
 	int msg_size = SERVER_MAX_MESSAGE;
 	char msg[msg_size]; // the message to use
@@ -415,7 +415,14 @@ void manage_graph(){
 	}
 	
 	//Part 2: Create graph from array (using tree's functions)
-
+	node* graph = combineNodesToGraph(randArray, 4, client_list->size);
 	//Part 3: Send out results to nodes
+	//for every client
+	here = client_list->head;
+	while(here != NULL){
+		client_send_peers(here->val , graph);
+		here = here->next;
+	}
+	//release mutex
 	pthread_mutex_unlock(&(client_list->mutex));
 }
