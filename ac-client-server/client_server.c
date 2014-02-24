@@ -73,12 +73,20 @@ void init_crypto() {
 
 	public_key_hash_table = key_create_hash_table();
 	
-	// Ben's things
+	//lets load the public keys
+	load_public_keys();
+	
+}
+
+/** Loads the public keys to be used for encrypting messages
+
+*/
+
+void load_public_keys() {
 	DIR *directory;
 	struct dirent *dir_o;
 	
-	char name[100];
-	strncpy(name, "./pub_key/", 100);
+	char* name = "./pub_key/";
 	
 	printf("Reading directories\n");
 	directory = opendir(name);
@@ -88,6 +96,8 @@ void init_crypto() {
 	if (directory != NULL) {
 		printf("Directory opened\n");
 		while ((dir_o = readdir(directory)) != NULL) {
+			
+			//printf("Alice? %s \n", dir_o->d_name);
 			
 			//the full path to the file to load
 			int full_path_len = strlen(dir_o->d_name) + 25;
@@ -101,6 +111,7 @@ void init_crypto() {
 			strncpy(key_name, dir_o->d_name, strlen(dir_o->d_name));
 			char* ext = strrchr(key_name, '.');
 			if (ext == NULL) {
+				printf("Skipping file %s \n", dir_o->d_name);
 				continue; // ignore this file
 			}
 			*ext = '\0';
@@ -114,6 +125,9 @@ void init_crypto() {
 				} else {
 				  key_hash_add(public_key_hash_table, key_name, key);
 				}
+			}
+			else {
+				printf("File extension of %s is not pub, is |%s| \n", dir_o->d_name, ext);
 			}
 			free(key_name); // free the key name
 			free(full_path); // free the full path

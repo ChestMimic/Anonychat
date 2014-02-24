@@ -133,6 +133,12 @@ int init_server(peer_server_o* peer_server);
 */
 void init_crypto();
 
+/** Loads the public keys to be used for encrypting messages
+
+*/
+
+void load_public_keys();
+
 /** Cleans up the crypto, and frees any unnecesary memory
 */
 
