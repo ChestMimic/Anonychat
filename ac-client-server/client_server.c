@@ -92,6 +92,7 @@ void init_crypto() {
 			//the full path to the file to load
 			int full_path_len = strlen(dir_o->d_name) + 25;
 			char* full_path = (char*) malloc(full_path_len);
+			memset(full_path, '\0', full_path_len);
 			strncat(full_path, "./pub_key/", full_path_len);
 			strncat(full_path, dir_o->d_name, full_path_len);
 			
