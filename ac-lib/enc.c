@@ -61,7 +61,7 @@ int client_clean_rsa_ctx(rsa_ctx_o* rsa_ctx) {
 EVP_PKEY* client_open_pub_key(char* file_path) {	
 	//open the file for reading
 	
-	printf("Opening file %s \n", file_path);
+	//printf("Opening file %s \n", file_path);
 	
 	FILE* fp = fopen(file_path, "r");
 	if (fp == NULL) {

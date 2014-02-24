@@ -95,45 +95,37 @@ void load_public_keys() {
 	
 	if (directory != NULL) {
 		printf("Directory opened\n");
-		while ((dir_o = readdir(directory)) != NULL) {
-			
-			printf("Alice? |%s| \n", dir_o->d_name);
+		while ((dir_o = readdir(directory)) != NULL) {			
 			
 			//the full path to the file to load
-			int full_path_len = strlen(dir_o->d_name) + 25;
+			int full_path_len = strlen(dir_o->d_name) + strlen("./pub_key/") + 1;
 			char* full_path = (char*) malloc(full_path_len);
-			memset(full_path, '\0', full_path_len);
+			memset(full_path, 0, full_path_len);
+			
 			strncat(full_path, "./pub_key/", full_path_len);
-			strncat(full_path, dir_o->d_name, full_path_len);
-			
-			
-			printf("Alice? |%s| \n", dir_o->d_name);
+			strncat(full_path, dir_o->d_name, full_path_len);			
+		
 			//extract the key name from all .pub files
-			char* key_name = (char*) malloc(strlen(dir_o->d_name));
-			strncpy(key_name, dir_o->d_name, strlen(dir_o->d_name));
-			printf("Alice? |%s| \n", dir_o->d_name);
+			char* key_name = (char*) malloc(strlen(dir_o->d_name) + 1);
+			strncpy(key_name, dir_o->d_name, strlen(dir_o->d_name) + 1);
+			//memset(key_name, 0, strlen(dir_o->d_name) + 1); // zero out key name
+			//printf("KeyName: |%s|\n", key_name);
+			
 			char* ext = strrchr(key_name, '.');
-			printf("Alice? |%s| \n", dir_o->d_name);
-			//shit gets added after this point....
-			printf("1EXTENSION |%s|\n", ext);
 			if (ext == NULL) {
 				printf("Skipping file %s \n", dir_o->d_name);
 				continue; // ignore this file
 			}
 			//printf("EXTENSION |%s|\n", ext);
 			*ext = '\0';
-			printf("2EXTENSION |%s|\n", ext);
 			ext++; // move past the period
-			printf("3EXTENSION |%s|\n", ext);
-			printf("Alice? |%s| \n", dir_o->d_name);
 			if (strncmp(ext, "pub", 4) == 0) {
-				printf("%s keyname \n", key_name);
-				EVP_PKEY* key; 
-				key = client_open_pub_key(full_path);
+				printf("Opening key %s\n", full_path);
+				EVP_PKEY* key = client_open_pub_key(full_path);
 				if(key == NULL) {
-				  printf("ERROR: Key is null\n");
+					printf("ERROR: Key is null\n");
 				} else {
-				  key_hash_add(public_key_hash_table, key_name, key);
+					key_hash_add(public_key_hash_table, key_name, key);
 				}
 			}
 			else {
