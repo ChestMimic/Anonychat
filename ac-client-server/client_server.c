@@ -88,22 +88,34 @@ void init_crypto() {
 	if (directory != NULL) {
 		printf("Directory opened\n");
 		while ((dir_o = readdir(directory)) != NULL) {
-			char* ext = strrchr(dir_o->d_name, '.');
+			
+			//the full path to the file to load
+			int full_path_len = strlen(dir_o->d_name) + 25;
+			char* full_path = (char*) malloc(full_path_len);
+			strncat(full_path, "./pub_key/", full_path_len);
+			strncat(full_path, dir_o->d_name, full_path_len);
+			
+			//extract the key name from all .pub files
+			char* key_name = (char*) malloc(strlen(dir_o->d_name));
+			strncpy(key_name, dir_o->d_name, strlen(dir_o->d_name));
+			char* ext = strrchr(key_name, '.');
 			if (ext == NULL) {
 				continue; // ignore this file
 			}
 			*ext = '\0';
 			ext++; // move past the period
 			if (strncmp(ext, "pub", 4) == 0) {
-				printf("%s keyname \n", dir_o->d_name);
+				printf("%s keyname \n", key_name);
 				EVP_PKEY* key; 
-				key = client_open_pub_key(dir_o->d_name);
+				key = client_open_pub_key(full_path);
 				if(key == NULL) {
 				  printf("ERROR: Key is null\n");
 				} else {
-				  key_hash_add(public_key_hash_table, dir_o->d_name, key);
+				  key_hash_add(public_key_hash_table, key_name, key);
 				}
 			}
+			free(key_name); // free the key name
+			free(full_path); // free the full path
 		}
 		
 		closedir(directory);
