@@ -266,20 +266,25 @@ int parse_encrypted_msg_str(message_encrypted_o* encrypted_msg, char** dest) {
 	char* tmp = (char*) malloc(encoded_len);
 	
 	int len = Base64encode(tmp, encrypted_msg->encrypted_msg, 
-		encrypted_msg->encrypted_msg_len);
+		encrypted_msg->encrypted_msg_len + 1);
 	strncpy((*dest), tmp, len);
-	strncpy((*dest), " ", 2); //add the space delim
+	strncat((*dest), " ", 2); //add the space delim
+	
+	//printf("TMP! |%s|\n", tmp);
 	
 	memset(tmp, 0, encoded_len); //zero out the memory
 	
-	len = Base64encode(tmp, encrypted_msg->encrypted_key, encrypted_msg->encrypted_key_len);
-	strncpy((*dest), tmp, len);
-	strncpy((*dest), " ", 2);
+	len = Base64encode(tmp, encrypted_msg->encrypted_key, encrypted_msg->encrypted_key_len) + 1;
+	strncat((*dest), tmp, len);
+	strncat((*dest), " ", 2);
 	
+	//printf("TMP! |%s|\n", tmp);
 	memset(tmp, 0, encoded_len); //zero out the memory
 	
-	len = Base64encode(tmp, encrypted_msg->init_vector, encrypted_msg->init_vector_len);
-	strncpy((*dest), tmp, len);
+	len = Base64encode(tmp, encrypted_msg->init_vector, encrypted_msg->init_vector_len) + 1;
+	strncat((*dest), tmp, len);
+	
+	//printf("TMP! |%s|\n", tmp);
 	
 	free(tmp); // free the memory used by the encoding
 	
@@ -305,7 +310,6 @@ struct _message_encrypted {
 */
 
 int parse_str_encrypted_msg(char* msg, message_encrypted_o* res) {
-	
 	char* tok = strtok(msg, " ");
 	//tok is the base64 encoded msg
 	int len = Base64decode_len(tok); //length of msg decoded
