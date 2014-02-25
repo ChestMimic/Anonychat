@@ -14,7 +14,7 @@
 #include       "key_table.h"
 
 
-
+#define BUFFER_SIZE 1500
 
 // List of peers for a client
 list* peer_list;
