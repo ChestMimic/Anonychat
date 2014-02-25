@@ -48,15 +48,16 @@ pthread_mutex_t mht_mutex; // message hash table mutex
 
 void print_usage() {
 	printf("Usage: \n");
-	printf("\t	client-server name-server-addr name-server-port peer-port \n");
-	printf("\t ex: client-server 192.168.1.105 6958 4758 \n");
+	printf("\t	client-server name-server-addr name-server-port peer-port private_key \n");
+	printf("\t ex: client-server 192.168.1.105 6958 4758 bob.pem\n");
 }
 
 /** Initializes the lib crypto context, the rsa encryption context
 		and loads the public / private keys into memory
+	@param private_key_name The name of the private key to load
 */
 
-void init_crypto() {
+void init_crypto(char* private_key_name) {
 	client_initialize_crypto();
 	rsa_encrypt_ctx = client_create_rsa_ctx();
 
@@ -66,7 +67,7 @@ void init_crypto() {
 	load_public_keys();
 	
 	//lets load the private key
-	load_private_key("bob.pem");
+	load_private_key(private_key_name);
 	
 }
 
@@ -165,21 +166,18 @@ int main (int argc, char **argv) {
 	char* address_name_server; // the address of the name server
 	char* port_name_server; // the port of the name server
 	char* port_peers; // the port to listen for peer connections on
+	char* private_key_name;
 
-	if (argc < 3) {	// If there are not 4 arguments, error
+	if (argc < 5) {	// If there are not 4 arguments, error
 		print_usage();
 		return 1;
 	}
 
 	address_name_server = argv[1]; // name server address is 2nd argument
 	port_name_server = argv[2]; // name server port is 3rd argument
-	
-	if (argc == 4) {//we saw the emsasge before, do nothing
-		port_peers = argv[3];
-	}
-	else {
-		port_peers = DEFAULT_PEER_PORT;
-	}
+	port_peers = argv[3]; // peer port is the 4th argument
+	private_key_name = argv[4]; // the private key is 5th argument
+
 
 	//create the message hash table
 	message_hash_table = client_create_hash_table();
@@ -194,7 +192,7 @@ int main (int argc, char **argv) {
 	client_list = list_create();
 
 	// Initialize the crypto + public keys
-	init_crypto();
+	init_crypto(private_key_name);
 
 	
 	name_server_o name_server;
@@ -686,12 +684,15 @@ int input_send_msg(char* input, int len) {
 		return 1;
 	}
 	//now we will encrypt the message
-	
+	printf("About to encrypt + encode! \n");
+	printf("MSG:|%s| CTX: |%x| KEY: |%x|\n", msg, rsa_encrypt_ctx, pub_key);
 	char* encoded_msg = msg_encrypt_encode(msg, rsa_encrypt_ctx, pub_key);
 	if (encoded_msg == NULL) {
-		//we couldnt encode the message;
+		printf("Error encoding the message \n"); //dont just silently fail..
 		return 1;
 	}
+	
+	printf("Encoded message to send! %s \n");
 	
 	//send to all of our peers!
 	client_send_to_all_peers(msg); 
