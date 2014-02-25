@@ -48,7 +48,7 @@ void client_send_peers(client* client_o, node* graph);
 		should be freed after use
 */
 
-char* client_peers_rand(client* client_o, int max_msg_size);
+char* client_peers_rand(client* client_o, int max_msg_size, node* graph);
 
 /** Returns the peer message to send to the client when the number of peers
 	is below the peer threshold

@@ -169,7 +169,7 @@ void client_send_peers(client* client_o, node* graph) {
 		free(to_cat);
 	}
 	else {	
-		char* to_cat = client_peers_rand(client_o, msg_size);
+		char* to_cat = client_peers_rand(client_o, msg_size, node* graph);
 		strncat(msg, to_cat, SERVER_MAX_MESSAGE);
 		free(to_cat);
 	}
@@ -187,7 +187,7 @@ void client_send_peers(client* client_o, node* graph) {
 		should be freed after use, or NULL if there are no peers to send
 */
 
-char* client_peers_rand(client* client_o, int max_msg_size) {
+char* client_peers_rand(client* client_o, int max_msg_size, node* graph) {
 	int me = -1;	
 	int num_peers = PEER_POOL_SIZE; // the number of peers to send
 	int total_peers = list_size(client_list); //total number of connected clients, excludign self
@@ -199,22 +199,11 @@ char* client_peers_rand(client* client_o, int max_msg_size) {
 	//max ip size is 16. probally us INET_ADDRSTRLEN, which is 16
 
 	int i;
-	for (i = 0; i < num_peers; i++) {	
-		while (1) {
-			int rnum = rand() % (total_peers); 
-			client* client_p = list_item_at(client_list, rnum);
-			if (rnum == me || client_p->socket_fd == client_o->socket_fd) {
-				me = rnum;
-				continue;
-			}
-			//we found a peer that is now us,
-			strncat(msg, client_p->address, max_msg_size);
-			strncat(msg, ":", max_msg_size);
-			strncat(msg, client_p->port, max_msg_size); 
-			strncat(msg, " ", max_msg_size); //add a space
-			break;		
-		}
+	for(i = 0; i< graph->numConnections; i++){
+		strncat(msg, graph->connections[i]->data, max_msg_size);
+		strncat(msg, " ", max_msg_size); //add a space
 	}
+	
 	
 	if (strlen(msg) > 0) {
 		msg[strlen(msg) -1] = '\0'; // remove the extra space at the end
@@ -420,7 +409,46 @@ void manage_graph(){
 	//for every client
 	here = client_list->head;
 	while(here != NULL){
-		client_send_peers( (client *) here->val, graph);
+		//find node that matches client first
+		
+		
+		list queue = list_create();//queue for breadth first search
+		list sight = list_create();//set of seen elements
+		list_add(queue, graph);
+		list_add(sight, graph);
+		node* target;
+		while(queue->size > 0){
+			//dequeue head of queue
+			target = queue->head;
+			list_remove(queue, target);
+			
+			//is head what we want?
+			if(target->data == target->val){//Yes->break
+				break;
+			}else{//no->continue
+				int j = target->numConnections;
+				for( ; j > 0; j--){//for all edges to "graph"
+					//is edge seen?
+					if(list_contains(sight, target->connections[j]){
+						//do nothing
+					}
+					else{
+						list_add(queue, target->connections[j]);
+						list_add(sight, target->connections[j]);
+					}
+					//yes-> ignore
+					//no->enqueue and mark as seen
+				}
+			
+				
+			
+			}
+		}
+		
+		
+		
+		
+		client_send_peers( (client *) here->val, target);
 		here = here->next;
 	}
 	//release mutex
