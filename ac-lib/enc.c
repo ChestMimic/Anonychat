@@ -29,7 +29,7 @@ void client_cleanup_crypto() {
 */
 
 rsa_ctx_o* client_create_rsa_ctx() {
-	rsa_ctx_o* rsa_ctx = (rsa_ctx_o*) malloc(sizeof(rsa_ctx));
+	rsa_ctx_o* rsa_ctx = (rsa_ctx_o*) malloc(sizeof(rsa_ctx_o));
 	
 	if (rsa_ctx == NULL) {
 		//malloc failed.. *tear
@@ -60,6 +60,9 @@ int client_clean_rsa_ctx(rsa_ctx_o* rsa_ctx) {
 
 EVP_PKEY* client_open_pub_key(char* file_path) {	
 	//open the file for reading
+	
+	//printf("Opening file %s \n", file_path);
+	
 	FILE* fp = fopen(file_path, "r");
 	if (fp == NULL) {
 		//couldnt open file
@@ -127,8 +130,8 @@ EVP_PKEY* client_open_priv_key(char* file_path) {
 	@return 0 if successful, error code otherwise
 */
 
-int client_encrypt_msg(rsa_ctx_o* rsa_ctx, const unsigned char* msg, EVP_PKEY* public_key, 
-	message_encrypted_o* res) {
+int client_encrypt_msg(rsa_ctx_o* rsa_ctx, const unsigned char* msg, 
+	EVP_PKEY* public_key, message_encrypted_o* res) {
 	int msg_enc_len = 0;
 	int block_size = 0;
 	int msg_len = 0;
@@ -201,7 +204,9 @@ int client_encrypt_msg(rsa_ctx_o* rsa_ctx, const unsigned char* msg, EVP_PKEY* p
 		unable to decrypt
 */
 
-char* client_decrypt_msg(rsa_ctx_o* rsa_ctx, message_encrypted_o* msg, EVP_PKEY* private_key) {
+char* client_decrypt_msg(rsa_ctx_o* rsa_ctx, message_encrypted_o* msg, 
+	EVP_PKEY* private_key) {
+	
 	int decrypt_len = 0;
 	int block_size = 0;
 	
@@ -260,7 +265,8 @@ int parse_encrypted_msg_str(message_encrypted_o* encrypted_msg, char** dest) {
 	(*dest) = (char*) malloc(encoded_len);
 	char* tmp = (char*) malloc(encoded_len);
 	
-	int len = Base64encode(tmp, encrypted_msg->encrypted_msg, encrypted_msg->encrypted_msg_len);
+	int len = Base64encode(tmp, encrypted_msg->encrypted_msg, 
+		encrypted_msg->encrypted_msg_len);
 	strncpy((*dest), tmp, len);
 	strncpy((*dest), " ", 2); //add the space delim
 	
@@ -290,7 +296,8 @@ int parse_encrypted_msg_str(message_encrypted_o* encrypted_msg, char** dest) {
 /*
 struct _message_encrypted {
 	unsigned char* encrypted_msg; // The message encrypted with the encrypted key
-	unsigned char* encrypted_key; //The encrypted key, which is encrypted with the RSA pub key
+	unsigned char* encrypted_key; //The encrypted key, which is encrypted with 
+		the RSA pub key
 	unsigned char* init_vector; // The IV used during encryption
 	int encrypted_msg_len; // the length of encrypted_msg
 	int encrypted_key_len; // the length of the encrypted key
@@ -319,6 +326,60 @@ int parse_str_encrypted_msg(char* msg, message_encrypted_o* res) {
 	
 	//msg should be parsed.
 	
-	return 1;
-	
+	return 1;	
 }
+
+/** Encrypts the given message with the given public key, and encodes the 
+		results in base64
+	@param msg cstring containing the message to convert
+	@param rsa_ctx A pointer to a rsa_ctx_o struct which contains the rsa context
+	@param public_key A pointer to the public key to encrypt with
+	@return A cstring containing the Base64 encoded encrypted message, NULL
+		if an error occured
+*/
+
+char* msg_encrypt_encode(const char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* public_key) {
+	message_encrypted_o* encrypted_msg = (message_encrypted_o*) 
+		malloc(sizeof(message_encrypted_o));
+	int ret = client_encrypt_msg(rsa_ctx, msg, public_key, encrypted_msg);
+	if (ret) {
+		printf("There was an error encrypting the message \n");
+		return NULL;
+	}
+	
+	char** encoded_msg = (char**) malloc(sizeof(char**));
+	ret = parse_encrypted_msg_str(encrypted_msg, encoded_msg);
+	if (!ret) {
+		printf("Couldnt encoded message \n");
+		free(encrypted_msg);
+		free(encoded_msg);
+		return NULL;
+	}
+	//TODO: Check if this works correctly.
+	char* tmp = *encoded_msg;
+	free(encoded_msg);
+	return tmp;
+}
+
+/** Decodes and decryprs the given message with the specified private key
+	@param msg A cstring containing the base64 endoed message to decrypt
+	@param rsa_ctx A pointer to the rsa encryption context
+	@param private_key A pointer to the private key to decrypt the message with
+	@return A cstring containing the decoded and decrypted message, NULL
+		if an error occured
+*/
+
+char* msg_decode_decrypt(char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* private_key) {
+	message_encrypted_o* encrypted_msg = (message_encrypted_o*) 
+		malloc(sizeof(message_encrypted_o));
+		
+	int ret = parse_str_encrypted_msg(msg, encrypted_msg);
+	if (!ret) {
+		printf("Couldn't decode the string \n");
+		free(encrypted_msg);
+		return NULL;
+	}	
+	
+	return client_decrypt_msg(rsa_ctx, encrypted_msg, private_key);
+}
+

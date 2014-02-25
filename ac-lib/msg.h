@@ -78,14 +78,6 @@ int send_msg(int socket_fd, void* msg, int length);
 */
 int send_msg_peer(peer_o* peer, char* msg);
 
-
-/** Parses a message that is received by a client
-	@param msg The message to parse
-	@return 1
-*/
-
-int client_parse_msg(char* msg);
-
 /** Creates the hash table to be used by the client to store
 		messages that have already been processed
 	@return A pointer to a GLIB GHashTable
@@ -133,7 +125,5 @@ unsigned int client_purge_msg(GHashTable* hash_table);
 */
 
 gboolean purge_message(gpointer key, gpointer val, gpointer data);
-
-
 
 #endif

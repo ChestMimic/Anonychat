@@ -3,6 +3,7 @@
 
 #define DEFAULT_PEER_PORT "4758"
 #define PEER_SERVER_BACKLOG (5)
+#define PURGE_FREQUENCY (30) // the purge frequency of messages in seconds
 
 #include <pthread.h>
 
@@ -126,6 +127,58 @@ void* listen_for_clients(void* arg);
 */
 
 int init_server(peer_server_o* peer_server);
+
+/** Initializes the lib crypto context, the rsa encryption context
+		and loads the public / private keys into memory
+*/
+void init_crypto();
+
+/** Loads the public keys to be used for encrypting messages
+
+*/
+
+void load_public_keys();
+
+/** Loads the private key with the given name
+	@param key_name The name of the private key to load, (with file ext)
+*/
+
+void load_private_key(char* key_name);
+
+/** Cleans up the crypto, and frees any unnecesary memory
+*/
+
+void cleanup_crypto();
+
+/** Parses and sends the message that the user has typed in
+	@param input A cstring contaning the message to parses
+	@param len The length of the message
+	@return 0 if sucessful, 1 otherwise
+*/
+int input_send_msg(char* input, int len);
+
+/** Parses the message received from a client. Which means decoding and decrypting 
+		the message and takign appropriate action if the message was intended for us
+	@param The message received
+	@param len The length of the message
+	@return 0 if sucessful, 1 otherwise
+*/
+
+int client_parse_msg(char* msg, int len);
+
+/** Sends the given message to all of our peers
+	@param msg The message to send
+	@return 0 if sucessful, 1 otherwise
+*/
+
+int client_send_to_all_peers(char* msg);
+
+/** Thread responsible for purging the msg hash table of old messages
+
+	Will call the purge function every PURGE_FREQUENCY seconds
+*/
+
+void* client_purge_msg_hash(void* arg);
 
 
 #endif

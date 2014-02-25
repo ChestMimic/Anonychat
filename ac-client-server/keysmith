@@ -1,15 +1,15 @@
 #!/bin/bash
 #Make some keys for testing
-openssl genrsa -out priv_key/key1.pem 1024
-openssl genrsa -out priv_key/key2.pem 1024
-openssl genrsa -out priv_key/key3.pem 1024
-openssl genrsa -out priv_key/key4.pem 1024
-openssl genrsa -out priv_key/key5.pem 1024
+openssl genrsa -out priv_key/alice.pem 4096
+openssl genrsa -out priv_key/bob.pem 4096
+openssl genrsa -out priv_key/ted.pem 4096
+openssl genrsa -out priv_key/eve.pem 4096
+openssl genrsa -out priv_key/jose.pem 4096
 
-openssl rsa -in priv_key/key1.pem -pubout > pub_key/key1.pub
-openssl rsa -in priv_key/key2.pem -pubout > pub_key/key2.pub
-openssl rsa -in priv_key/key3.pem -pubout > pub_key/key3.pub
-openssl rsa -in priv_key/key4.pem -pubout > pub_key/key4.pub
-openssl rsa -in priv_key/key5.pem -pubout > pub_key/key5.pub
+openssl rsa -in priv_key/alice.pem -pubout > pub_key/alice.pub
+openssl rsa -in priv_key/bob.pem -pubout > pub_key/bob.pub
+openssl rsa -in priv_key/ted.pem -pubout > pub_key/ted.pub
+openssl rsa -in priv_key/eve.pem -pubout > pub_key/eve.pub
+openssl rsa -in priv_key/jose.pem -pubout > pub_key/jose.pub
 
 echo "5 public/private keys generated"

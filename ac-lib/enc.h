@@ -98,5 +98,26 @@ int parse_encrypted_msg_str(message_encrypted_o* encrypted_msg, char** dest);
 
 int parse_str_encrypted_msg(char* msg, message_encrypted_o* res);
 
+/** Encrypts the given message with the given public key, and encodes the 
+		results in base64
+	@param msg cstring containing the message to convert
+	@param rsa_ctx A pointer to a rsa_ctx_o struct which contains the rsa context
+	@param public_key A pointer to the public key to encrypt with
+	@return A cstring containing the Base64 encoded encrypted message, NULL
+		if an error occured
+*/
+
+char* msg_encrypt_encode(const char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* public_key);
+
+/** Decodes and decryprs the given message with the specified private key
+	@param msg A cstring containing the base64 endoed message to decrypt
+	@param rsa_ctx A pointer to the rsa encryption context
+	@param private_key A pointer to the private key to decrypt the message with
+	@return A cstring containing the decoded and decrypted message, NULL
+		if an error occured
+*/
+
+char* msg_decode_decrypt(char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* private_key);
+
 
 #endif

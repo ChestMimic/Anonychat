@@ -9,14 +9,19 @@
 #include       <time.h>
 #include       <pthread.h>
 #include       <sys/resource.h>
-#include	   <errno.h>
-#include       "enc.h"
+#include       <errno.h>
+#include       <dirent.h>
+#include       <sys/types.h>
+#include	   <unistd.h>
 
 
 #include       "thread_util.h"
 #include       "msg.h"
 #include       "list.h"
-#include	   "client_server.h"
+#include       "client_server.h"
+#include       "enc.h"
+
+#include       "key_table.h"
 
 #define         BUFFER_SIZE     512
 #define         CHUNK_SIZE 512
@@ -28,6 +33,15 @@ list* peer_list;
 // list of all connected clients
 list* client_list;
 
+// the hash table that contains the public keys
+GHashTable* public_key_hash_table;
+
+// the hash table that contains the messages
+GHashTable* message_hash_table;
+
+// The private key we will use to decrypt messages
+EVP_PKEY* private_key;
+
 //indicates whether or not we are still running
 int running = 1; 
 
@@ -35,9 +49,13 @@ int running = 1;
 int client_id = 0;
 
 // The rsa struct for encryption
-rsa_ctx_o* rsa_encryp;
+rsa_ctx_o* rsa_encrypt_ctx;
 
 pthread_mutex_t printing_mutex; // mutex for printing
+
+pthread_mutex_t pkht_mutex; // public key hash table mutex
+
+pthread_mutex_t mht_mutex; // message hash table mutex
 
 void print_usage() {
 	printf("Usage: \n");
@@ -45,10 +63,126 @@ void print_usage() {
 	printf("\t ex: client-server 192.168.1.105 6958 4758 \n");
 }
 
-void init_crypto() {
-  client_initialize_crypto();
-  rsa_encryp = client_create_rsa_ctx();
+/** Initializes the lib crypto context, the rsa encryption context
+		and loads the public / private keys into memory
+*/
 
+void init_crypto() {
+	client_initialize_crypto();
+	//rsa_encrypt_ctx = client_create_rsa_ctx(); //MEMORY CORRUPTION ERE
+
+	public_key_hash_table = key_create_hash_table();
+	
+	//lets load the private key
+	//load_private_key("mykey.pem");
+	
+	//lets load the public keys
+	load_public_keys();
+	
+}
+
+/** Loads the private key with the given name
+	@param key_name The name of the private key to load, (with file ext)
+*/
+
+void load_private_key(char* key_name) {
+	printf("Loading private key... %s\n", key_name);
+	char* private_key_dir = "./priv_key/";
+	
+	int private_key_path_len = strlen(private_key_dir) + strlen(key_name) + 1;
+	char* private_key_path = (char*) malloc(private_key_path_len);
+	
+	//copy over the dir + keyname
+	strncpy(private_key_path, private_key_dir, private_key_path_len);
+	strncat(private_key_path, key_name, private_key_path_len);
+	
+	printf("Why we seg fault\n");
+	// The function client_open_priv_key, might not be using the
+	//	correct function to open the private key.
+	private_key = client_open_priv_key(private_key_path);
+	if (private_key == NULL) {
+		printf("Unable to open private key %s\n", private_key_path);
+	}
+	
+	free(private_key_path);
+	
+}
+
+/** Loads the public keys to be used for encrypting messages
+
+*/
+
+void load_public_keys() {
+	DIR *directory;
+	struct dirent *dir_o;
+	
+	char* pub_key_dir = "./pub_key/";
+	
+	printf("Reading directories\n");
+	directory = opendir(pub_key_dir);
+	printf("test\n");
+	
+	
+	if (directory != NULL) {
+		printf("Directory opened\n");
+		while ((dir_o = readdir(directory)) != NULL) {			
+			
+			//the full path to the file to load
+			int full_path_len = strlen(dir_o->d_name) + strlen(pub_key_dir) + 1;
+			char* full_path = (char*) malloc(full_path_len);
+			memset(full_path, 0, full_path_len);
+			
+			strncat(full_path, pub_key_dir, full_path_len);
+			strncat(full_path, dir_o->d_name, full_path_len);			
+		
+			//extract the key name from all .pub files
+			char* key_name = (char*) malloc(strlen(dir_o->d_name) + 1);
+			strncpy(key_name, dir_o->d_name, strlen(dir_o->d_name) + 1);
+			//memset(key_name, 0, strlen(dir_o->d_name) + 1); // zero out key name
+			//printf("KeyName: |%s|\n", key_name);
+			
+			char* ext = strrchr(key_name, '.');
+			if (ext == NULL) {
+				printf("Skipping file %s \n", dir_o->d_name);
+				continue; // ignore this file
+			}
+			//printf("EXTENSION |%s|\n", ext);
+			*ext = '\0';
+			ext++; // move past the period
+			if (strncmp(ext, "pub", strlen("pub") + 1) == 0) {
+				printf("Opening key %s\n", full_path);
+				EVP_PKEY* key = client_open_pub_key(full_path);
+				if(key == NULL) {
+					printf("ERROR: Key is null\n");
+				} 
+				else {
+					printf("About to add %s to the hash table.\n", key_name);
+					key_hash_add(public_key_hash_table, key_name, key);
+				}
+			}
+			else {
+				printf("File extension of %s is not pub, is |%s| \n", dir_o->d_name, ext);
+			}
+			free(key_name); // free the key name
+			free(full_path); // free the full path
+		}
+		
+		closedir(directory);
+	}
+	else {
+		printf("Directory could not be opened \n");
+	}
+	
+	
+	printf("Done reading\n");	
+}
+
+/** Cleans up the crypto, and frees any unnecesary memory
+*/
+
+void cleanup_crypto() {
+	client_cleanup_crypto();
+	free (rsa_encrypt_ctx);
 }
 
 int main (int argc, char **argv) {
@@ -65,19 +199,28 @@ int main (int argc, char **argv) {
 	address_name_server = argv[1]; // name server address is 2nd argument
 	port_name_server = argv[2]; // name server port is 3rd argument
 	
-	if (argc == 4) {
-		port_peers = argv[3]; // peer port is 4th argument
+	if (argc == 4) {//we saw the emsasge before, do nothing
+		port_peers = argv[3];
 	}
 	else {
 		port_peers = DEFAULT_PEER_PORT;
 	}
 
+	//create the message hash table
+	message_hash_table = client_create_hash_table();
+	
 	//initialize mutexes
 	pthread_mutex_init(&printing_mutex, NULL);
+	pthread_mutex_init(&pkht_mutex, NULL);
+	pthread_mutex_init(&mht_mutex, NULL);
 	
 	//initialize peer_list
 	peer_list = list_create();
 	client_list = list_create();
+
+	// Initialize the crypto + public keys
+	init_crypto();
+
 	
 	name_server_o name_server;
 	strncpy(name_server.address, address_name_server, NI_MAXHOST);
@@ -86,18 +229,14 @@ int main (int argc, char **argv) {
 	//lets setup the server before we conenct to name server
 	peer_server_o peer_server;
 	strncpy(peer_server.port, port_peers, NI_MAXSERV);
+	printf("Peer Server Port: %s\n", peer_server.port);
 	peer_server.peer_thread = (pthread_t*) malloc(sizeof(pthread_t));
 	
 	int server_fd = init_server(&peer_server);
 	
 	pthread_create(peer_server.peer_thread, NULL, &listen_for_clients, 
-		(void*) &peer_server);
-	
-	//setup user input
-	
-	//thread for user input
-	pthread_t user_input_thread;
-	pthread_create(&user_input_thread, NULL, &input_handle, NULL);
+		(void*) &peer_server);	
+
 	
 	//connect to the name server
 	int res = connect_to_name_server(&name_server);
@@ -106,17 +245,22 @@ int main (int argc, char **argv) {
 		printf("Unable to connect to name server \n");
 		return 0;
 	}
+	//inform the name server of the port to use.
+	res = update_port(&name_server, peer_server.port);  	
 	
-	//inform the name server of the port to use
-	res = update_port(&name_server, peer_server.port);  
+	//start user input now
+	pthread_t user_input_thread;
+	pthread_create(&user_input_thread, NULL, &input_handle, NULL);
 	
-	printf("We have connected to the name server, and sent new port,"
-		" waiting for peers n such \n");
+	//start message purging thread
+	pthread_t msg_purge_thread;
+	pthread_create(&msg_purge_thread, NULL, &client_purge_msg_hash, NULL);
 	
 	//wait for the name server handler thread to finish.
 	//if it does, we will drop out, can't do much without the name server
 	pthread_join(*(name_server.name_thread), NULL);
 	running = 0;
+	
 	printf("We are exiting \n");
 }
 
@@ -173,6 +317,8 @@ void* client_handle(void* arg) {
 	while ( (res = recv(client->socket_fd, buffer, BUFFER_SIZE, 0))) {
 		buffer[res] = '\0'; //add a null terminator just in case		
 		printf("Received: |%s| from client: %d \n", buffer, client->client_id);		
+		
+		client_parse_msg(buffer, res);
 	}
 	
 	printf("Disconnected from client: %d \n", client->client_id);
@@ -318,10 +464,10 @@ int connect_to_name_server(name_server_o* name_server) {
 int update_port(name_server_o* name_server, char* port) {
 	int msg_len = strlen("PORTUPD ") + NI_MAXSERV + 1;
 	char* msg = (char*) malloc(msg_len);
-	
-	strncpy(msg, "PORTUPD ", strlen("PORTUPD "));
-	strncat(msg, port, NI_MAXSERV);
-	
+		
+	strncpy(msg, "PORTUPD ", msg_len);
+	strncat(msg, port, msg_len);
+
 	return send_msg(name_server->socket_fd, msg, msg_len);
 }
 
@@ -448,7 +594,7 @@ int init_server(peer_server_o* peer_server) {
 		break; // we bound successfuly
 	}
 	
-	free(server_info);
+	//free(server_info); //dont think this needs to be freed.
 	
 	printf("Inited server with a socket of %d \n", socket_fd);
 	
@@ -509,37 +655,155 @@ int connect_to_host(char* address, char* port) {
 	@return TODO: define
 */
 
+/** Parsing messages yay 
+	Format:
+		|username:msg body|
+		
+		Username will be the name of the user to send the message to
+		msg body will be the body of the message
+		Message body can contain spaces, however username cannot.
+		Username and Message body are space delim
+		aka, The first characters before the space are used as the username
+*/
+
+
+
 void* input_handle(void* arg) {
 	//allocate space for the input buffer
 	char* input_buffer = (char*) malloc(BUFFER_SIZE);
 	size_t buffer_len = BUFFER_SIZE -1; // allow room for the \0
 	
+	//let user know its time
+	printf("You are free to type messages! Format username (SPACE) message body \n");
 	//listen for user input while we are running
 	while (running) {
-		int len = getline(&input_buffer, &buffer_len, stdin);		
-		input_buffer[len] = '\0'; // add the null terminator just in case	
-			
-		//lock the peer list mutex
-		pthread_mutex_lock(&(peer_list->mutex));		
-		//for now send any message the user enters to each peer
-		int i;
-		for (i=0;i<list_size(peer_list); i++) {
-			peer_o* to_send = list_item_at(peer_list, i);
-			
-			printf("Sending message |%s| to peer %d \n", input_buffer, to_send->peer_id);
-			
-			int res = send_msg_peer(to_send, input_buffer);
-			if (res == -1) {
-				//connection to the peer was not open :(
-				//lets NOT open a connection while we have the
-				//	list mutex though
-			}
-		}		
-		pthread_mutex_unlock(&(peer_list->mutex)); //unlock mutex
+		int len = getline(&input_buffer, &buffer_len, stdin);	
+		if (len > 0) {
+			len --;
+		}	
+		input_buffer[len] = '\0'; //overwrite the \n with \0
+		input_send_msg(input_buffer, len);
+	
 	}
 	
 	free(input_buffer); // free the allocated memory
 	
 	return 0;	
+}
+
+/** Parses and sends the message that the user has typed in
+	@param input A cstring contaning the message to parses
+	@param len The length of the message
+	@return 0 if sucessful, 1 otherwise
+*/
+
+
+int input_send_msg(char* input, int len) {
+	char* first_colon = strchr(input, ':');
+	(*first_colon) = '\0'; // set it to terminator char
+	char* name = input;
+	char* msg = first_colon + 1;
+	
+	printf("Send Message |%s|  to |%s| \n", msg, name);
+	EVP_PKEY* pub_key = key_get_by_name(public_key_hash_table, name);
+	if (pub_key == NULL) {
+		printf("Unable to send message, No public key for %s exists.\n", name);
+		return 1;
+	}
+	//now we will encrypt the message
+	
+	char* encoded_msg = msg_encrypt_encode(msg, rsa_encrypt_ctx, pub_key);
+	if (encoded_msg == NULL) {
+		//we couldnt encode the message;
+		return 1;
+	}
+	
+	//send to all of our peers!
+	client_send_to_all_peers(msg); 
+	
+	free(encoded_msg); // free the message
+	return 0; // we sent all the messages
+}
+
+
+/** Parses the message received from a client. Which means decoding and decrypting 
+		the message and takign appropriate action if the message was intended for us
+	@param The message received
+	@param len The length of the message
+	@return 0 if sucessful, 1 otherwise
+*/
+
+
+int client_parse_msg(char* msg, int len) {
+	
+	pthread_mutex_lock(&mht_mutex);
+	if (client_has_seen_msg(message_hash_table, msg)) {
+		//we saw the emsasge before, do nothing
+		pthread_mutex_unlock(&mht_mutex);
+		return 0;
+	}
+	
+	//we havent seen the message, lets process it
+	
+	//add the message to the hash table
+	client_hash_add_msg(message_hash_table, msg);
+	
+	pthread_mutex_unlock(&mht_mutex);
+	
+	//try to decode the message
+	char* decoded_msg = msg_decode_decrypt(msg, rsa_encrypt_ctx, private_key);
+	
+	if (decoded_msg != NULL) {
+		//woohoo we decoded the message
+		printf("Received: %s\n", decoded_msg);
+	}
+	
+	//send to all of our peers!
+	client_send_to_all_peers(msg); // send orig, not decoded
+}
+
+
+/** Sends the given message to all of our peers
+	@param msg The message to send
+	@return 0 if sucessful, 1 otherwise
+*/
+
+int client_send_to_all_peers(char* msg) {
+	//now lets send the message to all our peers
+	pthread_mutex_lock(&(peer_list->mutex));		
+	int i;
+	for (i=0;i<list_size(peer_list); i++) {
+		peer_o* to_send = list_item_at(peer_list, i);
+		
+		printf("Sending message |%s| to peer %d \n", msg, to_send->peer_id);
+					
+		int res = send_msg_peer(to_send, msg);
+		if (res == -1) {
+			//connection to the peer was not open :(
+			//TODO: figure out what to do here
+		}
+	}		
+	pthread_mutex_unlock(&(peer_list->mutex)); //unlock mutex
+}
+
+/** Thread responsible for purging the msg hash table of old messages
+
+	Will call the purge function every PURGE_FREQUENCY seconds
+*/
+
+void* client_purge_msg_hash(void* arg) {
+
+	while (running) {
+
+		sleep( PURGE_FREQUENCY); // sleep for purge frequency seconds
+
+		pthread_mutex_lock(&mht_mutex);
+		//clean up the messages	
+		client_purge_msg(message_hash_table);
+	
+		pthread_mutex_unlock(&mht_mutex);
+	
+	}
+
 }
 
