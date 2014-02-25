@@ -1,30 +1,19 @@
 #include       <stdlib.h>
 #include       <sys/socket.h>
-#include       <netinet/in.h>
-#include       <arpa/inet.h>
 #include       <stdio.h>
 #include       <string.h>
 #include       <netdb.h>
 #include       <stdlib.h>
-#include       <time.h>
 #include       <pthread.h>
-#include       <sys/resource.h>
 #include       <errno.h>
-#include       <dirent.h>
-#include       <sys/types.h>
-#include	   <unistd.h>
 
-
-#include       "thread_util.h"
 #include       "msg.h"
 #include       "list.h"
 #include       "client_server.h"
 #include       "enc.h"
-
 #include       "key_table.h"
 
 #define         BUFFER_SIZE     512
-#define         CHUNK_SIZE 512
 
 
 // List of peers for a client
@@ -69,15 +58,15 @@ void print_usage() {
 
 void init_crypto() {
 	client_initialize_crypto();
-	//rsa_encrypt_ctx = client_create_rsa_ctx(); //MEMORY CORRUPTION ERE
+	rsa_encrypt_ctx = client_create_rsa_ctx();
 
 	public_key_hash_table = key_create_hash_table();
-	
-	//lets load the private key
-	//load_private_key("mykey.pem");
-	
+		
 	//lets load the public keys
 	load_public_keys();
+	
+	//lets load the private key
+	load_private_key("bob.pem");
 	
 }
 
@@ -86,25 +75,26 @@ void init_crypto() {
 */
 
 void load_private_key(char* key_name) {
-	printf("Loading private key... %s\n", key_name);
+	printf("Loading Private Key! \n");
+	//the private key directory
 	char* private_key_dir = "./priv_key/";
 	
-	int private_key_path_len = strlen(private_key_dir) + strlen(key_name) + 1;
-	char* private_key_path = (char*) malloc(private_key_path_len);
+	int full_path_len = 256 + 25 + 1;
+	char full_path[full_path_len];
 	
-	//copy over the dir + keyname
-	strncpy(private_key_path, private_key_dir, private_key_path_len);
-	strncat(private_key_path, key_name, private_key_path_len);
+	strncpy(full_path, private_key_dir, full_path_len);
+	strncat(full_path, key_name, full_path_len);
 	
-	printf("Why we seg fault\n");
-	// The function client_open_priv_key, might not be using the
-	//	correct function to open the private key.
-	private_key = client_open_priv_key(private_key_path);
+	EVP_PKEY* pvt_key = client_open_priv_key(full_path);
+	private_key = (EVP_PKEY*) malloc(sizeof(EVP_PKEY));
+	memcpy(private_key, pvt_key, sizeof(EVP_PKEY));
+	free(pvt_key);
+	
 	if (private_key == NULL) {
-		printf("Unable to open private key %s\n", private_key_path);
+		printf("Unable to open private key %s \n", full_path);
 	}
 	
-	free(private_key_path);
+	printf("Loaded Private Key! \n");
 	
 }
 
@@ -113,68 +103,53 @@ void load_private_key(char* key_name) {
 */
 
 void load_public_keys() {
-	DIR *directory;
-	struct dirent *dir_o;
+	printf("Loading Public Key! \n");
+	//the public key directory
+	char* public_key_dir = "./pub_key/";
 	
-	char* pub_key_dir = "./pub_key/";
+	int full_path_len = 256 + 25 + 1;
+	char full_path[full_path_len];
 	
-	printf("Reading directories\n");
-	directory = opendir(pub_key_dir);
-	printf("test\n");
+	//opens the directory
+	DIR* dir = opendir(public_key_dir);
+	if (dir == NULL) {
+		printf("Unable to open public key directory \n");
+		return;
+	}
 	
+	struct dirent* file;
 	
-	if (directory != NULL) {
-		printf("Directory opened\n");
-		while ((dir_o = readdir(directory)) != NULL) {			
-			
-			//the full path to the file to load
-			int full_path_len = strlen(dir_o->d_name) + strlen(pub_key_dir) + 1;
-			char* full_path = (char*) malloc(full_path_len);
-			memset(full_path, 0, full_path_len);
-			
-			strncat(full_path, pub_key_dir, full_path_len);
-			strncat(full_path, dir_o->d_name, full_path_len);			
+	while ( (file = readdir(dir)) != NULL) {		
+		//we have the full path
+		strncpy(full_path, public_key_dir, full_path_len);
+		strncat(full_path, file->d_name, full_path_len);		
 		
-			//extract the key name from all .pub files
-			char* key_name = (char*) malloc(strlen(dir_o->d_name) + 1);
-			strncpy(key_name, dir_o->d_name, strlen(dir_o->d_name) + 1);
-			//memset(key_name, 0, strlen(dir_o->d_name) + 1); // zero out key name
-			//printf("KeyName: |%s|\n", key_name);
-			
-			char* ext = strrchr(key_name, '.');
-			if (ext == NULL) {
-				printf("Skipping file %s \n", dir_o->d_name);
-				continue; // ignore this file
-			}
-			//printf("EXTENSION |%s|\n", ext);
-			*ext = '\0';
-			ext++; // move past the period
-			if (strncmp(ext, "pub", strlen("pub") + 1) == 0) {
-				printf("Opening key %s\n", full_path);
-				EVP_PKEY* key = client_open_pub_key(full_path);
-				if(key == NULL) {
-					printf("ERROR: Key is null\n");
-				} 
-				else {
-					printf("About to add %s to the hash table.\n", key_name);
-					key_hash_add(public_key_hash_table, key_name, key);
-				}
-			}
-			else {
-				printf("File extension of %s is not pub, is |%s| \n", dir_o->d_name, ext);
-			}
-			free(key_name); // free the key name
-			free(full_path); // free the full path
+		char* ext = strrchr(file->d_name, '.');
+		if (ext == NULL) {
+			continue; // no extension here
 		}
 		
-		closedir(directory);
-	}
-	else {
-		printf("Directory could not be opened \n");
-	}
-	
-	
-	printf("Done reading\n");	
+		*ext = '\0';
+		ext++;		
+		
+		if (strncmp(ext, "pub", 4) == 0) {			
+		
+			EVP_PKEY* key = client_open_pub_key(full_path);
+			EVP_PKEY* key_cpy = (EVP_PKEY*) malloc(sizeof(EVP_PKEY));
+			memcpy(key_cpy, key, sizeof(EVP_PKEY));
+			
+			free(key);
+			
+			if (key == NULL) {
+				printf("Unable to open key %s \n", full_path);
+			}		
+			//add the key to the hash table
+			key_hash_add(public_key_hash_table, file->d_name, key_cpy);			
+
+		}		
+		memset(full_path, 0, full_path_len);
+	}	
+	printf("We opened all public keys \n");
 }
 
 /** Cleans up the crypto, and frees any unnecesary memory
@@ -182,7 +157,7 @@ void load_public_keys() {
 
 void cleanup_crypto() {
 	client_cleanup_crypto();
-	free (rsa_encrypt_ctx);
+	free(rsa_encrypt_ctx);
 }
 
 int main (int argc, char **argv) {
