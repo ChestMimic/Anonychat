@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <openssl/rsa.h>
 #include <openssl/evp.h>
+#include <string.h>
 
 #include       "enc.h"
 #include	   "msg.h"
@@ -9,34 +10,100 @@
 
 #define RSA_KEYLEN 2048
 
+
+
 // the hash table that contains the public keys
 GHashTable* public_key_hash_table;
 
 
-EVP_PKEY* public_key;
 EVP_PKEY* private_key;
 
 // The rsa struct for encryption
 rsa_ctx_o* rsa_ctx;
 
+void load_public_keys() {
+
+	//the public key directory
+	char* public_key_dir = "./pub_key/";
+	
+	int full_path_len = 256 + 25 + 1;
+	char full_path[full_path_len];
+	
+	//opens the directory
+	DIR* dir = opendir(public_key_dir);
+	if (dir == NULL) {
+		printf("Unable to open public key directory \n");
+		return;
+	}
+	
+	struct dirent* file;
+	
+	while ( (file = readdir(dir)) != NULL) {		
+		//we have the full path
+		strncpy(full_path, public_key_dir, full_path_len);
+		strncat(full_path, file->d_name, full_path_len);		
+		
+		char* ext = strrchr(file->d_name, '.');
+		if (ext == NULL) {
+			continue; // no extension here
+		}
+		
+		*ext = '\0';
+		ext++;		
+		
+		if (strncmp(ext, "pub", 4) == 0) {			
+			EVP_PKEY* key = client_open_pub_key(full_path);
+			if (key == NULL) {
+				printf("Unable to open key %s \n", full_path);
+			}		
+			//add the key to the hash table
+			key_hash_add(public_key_hash_table, file->d_name, key);			
+
+		}		
+		memset(full_path, 0, full_path_len);
+	}	
+	printf("We opened all public keys \n");
+}
+
+void load_private_key(char* key_name) {
+
+	//the private key directory
+	char* private_key_dir = "./priv_key/";
+	
+	int full_path_len = 256 + 25 + 1;
+	char full_path[full_path_len];
+	
+	strncpy(full_path, private_key_dir, full_path_len);
+	strncat(full_path, key_name, full_path_len);
+	
+	private_key = client_open_priv_key(full_path);
+	if (private_key == NULL) {
+		printf("Unable to open private key %s \n", full_path);
+	}
+	
+	printf("Loaded Private Key! \n");
+	
+}
+
 int main (int argc, char **argv) {
 
-	printf("Starting encryption test! \n");
-	
 	client_initialize_crypto();
 	rsa_ctx = client_create_rsa_ctx();
-	
-	//create the message hash table
-	public_key_hash_table = key_create_hash_table();
-	
-	char* public_key_path = "./pub_key/bob.pub";
-	char* private_key_path = "./priv_key/bob.pem";
 
-	public_key = client_open_pub_key(public_key_path);
-	private_key = client_open_priv_key(private_key_path);
+	public_key_hash_table = key_create_hash_table();
+
+	load_public_keys();
+	load_private_key("bob.pem");
+	
+	printf("Starting encryption test! \n");
+	
+	
+
+
+	EVP_PKEY* public_key = key_get_by_name(public_key_hash_table, "bob");
 	
 	//key generation
-	
+	/*
 	EVP_PKEY* gen_key = (EVP_PKEY*) malloc(sizeof(EVP_PKEY));
 	
 	EVP_PKEY_CTX* ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
@@ -63,10 +130,10 @@ int main (int argc, char **argv) {
 	
 	if (public_key != NULL && private_key != NULL) {
 		printf("Opened the public and private key without issue! \n");
-	}	
+	}	*/
 	
 	//char* msg = "Hello World Mother Fuckers!";
-	char* msg = "Lets try a string with a different length str";
+	char* msg = "Can eve help us? I hope so.";
 	
 	printf("Original Message |%s|\n", msg);
 	
