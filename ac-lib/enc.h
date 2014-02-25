@@ -57,6 +57,13 @@ EVP_PKEY* client_open_pub_key(char* file_path);
 
 EVP_PKEY* client_open_priv_key(char* file_path);
 
+/** Generates an RSA key pair with the specified size
+	@param key_size The size in bits of the RSA key to create
+	@return A pointer to the key pair created, NULL if an error occured
+*/
+
+EVP_PKEY* client_generate_rsa_pair(int key_size);
+
 
 
 /** Attempts to decypt the given msg
@@ -117,7 +124,20 @@ char* msg_encrypt_encode(const char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* public_k
 		if an error occured
 */
 
-char* msg_decode_decrypt(char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* private_key);
+char* msg_decode_decrypt(const char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* private_key);
 
+/** Prints out an array of unasigned char's as hex
+	@param bytes The array of bytes to print out
+	@param len The len of the array
+*/
+
+void print_hex(unsigned char* bytes, int len);
+
+/** Prints out the items inside of the message_encrypted struct for
+		debugging purposes
+	@param msg A pointer to the message_encrypted_o struct to prin
+*/
+
+void print_msg_struct(message_encrypted_o* msg);
 
 #endif

@@ -1,31 +1,20 @@
 #include       <stdlib.h>
 #include       <sys/socket.h>
-#include       <netinet/in.h>
-#include       <arpa/inet.h>
 #include       <stdio.h>
 #include       <string.h>
 #include       <netdb.h>
 #include       <stdlib.h>
-#include       <time.h>
 #include       <pthread.h>
-#include       <sys/resource.h>
 #include       <errno.h>
-#include       <dirent.h>
-#include       <sys/types.h>
-#include	   <unistd.h>
 
-
-#include       "thread_util.h"
 #include       "msg.h"
 #include       "list.h"
 #include       "client_server.h"
 #include       "enc.h"
-
 #include       "key_table.h"
 
-#define         BUFFER_SIZE     512
-#define         CHUNK_SIZE 512
 
+#define BUFFER_SIZE 1500
 
 // List of peers for a client
 list* peer_list;
@@ -59,25 +48,26 @@ pthread_mutex_t mht_mutex; // message hash table mutex
 
 void print_usage() {
 	printf("Usage: \n");
-	printf("\t	client-server name-server-addr name-server-port peer-port \n");
-	printf("\t ex: client-server 192.168.1.105 6958 4758 \n");
+	printf("\t	client-server name-server-addr name-server-port peer-port private_key \n");
+	printf("\t ex: client-server 192.168.1.105 6958 4758 bob.pem\n");
 }
 
 /** Initializes the lib crypto context, the rsa encryption context
 		and loads the public / private keys into memory
+	@param private_key_name The name of the private key to load
 */
 
-void init_crypto() {
+void init_crypto(char* private_key_name) {
 	client_initialize_crypto();
-	//rsa_encrypt_ctx = client_create_rsa_ctx(); //MEMORY CORRUPTION ERE
+	rsa_encrypt_ctx = client_create_rsa_ctx();
 
 	public_key_hash_table = key_create_hash_table();
-	
-	//lets load the private key
-	//load_private_key("mykey.pem");
-	
+		
 	//lets load the public keys
 	load_public_keys();
+	
+	//lets load the private key
+	load_private_key(private_key_name);
 	
 }
 
@@ -86,25 +76,26 @@ void init_crypto() {
 */
 
 void load_private_key(char* key_name) {
-	printf("Loading private key... %s\n", key_name);
+	printf("Loading Private Key! \n");
+	//the private key directory
 	char* private_key_dir = "./priv_key/";
 	
-	int private_key_path_len = strlen(private_key_dir) + strlen(key_name) + 1;
-	char* private_key_path = (char*) malloc(private_key_path_len);
+	int full_path_len = 256 + 25 + 1;
+	char full_path[full_path_len];
 	
-	//copy over the dir + keyname
-	strncpy(private_key_path, private_key_dir, private_key_path_len);
-	strncat(private_key_path, key_name, private_key_path_len);
+	strncpy(full_path, private_key_dir, full_path_len);
+	strncat(full_path, key_name, full_path_len);
 	
-	printf("Why we seg fault\n");
-	// The function client_open_priv_key, might not be using the
-	//	correct function to open the private key.
-	private_key = client_open_priv_key(private_key_path);
+	EVP_PKEY* pvt_key = client_open_priv_key(full_path);
+	private_key = (EVP_PKEY*) malloc(sizeof(EVP_PKEY));
+	memcpy(private_key, pvt_key, sizeof(EVP_PKEY));
+	free(pvt_key);
+	
 	if (private_key == NULL) {
-		printf("Unable to open private key %s\n", private_key_path);
+		printf("Unable to open private key %s \n", full_path);
 	}
 	
-	free(private_key_path);
+	printf("Loaded Private Key! \n");
 	
 }
 
@@ -113,68 +104,53 @@ void load_private_key(char* key_name) {
 */
 
 void load_public_keys() {
-	DIR *directory;
-	struct dirent *dir_o;
+	printf("Loading Public Key! \n");
+	//the public key directory
+	char* public_key_dir = "./pub_key/";
 	
-	char* pub_key_dir = "./pub_key/";
+	int full_path_len = 256 + 25 + 1;
+	char full_path[full_path_len];
 	
-	printf("Reading directories\n");
-	directory = opendir(pub_key_dir);
-	printf("test\n");
+	//opens the directory
+	DIR* dir = opendir(public_key_dir);
+	if (dir == NULL) {
+		printf("Unable to open public key directory \n");
+		return;
+	}
 	
+	struct dirent* file;
 	
-	if (directory != NULL) {
-		printf("Directory opened\n");
-		while ((dir_o = readdir(directory)) != NULL) {			
-			
-			//the full path to the file to load
-			int full_path_len = strlen(dir_o->d_name) + strlen(pub_key_dir) + 1;
-			char* full_path = (char*) malloc(full_path_len);
-			memset(full_path, 0, full_path_len);
-			
-			strncat(full_path, pub_key_dir, full_path_len);
-			strncat(full_path, dir_o->d_name, full_path_len);			
+	while ( (file = readdir(dir)) != NULL) {		
+		//we have the full path
+		strncpy(full_path, public_key_dir, full_path_len);
+		strncat(full_path, file->d_name, full_path_len);		
 		
-			//extract the key name from all .pub files
-			char* key_name = (char*) malloc(strlen(dir_o->d_name) + 1);
-			strncpy(key_name, dir_o->d_name, strlen(dir_o->d_name) + 1);
-			//memset(key_name, 0, strlen(dir_o->d_name) + 1); // zero out key name
-			//printf("KeyName: |%s|\n", key_name);
-			
-			char* ext = strrchr(key_name, '.');
-			if (ext == NULL) {
-				printf("Skipping file %s \n", dir_o->d_name);
-				continue; // ignore this file
-			}
-			//printf("EXTENSION |%s|\n", ext);
-			*ext = '\0';
-			ext++; // move past the period
-			if (strncmp(ext, "pub", strlen("pub") + 1) == 0) {
-				printf("Opening key %s\n", full_path);
-				EVP_PKEY* key = client_open_pub_key(full_path);
-				if(key == NULL) {
-					printf("ERROR: Key is null\n");
-				} 
-				else {
-					printf("About to add %s to the hash table.\n", key_name);
-					key_hash_add(public_key_hash_table, key_name, key);
-				}
-			}
-			else {
-				printf("File extension of %s is not pub, is |%s| \n", dir_o->d_name, ext);
-			}
-			free(key_name); // free the key name
-			free(full_path); // free the full path
+		char* ext = strrchr(file->d_name, '.');
+		if (ext == NULL) {
+			continue; // no extension here
 		}
 		
-		closedir(directory);
-	}
-	else {
-		printf("Directory could not be opened \n");
-	}
-	
-	
-	printf("Done reading\n");	
+		*ext = '\0';
+		ext++;		
+		
+		if (strncmp(ext, "pub", 4) == 0) {			
+		
+			EVP_PKEY* key = client_open_pub_key(full_path);
+			EVP_PKEY* key_cpy = (EVP_PKEY*) malloc(sizeof(EVP_PKEY));
+			memcpy(key_cpy, key, sizeof(EVP_PKEY));
+			
+			free(key);
+			
+			if (key == NULL) {
+				printf("Unable to open key %s \n", full_path);
+			}		
+			//add the key to the hash table
+			key_hash_add(public_key_hash_table, file->d_name, key_cpy);			
+
+		}		
+		memset(full_path, 0, full_path_len);
+	}	
+	printf("We opened all public keys \n");
 }
 
 /** Cleans up the crypto, and frees any unnecesary memory
@@ -182,7 +158,7 @@ void load_public_keys() {
 
 void cleanup_crypto() {
 	client_cleanup_crypto();
-	free (rsa_encrypt_ctx);
+	free(rsa_encrypt_ctx);
 }
 
 int main (int argc, char **argv) {
@@ -190,21 +166,18 @@ int main (int argc, char **argv) {
 	char* address_name_server; // the address of the name server
 	char* port_name_server; // the port of the name server
 	char* port_peers; // the port to listen for peer connections on
+	char* private_key_name;
 
-	if (argc < 3) {	// If there are not 4 arguments, error
+	if (argc < 5) {	// If there are not 4 arguments, error
 		print_usage();
 		return 1;
 	}
 
 	address_name_server = argv[1]; // name server address is 2nd argument
 	port_name_server = argv[2]; // name server port is 3rd argument
-	
-	if (argc == 4) {//we saw the emsasge before, do nothing
-		port_peers = argv[3];
-	}
-	else {
-		port_peers = DEFAULT_PEER_PORT;
-	}
+	port_peers = argv[3]; // peer port is the 4th argument
+	private_key_name = argv[4]; // the private key is 5th argument
+
 
 	//create the message hash table
 	message_hash_table = client_create_hash_table();
@@ -219,7 +192,7 @@ int main (int argc, char **argv) {
 	client_list = list_create();
 
 	// Initialize the crypto + public keys
-	init_crypto();
+	init_crypto(private_key_name);
 
 	
 	name_server_o name_server;
@@ -252,9 +225,10 @@ int main (int argc, char **argv) {
 	pthread_t user_input_thread;
 	pthread_create(&user_input_thread, NULL, &input_handle, NULL);
 	
+	//TODO: for now, no message purging
 	//start message purging thread
-	pthread_t msg_purge_thread;
-	pthread_create(&msg_purge_thread, NULL, &client_purge_msg_hash, NULL);
+	//pthread_t msg_purge_thread;
+	//pthread_create(&msg_purge_thread, NULL, &client_purge_msg_hash, NULL);
 	
 	//wait for the name server handler thread to finish.
 	//if it does, we will drop out, can't do much without the name server
@@ -316,7 +290,7 @@ void* client_handle(void* arg) {
 	
 	while ( (res = recv(client->socket_fd, buffer, BUFFER_SIZE, 0))) {
 		buffer[res] = '\0'; //add a null terminator just in case		
-		printf("Received: |%s| from client: %d \n", buffer, client->client_id);		
+		printf("Received: a msg from client: %d \n", client->client_id);		
 		
 		client_parse_msg(buffer, res);
 	}
@@ -334,9 +308,10 @@ void* client_handle(void* arg) {
 	pthread_mutex_unlock(&(client_list->mutex));
 	
 	//TODO: Add something to free the client, this will probally error.
-	free(client->handler_thread);
-	free(client);		
+	/*free(client->handler_thread);
+	free(client);	*/	
 
+	free(buffer); //free the input buffer
 	return;
 }
 
@@ -704,22 +679,31 @@ int input_send_msg(char* input, int len) {
 	char* name = input;
 	char* msg = first_colon + 1;
 	
-	printf("Send Message |%s|  to |%s| \n", msg, name);
 	EVP_PKEY* pub_key = key_get_by_name(public_key_hash_table, name);
 	if (pub_key == NULL) {
 		printf("Unable to send message, No public key for %s exists.\n", name);
 		return 1;
 	}
 	//now we will encrypt the message
-	
 	char* encoded_msg = msg_encrypt_encode(msg, rsa_encrypt_ctx, pub_key);
 	if (encoded_msg == NULL) {
-		//we couldnt encode the message;
+		printf("Error encoding the message \n"); //dont just silently fail..
 		return 1;
 	}
 	
+	//add the message to our hash list before we send it
+	pthread_mutex_lock(&mht_mutex);
+	client_hash_add_msg(message_hash_table, encoded_msg);	
+	printf("HASHMSG: |%s|\n", encoded_msg);	
+	
+	if (client_has_seen_msg(message_hash_table, encoded_msg)) {
+		printf("THE MESSAGE HAS BEEN PUT INTO THE HASH TABLE \n");
+	}	
+	
+	pthread_mutex_unlock(&mht_mutex);
+	
 	//send to all of our peers!
-	client_send_to_all_peers(msg); 
+	client_send_to_all_peers(encoded_msg, strlen(encoded_msg)); 
 	
 	free(encoded_msg); // free the message
 	return 0; // we sent all the messages
@@ -738,46 +722,56 @@ int client_parse_msg(char* msg, int len) {
 	
 	pthread_mutex_lock(&mht_mutex);
 	if (client_has_seen_msg(message_hash_table, msg)) {
-		//we saw the emsasge before, do nothing
+		//printf("We have seen this message before! \n");
 		pthread_mutex_unlock(&mht_mutex);
 		return 0;
 	}
-	
+	printf("We have received a never before seen message! \n");
+	printf("RECVMSG: |%s|\n", msg);
 	//we havent seen the message, lets process it
 	
 	//add the message to the hash table
 	client_hash_add_msg(message_hash_table, msg);
 	
 	pthread_mutex_unlock(&mht_mutex);
-	
 	//try to decode the message
+	
+	//send the message before we attempt to decrypt the message
+	//this should hide any possible timing differences between a sucessful or failed
+	//encryption.
+	client_send_to_all_peers(msg, len); // send orig, not decoded
+
+	//msg_decode_decrypt probally changes msg... 
 	char* decoded_msg = msg_decode_decrypt(msg, rsa_encrypt_ctx, private_key);
 	
 	if (decoded_msg != NULL) {
 		//woohoo we decoded the message
 		printf("Received: %s\n", decoded_msg);
 	}
-	
-	//send to all of our peers!
-	client_send_to_all_peers(msg); // send orig, not decoded
+	else {
+		printf("This message was not meant for me :( \n");
+	}
 }
+	
 
 
 /** Sends the given message to all of our peers
 	@param msg The message to send
+	@param len  The length of the message to send
 	@return 0 if sucessful, 1 otherwise
 */
 
-int client_send_to_all_peers(char* msg) {
+int client_send_to_all_peers(char* msg, int len) {
 	//now lets send the message to all our peers
 	pthread_mutex_lock(&(peer_list->mutex));		
 	int i;
 	for (i=0;i<list_size(peer_list); i++) {
 		peer_o* to_send = list_item_at(peer_list, i);
 		
-		printf("Sending message |%s| to peer %d \n", msg, to_send->peer_id);
+		printf("Sending message a to peer %d \n", to_send->peer_id);
+		printf("SENDMSG: |%s|\n", msg);
 					
-		int res = send_msg_peer(to_send, msg);
+		int res = send_msg_peer(to_send, msg, len);
 		if (res == -1) {
 			//connection to the peer was not open :(
 			//TODO: figure out what to do here
@@ -796,6 +790,8 @@ void* client_purge_msg_hash(void* arg) {
 	while (running) {
 
 		sleep( PURGE_FREQUENCY); // sleep for purge frequency seconds
+
+		printf("About to purse the message hashes! \n");
 
 		pthread_mutex_lock(&mht_mutex);
 		//clean up the messages	

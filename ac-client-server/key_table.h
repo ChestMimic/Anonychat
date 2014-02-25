@@ -8,14 +8,14 @@
 #include <glib.h>
 #include <openssl/evp.h>
 
-#define MAX_KEY_NAME_LEN (100)
+#define KT_MAX_KEY_NAME_LEN 256
 
 /** Struct that contains a rsa encryption key
 */
 
 struct _rsa_key {
 	int key_id; // the id of the key
-	char name[MAX_KEY_NAME_LEN]; // the name of the key
+	char name[KT_MAX_KEY_NAME_LEN]; // the name of the key
 	EVP_PKEY* key; // the key itself
 };
 

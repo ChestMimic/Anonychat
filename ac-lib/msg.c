@@ -65,11 +65,12 @@ int send_msg(int socket_fd, void* msg, int length) {
 /** Sends the specified string message to the given peer
 	@param peer Pointer to the peer struct to sent the message to
 	@param msg The message to send to the peer
+	@param len  The length of the message to send
 	@return 1 if successful, 0 otherwise, -1 if no connection was open
 */
-int send_msg_peer(peer_o* peer, char* msg) {
+int send_msg_peer(peer_o* peer, char* msg, int len) {
 	if (peer->open_con) { // check if the connection is open
-		return send_msg(peer->socket_fd, msg, strlen(msg));
+		return send_msg(peer->socket_fd, msg, len);
 	}
 	//TODO: change to open a connection to a peer?
 	return -1;
@@ -113,7 +114,8 @@ void client_hash_free_val(gpointer val) {
 void client_hash_add_msg(GHashTable* hash_table, char* msg) {
 	//allocate and create the struct for the msg val
 	message_hash_o* msg_val = (message_hash_o*) malloc (sizeof (message_hash_o));
-	msg_val->msg = msg;
+	msg_val->msg = (char*) malloc(strlen(msg) + 1);
+	strncpy(msg_val->msg, msg, strlen(msg) + 1);
 	msg_val->purge_time = time(NULL) + MESSAGE_PURGE_TIME;
 	
 	//insert the value into the hash table

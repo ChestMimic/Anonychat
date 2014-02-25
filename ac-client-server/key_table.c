@@ -19,7 +19,7 @@ rsa_key_o* create_rsa_key(char* name, EVP_PKEY* key) {
 	rsa_key_o* rsa_key = (rsa_key_o*) malloc(sizeof(rsa_key_o));
 	rsa_key->key_id = key_id++;
 	rsa_key->key = key;
-	strncpy(rsa_key->name, name, MAX_KEY_NAME_LEN);
+	strncpy(rsa_key->name, name, KT_MAX_KEY_NAME_LEN);
 	return rsa_key;
 }
 
@@ -57,6 +57,7 @@ void key_hash_free_val(gpointer val) {
 */
 
 rsa_key_o* key_hash_add(GHashTable* hash_table, char* name, EVP_PKEY* key) {
+	//printf("KEYTABLE: Adding Name: %s Key: %x \n", name, key);
 	rsa_key_o* rsa_key = create_rsa_key(name, key);
 	g_hash_table_insert(hash_table, name, rsa_key);
 	return rsa_key;
