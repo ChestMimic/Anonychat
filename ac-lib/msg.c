@@ -65,11 +65,12 @@ int send_msg(int socket_fd, void* msg, int length) {
 /** Sends the specified string message to the given peer
 	@param peer Pointer to the peer struct to sent the message to
 	@param msg The message to send to the peer
+	@param len  The length of the message to send
 	@return 1 if successful, 0 otherwise, -1 if no connection was open
 */
-int send_msg_peer(peer_o* peer, char* msg) {
+int send_msg_peer(peer_o* peer, char* msg, int len) {
 	if (peer->open_con) { // check if the connection is open
-		return send_msg(peer->socket_fd, msg, strlen(msg));
+		return send_msg(peer->socket_fd, msg, len);
 	}
 	//TODO: change to open a connection to a peer?
 	return -1;

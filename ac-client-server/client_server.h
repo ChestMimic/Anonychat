@@ -171,10 +171,11 @@ int client_parse_msg(char* msg, int len);
 
 /** Sends the given message to all of our peers
 	@param msg The message to send
+	@param len The length of the message to send
 	@return 0 if sucessful, 1 otherwise
 */
 
-int client_send_to_all_peers(char* msg);
+int client_send_to_all_peers(char* msg, int len);
 
 /** Thread responsible for purging the msg hash table of old messages
 

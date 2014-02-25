@@ -695,7 +695,7 @@ int input_send_msg(char* input, int len) {
 	pthread_mutex_unlock(&mht_mutex);
 	
 	//send to all of our peers!
-	client_send_to_all_peers(encoded_msg); 
+	client_send_to_all_peers(encoded_msg, strlen(encoded_msg)); 
 	
 	free(encoded_msg); // free the message
 	return 0; // we sent all the messages
@@ -712,6 +712,9 @@ int input_send_msg(char* input, int len) {
 
 int client_parse_msg(char* msg, int len) {
 	
+	//char* orig_msg = (char*) malloc(len + 1);
+	//strncpy(orig_msg, msg, len + 1);
+	
 	pthread_mutex_lock(&mht_mutex);
 	if (client_has_seen_msg(message_hash_table, msg)) {
 		//we saw the emsasge before, do nothing
@@ -725,8 +728,9 @@ int client_parse_msg(char* msg, int len) {
 	client_hash_add_msg(message_hash_table, msg);
 	
 	pthread_mutex_unlock(&mht_mutex);
-	
 	//try to decode the message
+
+	//msg_decode_decrypt probally changes msg... 
 	char* decoded_msg = msg_decode_decrypt(msg, rsa_encrypt_ctx, private_key);
 	
 	if (decoded_msg != NULL) {
@@ -735,16 +739,18 @@ int client_parse_msg(char* msg, int len) {
 	}
 	
 	//send to all of our peers!
-	client_send_to_all_peers(msg); // send orig, not decoded
+	client_send_to_all_peers(msg, len); // send orig, not decoded
+	//free(orig_msg);
 }
 
 
 /** Sends the given message to all of our peers
 	@param msg The message to send
+	@param len  The length of the message to send
 	@return 0 if sucessful, 1 otherwise
 */
 
-int client_send_to_all_peers(char* msg) {
+int client_send_to_all_peers(char* msg, int len) {
 	//now lets send the message to all our peers
 	pthread_mutex_lock(&(peer_list->mutex));		
 	int i;
@@ -753,7 +759,7 @@ int client_send_to_all_peers(char* msg) {
 		
 		printf("Sending message |%s| to peer %d \n", msg, to_send->peer_id);
 					
-		int res = send_msg_peer(to_send, msg);
+		int res = send_msg_peer(to_send, msg, len);
 		if (res == -1) {
 			//connection to the peer was not open :(
 			//TODO: figure out what to do here

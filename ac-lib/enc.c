@@ -411,11 +411,14 @@ char* msg_encrypt_encode(const char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* public_k
 		if an error occured
 */
 
-char* msg_decode_decrypt(char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* private_key) {
+char* msg_decode_decrypt(const char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* private_key) {
+	char* to_decode = (char*) malloc(strlen(msg) + 2);
+	strncpy(to_decode, msg, strlen(msg) + 2);
+	
 	message_encrypted_o* encrypted_msg = (message_encrypted_o*) 
 		malloc(sizeof(message_encrypted_o));
 		
-	int ret = parse_str_encrypted_msg(msg, encrypted_msg);
+	int ret = parse_str_encrypted_msg(to_decode, encrypted_msg);
 	if (!ret) {
 		printf("Couldn't decode the string \n");
 		free(encrypted_msg);

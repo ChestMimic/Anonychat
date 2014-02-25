@@ -74,9 +74,10 @@ int send_msg(int socket_fd, void* msg, int length);
 /** Sends the specified string message to the given peer
 	@param peer Pointer to the peer struct to sent the message to
 	@param msg The message to send to the peer
+	@param len  The length of the message to send
 	@return 1 if successful, 0 otherwise
 */
-int send_msg_peer(peer_o* peer, char* msg);
+int send_msg_peer(peer_o* peer, char* msg, int len);
 
 /** Creates the hash table to be used by the client to store
 		messages that have already been processed

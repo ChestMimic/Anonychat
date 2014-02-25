@@ -117,7 +117,7 @@ char* msg_encrypt_encode(const char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* public_k
 		if an error occured
 */
 
-char* msg_decode_decrypt(char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* private_key);
+char* msg_decode_decrypt(const char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* private_key);
 
 /** Prints out an array of unasigned char's as hex
 	@param bytes The array of bytes to print out
