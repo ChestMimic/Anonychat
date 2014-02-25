@@ -13,7 +13,7 @@
 #include       "enc.h"
 #include       "key_table.h"
 
-#define         BUFFER_SIZE     512
+
 
 
 // List of peers for a client
@@ -307,8 +307,8 @@ void* client_handle(void* arg) {
 	pthread_mutex_unlock(&(client_list->mutex));
 	
 	//TODO: Add something to free the client, this will probally error.
-	free(client->handler_thread);
-	free(client);		
+	/*free(client->handler_thread);
+	free(client);	*/	
 
 	return;
 }
@@ -677,25 +677,25 @@ int input_send_msg(char* input, int len) {
 	char* name = input;
 	char* msg = first_colon + 1;
 	
-	printf("Send Message |%s|  to |%s| \n", msg, name);
 	EVP_PKEY* pub_key = key_get_by_name(public_key_hash_table, name);
 	if (pub_key == NULL) {
 		printf("Unable to send message, No public key for %s exists.\n", name);
 		return 1;
 	}
 	//now we will encrypt the message
-	printf("About to encrypt + encode! \n");
-	printf("MSG:|%s| CTX: |%x| KEY: |%x|\n", msg, rsa_encrypt_ctx, pub_key);
 	char* encoded_msg = msg_encrypt_encode(msg, rsa_encrypt_ctx, pub_key);
 	if (encoded_msg == NULL) {
 		printf("Error encoding the message \n"); //dont just silently fail..
 		return 1;
 	}
 	
-	printf("Encoded message to send! %s \n");
+	//add the message to our hash list before we send it
+	pthread_mutex_lock(&mht_mutex);
+	client_hash_add_msg(message_hash_table, msg);	
+	pthread_mutex_unlock(&mht_mutex);
 	
 	//send to all of our peers!
-	client_send_to_all_peers(msg); 
+	client_send_to_all_peers(encoded_msg); 
 	
 	free(encoded_msg); // free the message
 	return 0; // we sent all the messages
