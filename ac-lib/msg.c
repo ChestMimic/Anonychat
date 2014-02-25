@@ -114,7 +114,8 @@ void client_hash_free_val(gpointer val) {
 void client_hash_add_msg(GHashTable* hash_table, char* msg) {
 	//allocate and create the struct for the msg val
 	message_hash_o* msg_val = (message_hash_o*) malloc (sizeof (message_hash_o));
-	msg_val->msg = msg;
+	msg_val->msg = (char*) malloc(strlen(msg) + 1);
+	strncpy(msg_val->msg, msg, strlen(msg) + 1);
 	msg_val->purge_time = time(NULL) + MESSAGE_PURGE_TIME;
 	
 	//insert the value into the hash table

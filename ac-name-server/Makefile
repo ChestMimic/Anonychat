@@ -2,7 +2,7 @@ INC=-I../ac-lib/
 LIB=../ac-lib
 GCC=gcc $(INC)
 
-all: name_server name_client
+all: name_server
 
 name_server: name_server.o $(LIB)/list.o
 	$(GCC) name_server.o $(LIB)/list.o -o name_server -pthread

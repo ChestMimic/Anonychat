@@ -693,7 +693,13 @@ int input_send_msg(char* input, int len) {
 	
 	//add the message to our hash list before we send it
 	pthread_mutex_lock(&mht_mutex);
-	client_hash_add_msg(message_hash_table, msg);	
+	client_hash_add_msg(message_hash_table, encoded_msg);	
+	printf("HASHMSG: |%s|\n", encoded_msg);	
+	
+	if (client_has_seen_msg(message_hash_table, encoded_msg)) {
+		printf("THE MESSAGE HAS BEEN PUT INTO THE HASH TABLE \n");
+	}	
+	
 	pthread_mutex_unlock(&mht_mutex);
 	
 	//send to all of our peers!
@@ -720,8 +726,8 @@ int client_parse_msg(char* msg, int len) {
 		pthread_mutex_unlock(&mht_mutex);
 		return 0;
 	}
-	//printf("We have received a never  before seen message! \n");
-	//printf("Message: |%s|\n", msg);
+	printf("We have received a never before seen message! \n");
+	printf("RECVMSG: |%s|\n", msg);
 	//we havent seen the message, lets process it
 	
 	//add the message to the hash table
@@ -745,6 +751,7 @@ int client_parse_msg(char* msg, int len) {
 	else {
 		printf("This message was not meant for me :( \n");
 	}
+}
 	
 
 
@@ -762,7 +769,7 @@ int client_send_to_all_peers(char* msg, int len) {
 		peer_o* to_send = list_item_at(peer_list, i);
 		
 		printf("Sending message a to peer %d \n", to_send->peer_id);
-	//	printf("Message: |%s|\n", msg);
+		printf("SENDMSG: |%s|\n", msg);
 					
 		int res = send_msg_peer(to_send, msg, len);
 		if (res == -1) {

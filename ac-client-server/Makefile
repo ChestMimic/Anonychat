@@ -27,4 +27,4 @@ key_table.o: key_table.c key_table.h
 	$(GCC) -c key_table.c
 
 clean:
-	rm  -f *.o client_server
+	rm  -f *.o client_server test

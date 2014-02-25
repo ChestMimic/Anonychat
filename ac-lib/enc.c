@@ -149,6 +149,41 @@ EVP_PKEY* client_open_priv_key(char* file_path) {
 	return pkey;
 }
 
+/** Generates an RSA key pair with the specified size
+	@param key_size The size in bits of the RSA key to create
+	@return A pointer to the key pair created, NULL if an error occured
+*/
+
+EVP_PKEY* client_generate_rsa_pair(int key_size) {
+	//key generation
+	EVP_PKEY* gen_key = (EVP_PKEY*) malloc(sizeof(EVP_PKEY));	
+	EVP_PKEY_CTX* ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);	
+	if (!ctx) {
+		//printf("Error initializing context \n");
+		free(gen_key);
+		return NULL;
+	}
+	if (EVP_PKEY_keygen_init(ctx) <=0) {
+		//printf("Error with keygen init\n");
+		goto failure;
+	}
+	if (EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, key_size) <=0) {
+		//printf("Error setting keygen bits\n");
+		goto failure;
+	}
+	if (EVP_PKEY_keygen(ctx, &gen_key) <=0 ) {
+		//printf("Error generating key\n");
+		goto failure;
+	}	
+	EVP_PKEY_CTX_free(ctx);	
+	return gen_key;
+	
+	failure:
+		EVP_PKEY_CTX_free(ctx);
+		free(gen_key);
+		return NULL;
+}
+
 /** Encrypt the given msg with the given public key
 	@param msg The message to encrypt
 	@param public_key a cstring containing the public key

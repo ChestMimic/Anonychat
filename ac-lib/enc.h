@@ -57,6 +57,13 @@ EVP_PKEY* client_open_pub_key(char* file_path);
 
 EVP_PKEY* client_open_priv_key(char* file_path);
 
+/** Generates an RSA key pair with the specified size
+	@param key_size The size in bits of the RSA key to create
+	@return A pointer to the key pair created, NULL if an error occured
+*/
+
+EVP_PKEY* client_generate_rsa_pair(int key_size);
+
 
 
 /** Attempts to decypt the given msg
