@@ -225,9 +225,10 @@ int main (int argc, char **argv) {
 	pthread_t user_input_thread;
 	pthread_create(&user_input_thread, NULL, &input_handle, NULL);
 	
+	//TODO: for now, no message purging
 	//start message purging thread
-	pthread_t msg_purge_thread;
-	pthread_create(&msg_purge_thread, NULL, &client_purge_msg_hash, NULL);
+	//pthread_t msg_purge_thread;
+	//pthread_create(&msg_purge_thread, NULL, &client_purge_msg_hash, NULL);
 	
 	//wait for the name server handler thread to finish.
 	//if it does, we will drop out, can't do much without the name server
@@ -289,7 +290,7 @@ void* client_handle(void* arg) {
 	
 	while ( (res = recv(client->socket_fd, buffer, BUFFER_SIZE, 0))) {
 		buffer[res] = '\0'; //add a null terminator just in case		
-		printf("Received: |%s| from client: %d \n", buffer, client->client_id);		
+		printf("Received: a msg from client: %d \n", client->client_id);		
 		
 		client_parse_msg(buffer, res);
 	}
@@ -310,6 +311,7 @@ void* client_handle(void* arg) {
 	/*free(client->handler_thread);
 	free(client);	*/	
 
+	free(buffer); //free the input buffer
 	return;
 }
 
@@ -712,16 +714,14 @@ int input_send_msg(char* input, int len) {
 
 int client_parse_msg(char* msg, int len) {
 	
-	//char* orig_msg = (char*) malloc(len + 1);
-	//strncpy(orig_msg, msg, len + 1);
-	
 	pthread_mutex_lock(&mht_mutex);
 	if (client_has_seen_msg(message_hash_table, msg)) {
-		//we saw the emsasge before, do nothing
+		//printf("We have seen this message before! \n");
 		pthread_mutex_unlock(&mht_mutex);
 		return 0;
 	}
-	
+	//printf("We have received a never  before seen message! \n");
+	//printf("Message: |%s|\n", msg);
 	//we havent seen the message, lets process it
 	
 	//add the message to the hash table
@@ -729,6 +729,11 @@ int client_parse_msg(char* msg, int len) {
 	
 	pthread_mutex_unlock(&mht_mutex);
 	//try to decode the message
+	
+	//send the message before we attempt to decrypt the message
+	//this should hide any possible timing differences between a sucessful or failed
+	//encryption.
+	client_send_to_all_peers(msg, len); // send orig, not decoded
 
 	//msg_decode_decrypt probally changes msg... 
 	char* decoded_msg = msg_decode_decrypt(msg, rsa_encrypt_ctx, private_key);
@@ -737,11 +742,10 @@ int client_parse_msg(char* msg, int len) {
 		//woohoo we decoded the message
 		printf("Received: %s\n", decoded_msg);
 	}
+	else {
+		printf("This message was not meant for me :( \n");
+	}
 	
-	//send to all of our peers!
-	client_send_to_all_peers(msg, len); // send orig, not decoded
-	//free(orig_msg);
-}
 
 
 /** Sends the given message to all of our peers
@@ -757,7 +761,8 @@ int client_send_to_all_peers(char* msg, int len) {
 	for (i=0;i<list_size(peer_list); i++) {
 		peer_o* to_send = list_item_at(peer_list, i);
 		
-		printf("Sending message |%s| to peer %d \n", msg, to_send->peer_id);
+		printf("Sending message a to peer %d \n", to_send->peer_id);
+	//	printf("Message: |%s|\n", msg);
 					
 		int res = send_msg_peer(to_send, msg, len);
 		if (res == -1) {
@@ -778,6 +783,8 @@ void* client_purge_msg_hash(void* arg) {
 	while (running) {
 
 		sleep( PURGE_FREQUENCY); // sleep for purge frequency seconds
+
+		printf("About to purse the message hashes! \n");
 
 		pthread_mutex_lock(&mht_mutex);
 		//clean up the messages	
