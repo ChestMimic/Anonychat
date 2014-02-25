@@ -159,9 +159,10 @@ EVP_PKEY* client_open_priv_key(char* file_path) {
 
 int client_encrypt_msg(rsa_ctx_o* rsa_ctx, const unsigned char* msg, 
 	EVP_PKEY* public_key, message_encrypted_o* res) {
+	
 	int msg_enc_len = 0;
 	int block_size = 0;
-	int msg_len = 0;
+	int msg_len = strlen(msg) + 1;
 	
 	EVP_CIPHER_CTX* encryption_ctx = &(rsa_ctx->rsa_encrypt_ctx);
 	
@@ -247,7 +248,6 @@ char* client_decrypt_msg(rsa_ctx_o* rsa_ctx, message_encrypted_o* msg,
 		+ init_vector_len + 1);
 		
 	memset(decrypted_msg, 0, encrypted_msg_len + init_vector_len + 1);
-	printf("DecryptedMsg: |%s|\n", (char*)decrypted_msg);
 	
 	int res = EVP_OpenInit(decryption_ctx, EVP_aes_256_cbc(), msg->encrypted_key,
 		encryption_key_len, msg->init_vector, private_key);
@@ -259,8 +259,6 @@ char* client_decrypt_msg(rsa_ctx_o* rsa_ctx, message_encrypted_o* msg,
 		return NULL;
 	}
 	
-	printf("DecryptedMsg: |%s|\n", (char*)decrypted_msg);
-	
 	res = EVP_OpenUpdate(decryption_ctx, decrypted_msg + decrypt_len, &block_size,
 		msg->encrypted_msg, encrypted_msg_len);
 	
@@ -270,7 +268,6 @@ char* client_decrypt_msg(rsa_ctx_o* rsa_ctx, message_encrypted_o* msg,
 		return NULL;
 	}
 	
-	printf("DecryptedMsg: |%s|\n", (char*)decrypted_msg);
 	decrypt_len += block_size;
 	
 	res = EVP_OpenFinal(decryption_ctx, decrypted_msg + decrypt_len, &block_size);
@@ -278,7 +275,6 @@ char* client_decrypt_msg(rsa_ctx_o* rsa_ctx, message_encrypted_o* msg,
 	if (!res) {
 		//failed to finalize the decrypt
 		printf("Failed to finalize the decrypt \n");
-		printf("Decrypted msg: |%s| \n", decrypted_msg);
 		return NULL;
 	}
 	
@@ -286,9 +282,6 @@ char* client_decrypt_msg(rsa_ctx_o* rsa_ctx, message_encrypted_o* msg,
 	
 	//clean ups
 	EVP_CIPHER_CTX_cleanup(decryption_ctx);
-	
-	printf("DecryptedMsg: |%s|\n", (char*)decrypted_msg);
-	printf("Decrypted_len: %d BlockSize: %d\n", decrypt_len, block_size);
 	
 	return decrypted_msg;
 	
@@ -395,9 +388,7 @@ char* msg_encrypt_encode(const char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* public_k
 		printf("There was an error encrypting the message \n");
 		return NULL;
 	}
-	
-	print_msg_struct(encrypted_msg);
-	
+		
 	char** encoded_msg = (char**) malloc(sizeof(char**));
 	ret = parse_encrypted_msg_str(encrypted_msg, encoded_msg);
 	if (!ret) {
@@ -431,10 +422,7 @@ char* msg_decode_decrypt(char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* private_key) {
 		return NULL;
 	}	
 	
-	
-	encrypted_msg->encrypted_msg_len--;
-	print_msg_struct(encrypted_msg);
-	
+	encrypted_msg->encrypted_msg_len--;	
 	
 	return client_decrypt_msg(rsa_ctx, encrypted_msg, private_key);
 }

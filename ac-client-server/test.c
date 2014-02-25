@@ -57,7 +57,6 @@ int main (int argc, char **argv) {
 		printf("Error generating key\n");
 	}
 	
-	printf("Created key! \n");
 	EVP_PKEY_CTX_free(ctx);
 	
 	printf("GenKey %x \n", gen_key);
@@ -66,15 +65,16 @@ int main (int argc, char **argv) {
 		printf("Opened the public and private key without issue! \n");
 	}	
 	
-	char* msg = "Hello World Mother Fuckers!";
+	//char* msg = "Hello World Mother Fuckers!";
+	char* msg = "Lets try a string with a different length str";
 	
-	//printf("Original Message |%s|\n", msg);
+	printf("Original Message |%s|\n", msg);
 	
-	char* encrypted_msg = msg_encrypt_encode(msg, rsa_ctx, gen_key);
+	char* encrypted_msg = msg_encrypt_encode(msg, rsa_ctx, public_key);
 	
-	//printf("EncryptedMessage |%s|\n", encrypted_msg);
+	printf("EncryptedMessage |%s|\n", encrypted_msg);
 	
-	char* decrypted_msg = msg_decode_decrypt(encrypted_msg, rsa_ctx, gen_key);
+	char* decrypted_msg = msg_decode_decrypt(encrypted_msg, rsa_ctx, private_key);
 	
 	if (decrypted_msg == NULL) {
 		printf("Error occured while decrypting the message \n");

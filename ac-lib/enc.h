@@ -119,5 +119,18 @@ char* msg_encrypt_encode(const char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* public_k
 
 char* msg_decode_decrypt(char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* private_key);
 
+/** Prints out an array of unasigned char's as hex
+	@param bytes The array of bytes to print out
+	@param len The len of the array
+*/
+
+void print_hex(unsigned char* bytes, int len);
+
+/** Prints out the items inside of the message_encrypted struct for
+		debugging purposes
+	@param msg A pointer to the message_encrypted_o struct to prin
+*/
+
+void print_msg_struct(message_encrypted_o* msg);
 
 #endif
