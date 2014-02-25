@@ -111,7 +111,7 @@ list* list_create() {
 }
 
 int list_contains(list* lst, void* val){
-	list_elm spot = lst->head;
+	list_elm* spot = lst->head;
 	while(spot != NULL){
 		if(spot->val == val){
 			return 1;

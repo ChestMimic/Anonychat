@@ -79,13 +79,7 @@ void* client_handle(void* arg) {
 	//listen for requests from the client	
 
 	
-	pthread_mutex_lock(&(client_list->mutex)); //obtain list mutex before we operate on it
-	list_add(client_list, client_o);
-	
-	client_send_peers(client_o);
-	
-	
-	pthread_mutex_unlock(&(client_list->mutex)); // release mutex when done
+	manage_graph();
 	
 	char buffer [SERVER_MAX_MESSAGE + 1];
 	
@@ -96,7 +90,7 @@ void* client_handle(void* arg) {
 		
 		if (str_starts_with(buffer, "PEERREQ")) {
 			//peer request message
-			client_send_peers(client_o); // client requested peers, send them
+			//client_send_peers(client_o); // client requested peers, send them
 		}
 		else if (str_starts_with(buffer, "PORTUPD")) {
 			char* tok = strtok(buffer, " ");
@@ -120,7 +114,7 @@ void* client_handle(void* arg) {
 					if (to_send->socket_fd == client_socket) {
 						continue;
 					}
-					client_send_peers(to_send);
+					client_send_peers(to_send, NULL);
 				}
 			}
 			
@@ -169,7 +163,7 @@ void client_send_peers(client* client_o, node* graph) {
 		free(to_cat);
 	}
 	else {	
-		char* to_cat = client_peers_rand(client_o, msg_size, node* graph);
+		char* to_cat = client_peers_rand(client_o, msg_size, graph);
 		strncat(msg, to_cat, SERVER_MAX_MESSAGE);
 		free(to_cat);
 	}
@@ -412,24 +406,25 @@ void manage_graph(){
 		//find node that matches client first
 		
 		
-		list queue = list_create();//queue for breadth first search
-		list sight = list_create();//set of seen elements
+		list* queue;
+		queue = list_create();//queue for breadth first search
+		list* sight = list_create();//set of seen elements
 		list_add(queue, graph);
 		list_add(sight, graph);
 		node* target;
 		while(queue->size > 0){
 			//dequeue head of queue
-			target = queue->head;
+			target = (node* ) queue->head;
 			list_remove(queue, target);
 			
 			//is head what we want?
-			if(target->data == target->val){//Yes->break
+			if(target->data == here->val){//Yes->break
 				break;
 			}else{//no->continue
 				int j = target->numConnections;
 				for( ; j > 0; j--){//for all edges to "graph"
 					//is edge seen?
-					if(list_contains(sight, target->connections[j]){
+					if(list_contains(sight, target->connections[j])){
 						//do nothing
 					}
 					else{
