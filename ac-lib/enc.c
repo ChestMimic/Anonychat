@@ -193,14 +193,13 @@ EVP_PKEY* client_generate_rsa_pair(int key_size) {
 */
 
 int client_encrypt_msg(rsa_ctx_o* rsa_ctx, const unsigned char* msg, 
-	EVP_PKEY* public_key, message_encrypted_o* res) {
+	EVP_PKEY* public_key, message_encrypted_o* res) {	
 	
 	int msg_enc_len = 0;
 	int block_size = 0;
 	int msg_len = strlen(msg) + 1;
-	
+		
 	EVP_CIPHER_CTX* encryption_ctx = &(rsa_ctx->rsa_encrypt_ctx);
-	
 	res->encrypted_key = (unsigned char*) malloc(EVP_PKEY_size(public_key));
 	res->init_vector = (unsigned char*) malloc(EVP_MAX_IV_LENGTH);
 	
@@ -208,7 +207,6 @@ int client_encrypt_msg(rsa_ctx_o* rsa_ctx, const unsigned char* msg,
 		//malloc failed
 		return 1;
 	}
-	
 	//set the size of the init vector
 	int init_vector_length = EVP_MAX_IV_LENGTH;
 	int encrypted_key_len;
@@ -218,7 +216,6 @@ int client_encrypt_msg(rsa_ctx_o* rsa_ctx, const unsigned char* msg,
 		//malloc failed.
 		return 1;
 	}
-	
 	int tmp = EVP_SealInit(encryption_ctx, EVP_aes_256_cbc(), &(res->encrypted_key),
 		&encrypted_key_len, res->init_vector, &public_key, 1);
 	
@@ -226,17 +223,14 @@ int client_encrypt_msg(rsa_ctx_o* rsa_ctx, const unsigned char* msg,
 		//evp seal init failed
 		return 2;
 	}
-	
 	tmp = EVP_SealUpdate(encryption_ctx, res->encrypted_msg + msg_enc_len, 
 		&block_size, msg, msg_len);
-		
 	if (!tmp) {
 		//evp seal update failed
 		return 3;
 	}
 	
 	msg_enc_len += block_size;
-	
 	tmp = EVP_SealFinal(encryption_ctx, res->encrypted_msg + msg_enc_len,
 		&block_size);
 		
@@ -290,7 +284,7 @@ char* client_decrypt_msg(rsa_ctx_o* rsa_ctx, message_encrypted_o* msg,
 	
 	if (!res) {
 		//failed to initialize the decrypt
-		printf("Failed to initialize the decrypt \n");
+		//printf("Failed to initialize the decrypt \n");
 		return NULL;
 	}
 	
@@ -299,7 +293,7 @@ char* client_decrypt_msg(rsa_ctx_o* rsa_ctx, message_encrypted_o* msg,
 	
 	if (!res) {
 		//failed to update the decrypt
-		printf("Failed to update the decrypt \n");
+		//printf("Failed to update the decrypt \n");
 		return NULL;
 	}
 	
@@ -309,7 +303,7 @@ char* client_decrypt_msg(rsa_ctx_o* rsa_ctx, message_encrypted_o* msg,
 	
 	if (!res) {
 		//failed to finalize the decrypt
-		printf("Failed to finalize the decrypt \n");
+		//printf("Failed to finalize the decrypt \n");
 		return NULL;
 	}
 	
@@ -417,13 +411,13 @@ int parse_str_encrypted_msg(char* msg, message_encrypted_o* res) {
 
 char* msg_encrypt_encode(const char* msg, rsa_ctx_o* rsa_ctx, EVP_PKEY* public_key) {
 	message_encrypted_o* encrypted_msg = (message_encrypted_o*) 
-		malloc(sizeof(message_encrypted_o));
+		malloc(sizeof(message_encrypted_o));		
+
 	int ret = client_encrypt_msg(rsa_ctx, msg, public_key, encrypted_msg);
 	if (ret) {
 		printf("There was an error encrypting the message \n");
 		return NULL;
 	}
-		
 	char** encoded_msg = (char**) malloc(sizeof(char**));
 	ret = parse_encrypted_msg_str(encrypted_msg, encoded_msg);
 	if (!ret) {

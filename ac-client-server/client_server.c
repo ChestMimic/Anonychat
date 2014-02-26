@@ -38,8 +38,10 @@ GHashTable* message_hash_table;
 EVP_PKEY* private_key;
 
 /** Public and private key set to use for peer communication */
+
 EVP_PKEY* peer_private_key;
 EVP_PKEY* peer_public_key;
+
 
 //indicates whether or not we are still running
 int running = 1; 
@@ -58,18 +60,17 @@ pthread_mutex_t mht_mutex; // message hash table mutex
 
 void print_usage() {
 	printf("Usage: \n");
-	printf("\t	client-server name-server-addr name-server-port peer-port private_key"
-		"peer_key_name \n");
-	printf("\t ex: client-server 192.168.1.105 6958 4758 bob.pem peer1\n");
+	printf("\t	client-server name-server-addr name-server-port peer-port" 
+	" private_key\n");
+	printf("\t ex: client-server 192.168.1.105 6958 4758 bob.pem \n");
 }
 
 /** Initializes the lib crypto context, the rsa encryption context
 		and loads the public / private keys into memory
 	@param private_key_name The name of the private key to load
-	@param peer_key_name The name of the peer key to load
 */
 
-void init_crypto(char* private_key_name, char* peer_key_name) {
+void init_crypto(char* private_key_name) {
 	client_initialize_crypto();
 	rsa_encrypt_ctx = client_create_rsa_ctx();
 
@@ -81,7 +82,7 @@ void init_crypto(char* private_key_name, char* peer_key_name) {
 	//lets load the private key
 	load_private_key(private_key_name);
 	
-	load_peer_keys(peer_key_name);
+	//load_peer_keys(peer_key_name);
 	
 }
 
@@ -224,9 +225,9 @@ int main (int argc, char **argv) {
 	char* port_name_server; // the port of the name server
 	char* port_peers; // the port to listen for peer connections on
 	char* private_key_name; // the name of the private key to load
-	char* peer_key_name; // the name of the peer key to load
+	//char* peer_key_name; // the name of the peer key to load
 
-	if (argc < 6) {	// If there are not 4 arguments, error
+	if (argc < 5) {	// If there are not 4 arguments, error
 		print_usage();
 		return 1;
 	}
@@ -235,7 +236,7 @@ int main (int argc, char **argv) {
 	port_name_server = argv[2]; // name server port is 3rd argument
 	port_peers = argv[3]; // peer port is the 4th argument
 	private_key_name = argv[4]; // the private key is 5th argument
-	peer_key_name = argv[5];
+	//peer_key_name = argv[5];
 
 
 	//create the message hash table
@@ -251,7 +252,7 @@ int main (int argc, char **argv) {
 	client_list = list_create();
 
 	// Initialize the crypto + public keys
-	init_crypto(private_key_name, peer_key_name);
+	init_crypto(private_key_name);
 
 	
 	name_server_o name_server;
@@ -347,10 +348,6 @@ void* client_handle(void* arg) {
 	char* buffer = (char*) malloc(BUFFER_SIZE + 1);
 	int res;
 	
-	//send the client our public key
-	printf("We are about to send the peer key! \n");
-	client_send_peer_key(client);
-	
 	while ( (res = recv(client->socket_fd, buffer, BUFFER_SIZE, 0))) {
 		buffer[res] = '\0'; //add a null terminator just in case		
 		printf("Received: a msg from client: %d \n", client->client_id);		
@@ -388,12 +385,10 @@ void* peer_handle(void* arg) {
 	char* buffer = (char*) malloc(BUFFER_SIZE + 1);
 	int res;	
 	while ( (res = recv(peer->socket_fd, buffer, BUFFER_SIZE, 0))) {
-		printf("Hai\n");
 		buffer[res] = '\0';
-		printf("Received a message from our peer! \n");
 		if (str_starts_with(buffer, PEER_PUB_KEY_MSG)) {
 			char* encoded_key = buffer + strlen(PEER_PUB_KEY_MSG);
-			printf("PeerHandle EncodedKey: PEER: %d |%s|\n", peer->peer_id, encoded_key);
+			//printf("PeerHandle EncodedKey: PEER: %d |%s|\n", peer->peer_id, encoded_key);
 			EVP_PKEY* key = client_parse_public_key(encoded_key);
 			if (key == NULL) {
 				printf("Key is null? \n");
@@ -503,13 +498,6 @@ int connect_to_peers(list* peer_list) {
 			if (res == -1) {
 				failed ++;
 				//we failed to connect to a peer
-			}
-			else {
-				printf("We are about to create peer handler thread \n");
-				//start the thread to listen to the peer
-				to_con->handler_thread = (pthread_t*) malloc(sizeof(pthread_t));
-				pthread_create(to_con->handler_thread, NULL, &peer_handle, 
-					(void*) to_con);
 			}
 		}
 	}
@@ -854,28 +842,28 @@ int input_send_msg(char* input, int len) {
 
 
 int client_parse_msg(char* msg, int len) {
-	
 	//decrypt the message first.
+	/*
 	char* peer_decrypted_msg = msg_decode_decrypt(msg, rsa_encrypt_ctx,
 		 peer_private_key);
 		 
 	if (peer_decrypted_msg == NULL) {
 		printf("Unable to peer decrypt the message \n");
 		return 1;
-	}
+	}*/
 	
 	pthread_mutex_lock(&mht_mutex);
-	if (client_has_seen_msg(message_hash_table, peer_decrypted_msg)) {
+	if (client_has_seen_msg(message_hash_table, msg)) {
 		//printf("We have seen this message before! \n");
 		pthread_mutex_unlock(&mht_mutex);
 		return 0;
 	}
 	printf("We have received a never before seen message! \n");
-	printf("RECVMSG: |%s|\n", peer_decrypted_msg);
+	printf("RECVMSG: |%s|\n", msg);
 	//we havent seen the message, lets process it
 	
 	//add the message to the hash table
-	client_hash_add_msg(message_hash_table, peer_decrypted_msg);
+	client_hash_add_msg(message_hash_table, msg);
 	
 	pthread_mutex_unlock(&mht_mutex);
 	//try to decode the message
@@ -883,11 +871,10 @@ int client_parse_msg(char* msg, int len) {
 	//send the message before we attempt to decrypt the message
 	//this should hide any possible timing differences between a sucessful or failed
 	//encryption.
-	client_send_to_all_peers(peer_decrypted_msg, len); // send orig, not decoded
+	client_send_to_all_peers(msg, len); // send orig, not decoded
 
 	//msg_decode_decrypt probally changes msg... 
-	char* decoded_msg = msg_decode_decrypt(peer_decrypted_msg, 
-		rsa_encrypt_ctx, private_key);
+	char* decoded_msg = msg_decode_decrypt(msg,	rsa_encrypt_ctx, private_key);
 	
 	if (decoded_msg != NULL) {
 		//woohoo we decoded the message
@@ -911,27 +898,22 @@ int client_send_to_all_peers(char* msg, int len) {
 	pthread_mutex_lock(&(peer_list->mutex));		
 	int i;
 	for (i=0;i<list_size(peer_list); i++) {
-		peer_o* to_send = list_item_at(peer_list, i);	
-		
-		printf("To_send id %d\n", to_send->peer_id);	
+		peer_o* to_send = (peer_o*) list_item_at(peer_list, i);			
 		/*
-		printf("We segfault in here? %x\n", to_send->public_key);
 		char* encoded_msg = msg_encrypt_encode(msg, rsa_encrypt_ctx, 
 			to_send->public_key);
+		
+		
 		if (encoded_msg == NULL) {
 			printf("Error peer encoding the message \n"); //dont just silently fail..
 			return 1;
-		}
-	
-		
-		printf("Sending message a to peer %d \n", to_send->peer_id);
-		printf("SENDMSG: |%s|\n", encoded_msg);
+		}*/
 					
-		int res = send_msg_peer(to_send, encoded_msg, len);
+		int res = send_msg_peer(to_send, msg, len);
 		if (res == -1) {
 			//connection to the peer was not open :(
 			//TODO: figure out what to do here
-		}*/
+		}
 	}		
 	pthread_mutex_unlock(&(peer_list->mutex)); //unlock mutex
 }
@@ -966,15 +948,25 @@ void* client_purge_msg_hash(void* arg) {
 */
 
 EVP_PKEY* client_parse_public_key(char* encoded_key) {
-	EVP_PKEY* public_key = (EVP_PKEY*) malloc(sizeof(EVP_PKEY));
-	char* raw_key = (char*) malloc(Base64decode_len(encoded_key));
+	EVP_PKEY* tmp_key = (EVP_PKEY*) malloc(sizeof(EVP_PKEY));
+	unsigned char* raw_key = (unsigned char*) malloc(Base64decode_len(encoded_key));
 	int len = Base64decode(raw_key, encoded_key);
+	
+	printf("Decoded len: %d, CalcLen %d EVP_PKEY SIZE: %d\n", len, 
+		Base64decode_len(encoded_key), sizeof(EVP_PKEY));
+	
 	if (len < 1) {
 		printf("len was less than 1\n");
 		return NULL;
 	}	
 	
-	memcpy(public_key, raw_key, sizeof(EVP_PKEY));
+	memcpy(tmp_key, raw_key, sizeof(EVP_PKEY));
+	
+	EVP_PKEY* public_key = (EVP_PKEY*) malloc(sizeof(EVP_PKEY));
+	if (!EVP_PKEY_copy_parameters(public_key, tmp_key)) {
+		printf("Failed to copy key parameters\n");
+	}
+	
 	return public_key;	
 	
 }
@@ -988,11 +980,11 @@ EVP_PKEY* client_parse_public_key(char* encoded_key) {
 int client_encode_public_key(EVP_PKEY* public_key, char** dest) {
 	printf("Encoding a key \n");
 	*dest = (char*) malloc(Base64encode_len(sizeof(EVP_PKEY)));
-	char* encoded_key = *dest;
 	
-	printf("Encoded key %x\n", encoded_key);
-	int len = Base64encode(encoded_key, (char*) public_key, sizeof(EVP_PKEY));
-	
+	printf("Encoded key %x\n", *dest);
+	int len = Base64encode(*dest, (unsigned char*) public_key, sizeof(EVP_PKEY));
+	printf("Encoded len %d \n", len);
+	printf("Encoded: |%s|\n", *dest);
 	return len;	
 }
 
