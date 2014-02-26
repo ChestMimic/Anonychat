@@ -847,18 +847,27 @@ int input_send_msg(char* input, int len) {
 
 int client_parse_msg(char* msg, int len) {
 	
+	//decrypt the message first.
+	char* peer_decrypted_msg = msg_decode_decrypt(msg, rsa_encrypt_ctx,
+		 peer_private_key);
+		 
+	if (peer_decrypted_msg == NULL) {
+		printf("Unable to peer decrypt the message \n");
+		return 1;
+	}
+	
 	pthread_mutex_lock(&mht_mutex);
-	if (client_has_seen_msg(message_hash_table, msg)) {
+	if (client_has_seen_msg(message_hash_table, peer_decrypted_msg)) {
 		//printf("We have seen this message before! \n");
 		pthread_mutex_unlock(&mht_mutex);
 		return 0;
 	}
 	printf("We have received a never before seen message! \n");
-	printf("RECVMSG: |%s|\n", msg);
+	printf("RECVMSG: |%s|\n", peer_decrypted_msg);
 	//we havent seen the message, lets process it
 	
 	//add the message to the hash table
-	client_hash_add_msg(message_hash_table, msg);
+	client_hash_add_msg(message_hash_table, peer_decrypted_msg);
 	
 	pthread_mutex_unlock(&mht_mutex);
 	//try to decode the message
@@ -866,10 +875,11 @@ int client_parse_msg(char* msg, int len) {
 	//send the message before we attempt to decrypt the message
 	//this should hide any possible timing differences between a sucessful or failed
 	//encryption.
-	client_send_to_all_peers(msg, len); // send orig, not decoded
+	client_send_to_all_peers(peer_decrypted_msg, len); // send orig, not decoded
 
 	//msg_decode_decrypt probally changes msg... 
-	char* decoded_msg = msg_decode_decrypt(msg, rsa_encrypt_ctx, private_key);
+	char* decoded_msg = msg_decode_decrypt(peer_decrypted_msg, 
+		rsa_encrypt_ctx, private_key);
 	
 	if (decoded_msg != NULL) {
 		//woohoo we decoded the message
@@ -893,12 +903,19 @@ int client_send_to_all_peers(char* msg, int len) {
 	pthread_mutex_lock(&(peer_list->mutex));		
 	int i;
 	for (i=0;i<list_size(peer_list); i++) {
-		peer_o* to_send = list_item_at(peer_list, i);
+		peer_o* to_send = list_item_at(peer_list, i);		
+		char* encoded_msg = msg_encrypt_encode(msg, rsa_encrypt_ctx, 
+			to_send->public_key);
+		if (encoded_msg == NULL) {
+			printf("Error peer encoding the message \n"); //dont just silently fail..
+			return 1;
+		}
+	
 		
 		printf("Sending message a to peer %d \n", to_send->peer_id);
-		printf("SENDMSG: |%s|\n", msg);
+		printf("SENDMSG: |%s|\n", encoded_msg);
 					
-		int res = send_msg_peer(to_send, msg, len);
+		int res = send_msg_peer(to_send, encoded_msg, len);
 		if (res == -1) {
 			//connection to the peer was not open :(
 			//TODO: figure out what to do here
