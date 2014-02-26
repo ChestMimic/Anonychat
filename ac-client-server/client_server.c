@@ -348,6 +348,7 @@ void* client_handle(void* arg) {
 	int res;
 	
 	//send the client our public key
+	printf("We are about to send the peer key! \n");
 	client_send_peer_key(client);
 	
 	while ( (res = recv(client->socket_fd, buffer, BUFFER_SIZE, 0))) {
@@ -382,26 +383,27 @@ void* client_handle(void* arg) {
 	@return TODO:
 */
 
-void* peer_handle(void* arg) {
-	peer_o* peer = (peer_o*) arg;
-	
+void* peer_handle(void* arg) {	
+	peer_o* peer = (peer_o*) arg;	
 	char* buffer = (char*) malloc(BUFFER_SIZE + 1);
-	int res;
-	
-	
+	int res;	
 	while ( (res = recv(peer->socket_fd, buffer, BUFFER_SIZE, 0))) {
+		printf("Hai\n");
 		buffer[res] = '\0';
 		printf("Received a message from our peer! \n");
 		if (str_starts_with(buffer, PEER_PUB_KEY_MSG)) {
 			char* encoded_key = buffer + strlen(PEER_PUB_KEY_MSG);
-			printf("PeerHandle EncodedKey: |%s|\n", encoded_key);
-			peer->public_key = client_parse_public_key(encoded_key);
+			printf("PeerHandle EncodedKey: PEER: %d |%s|\n", peer->peer_id, encoded_key);
+			EVP_PKEY* key = client_parse_public_key(encoded_key);
+			if (key == NULL) {
+				printf("Key is null? \n");
+			}
+			peer->public_key = key;
 		}
 		else {
 			printf("We received something unknown from a peer? |%s|\n", buffer);
 		}
 	}
-	
 	free(buffer);
 	return;
 }
@@ -422,16 +424,19 @@ void peer_request_key(peer_o* peer) {
 
 int client_send_peer_key(client_o* client) {
 	char** encoded_key = (char**) malloc(sizeof(char*));
+	printf("Woo an encoded key! %x %x\n", peer_public_key, encoded_key);
 	int len = client_encode_public_key(peer_public_key, encoded_key);
 	if (len < 1) {
 		printf("Could not encode public key! \n");
 		return 0;
 	}
+	printf("We encoded our key \n");
 	int key_msg_len = len + strlen(PEER_PUB_KEY_MSG) + 1;
 	char* key_msg = (char*) malloc(key_msg_len);
 	strncpy(key_msg, PEER_PUB_KEY_MSG, key_msg_len);
 	strncat(key_msg, *encoded_key, key_msg_len);
 	
+	printf("About to send message to client \n");
 	return send_msg(client->socket_fd, key_msg, key_msg_len);
 }
 
@@ -485,6 +490,8 @@ int parse_peers(list* peer_list, char* peer_msg) {
 */
 
 int connect_to_peers(list* peer_list) {
+
+	printf("We are connecting to peers \n");
 	int failed = 0;
 	
 	int i=0;
@@ -498,6 +505,7 @@ int connect_to_peers(list* peer_list) {
 				//we failed to connect to a peer
 			}
 			else {
+				printf("We are about to create peer handler thread \n");
 				//start the thread to listen to the peer
 				to_con->handler_thread = (pthread_t*) malloc(sizeof(pthread_t));
 				pthread_create(to_con->handler_thread, NULL, &peer_handle, 
@@ -903,7 +911,11 @@ int client_send_to_all_peers(char* msg, int len) {
 	pthread_mutex_lock(&(peer_list->mutex));		
 	int i;
 	for (i=0;i<list_size(peer_list); i++) {
-		peer_o* to_send = list_item_at(peer_list, i);		
+		peer_o* to_send = list_item_at(peer_list, i);	
+		
+		printf("To_send id %d\n", to_send->peer_id);	
+		/*
+		printf("We segfault in here? %x\n", to_send->public_key);
 		char* encoded_msg = msg_encrypt_encode(msg, rsa_encrypt_ctx, 
 			to_send->public_key);
 		if (encoded_msg == NULL) {
@@ -919,7 +931,7 @@ int client_send_to_all_peers(char* msg, int len) {
 		if (res == -1) {
 			//connection to the peer was not open :(
 			//TODO: figure out what to do here
-		}
+		}*/
 	}		
 	pthread_mutex_unlock(&(peer_list->mutex)); //unlock mutex
 }
@@ -958,6 +970,7 @@ EVP_PKEY* client_parse_public_key(char* encoded_key) {
 	char* raw_key = (char*) malloc(Base64decode_len(encoded_key));
 	int len = Base64decode(raw_key, encoded_key);
 	if (len < 1) {
+		printf("len was less than 1\n");
 		return NULL;
 	}	
 	
@@ -973,10 +986,12 @@ EVP_PKEY* client_parse_public_key(char* encoded_key) {
 */
 
 int client_encode_public_key(EVP_PKEY* public_key, char** dest) {
+	printf("Encoding a key \n");
 	*dest = (char*) malloc(Base64encode_len(sizeof(EVP_PKEY)));
 	char* encoded_key = *dest;
 	
-	int len = Base64encode(encoded_key, (char*) public_key);
+	printf("Encoded key %x\n", encoded_key);
+	int len = Base64encode(encoded_key, (char*) public_key, sizeof(EVP_PKEY));
 	
 	return len;	
 }
