@@ -1,30 +1,12 @@
 #!/bin/bash
 #Make some keys for testing
-openssl genrsa -out priv_key/alice.pem 4096
-openssl genrsa -out priv_key/bob.pem 4096
-openssl genrsa -out priv_key/ted.pem 4096
-openssl genrsa -out priv_key/eve.pem 4096
-openssl genrsa -out priv_key/jose.pem 4096
-
-openssl genrsa -out priv_key/peer1.pem 4096
-openssl genrsa -out priv_key/peer2.pem 4096
-openssl genrsa -out priv_key/peer3.pem 4096
-openssl genrsa -out priv_key/peer4.pem 4096
-openssl genrsa -out priv_key/peer5.pem 4096
 
 
-openssl rsa -in priv_key/alice.pem -pubout > pub_key/alice.pub
-openssl rsa -in priv_key/bob.pem -pubout > pub_key/bob.pub
-openssl rsa -in priv_key/ted.pem -pubout > pub_key/ted.pub
-openssl rsa -in priv_key/eve.pem -pubout > pub_key/eve.pub
-openssl rsa -in priv_key/jose.pem -pubout > pub_key/jose.pub
+for i in {1..30}
+do
+	echo $i
+	openssl genrsa -out priv_key/node$i.pem 4096
+	openssl rsa -in priv_key/node$i.pem -pubout > pub_key/node$i.pub
+done
 
-
-openssl rsa -in priv_key/peer1.pem -pubout > pub_key/peer1.pub.peer
-openssl rsa -in priv_key/peer2.pem -pubout > pub_key/peer2.pub.peer
-openssl rsa -in priv_key/peer3.pem -pubout > pub_key/peer3.pub.peer
-openssl rsa -in priv_key/peer4.pem -pubout > pub_key/peer4.pub.peer
-openssl rsa -in priv_key/peer5.pem -pubout > pub_key/peer5.pub.peer
-
-
-echo "public/private keys generated"
+echo "30 public/private keys generated"

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+./ac-name-server/name_server &
+
+
+PORT=1234
+
+cd ./ac-client-server/
+
+for i in {1..30}
+do
+	echo $PORT
+	
+	./client_server 127.0.0.1 6958 $PORT node$i.pem &
+	((PORT++))
+	sleep 5
+	
+done
