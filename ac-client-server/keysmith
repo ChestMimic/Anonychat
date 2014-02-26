@@ -6,10 +6,25 @@ openssl genrsa -out priv_key/ted.pem 4096
 openssl genrsa -out priv_key/eve.pem 4096
 openssl genrsa -out priv_key/jose.pem 4096
 
+openssl genrsa -out priv_key/peer1.pem 4096
+openssl genrsa -out priv_key/peer2.pem 4096
+openssl genrsa -out priv_key/peer3.pem 4096
+openssl genrsa -out priv_key/peer4.pem 4096
+openssl genrsa -out priv_key/peer5.pem 4096
+
+
 openssl rsa -in priv_key/alice.pem -pubout > pub_key/alice.pub
 openssl rsa -in priv_key/bob.pem -pubout > pub_key/bob.pub
 openssl rsa -in priv_key/ted.pem -pubout > pub_key/ted.pub
 openssl rsa -in priv_key/eve.pem -pubout > pub_key/eve.pub
 openssl rsa -in priv_key/jose.pem -pubout > pub_key/jose.pub
 
-echo "5 public/private keys generated"
+
+openssl rsa -in priv_key/peer1.pem -pubout > pub_key/peer1.pub.peer
+openssl rsa -in priv_key/peer2.pem -pubout > pub_key/peer2.pub.peer
+openssl rsa -in priv_key/peer3.pem -pubout > pub_key/peer3.pub.peer
+openssl rsa -in priv_key/peer4.pem -pubout > pub_key/peer4.pub.peer
+openssl rsa -in priv_key/peer5.pem -pubout > pub_key/peer5.pub.peer
+
+
+echo "public/private keys generated"

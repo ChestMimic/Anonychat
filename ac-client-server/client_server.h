@@ -5,6 +5,7 @@
 #define PEER_SERVER_BACKLOG (5)
 #define PURGE_FREQUENCY (30) // the purge frequency of messages in seconds
 
+#include <openssl/evp.h>
 #include <pthread.h>
 
 /** Struct representing a name server
@@ -15,8 +16,7 @@ struct _name_server {
 	char port[NI_MAXSERV]; // the name severs port
 	int socket_fd; // the name servers socket descriptor
 	int open_con; // 1 if there is an open connection, 0 if not
-	pthread_t* name_thread; // the thread for the name server handler
-	
+	pthread_t* name_thread; // the thread for the name server handler	
 };
 
 typedef struct _name_server name_server_o;
@@ -107,6 +107,26 @@ void* listen_for_clients(void* arg);
 
 void* client_handle(void* arg);
 
+/** Function that will handle listening for messages from the specified peer
+	@param A pointer to a peer struct
+	@return TODO:
+*/
+
+void* peer_handle(void* arg);
+
+/** Sends a message to request a public key from the specifeid peer
+	@param peer A pointer to the peer struct to send the message to
+*/
+
+void peer_request_key(peer_o* peer);
+
+/** Sends a the peer public key to the specified client
+	@param client A pointer to the client struct to send the key to
+	@return 1 if sucessful 0 otherwise
+*/
+
+int client_send_peer_key(client_o* client);
+
 /** Function that will handle any command line input that the user enters
 	@param arg TODO: define
 	@return TODO: define
@@ -132,9 +152,10 @@ int init_server(peer_server_o* peer_server);
 /** Initializes the lib crypto context, the rsa encryption context
 		and loads the public / private keys into memory
 	@param private_key_name The name of the private key to load
+	@param peer_key_name The name of the peer key to load
 */
 
-void init_crypto(char* private_key_name);
+void init_crypto(char* private_key_name, char* peer_key_name);
 
 /** Loads the public keys to be used for encrypting messages
 
@@ -147,6 +168,12 @@ void load_public_keys();
 */
 
 void load_private_key(char* key_name);
+
+/** Loads the public and private keys used for peer communication
+	@param key_name A cstring containing the name of the peer key
+*/
+
+void load_peer_keys(char* key_name);
 
 /** Cleans up the crypto, and frees any unnecesary memory
 */
@@ -184,5 +211,12 @@ int client_send_to_all_peers(char* msg, int len);
 
 void* client_purge_msg_hash(void* arg);
 
+/** Parses the base64 encoded key received from peers that will be used to	
+		communicate with it	
+	@param encoded_key The encoded key
+	@return A pointer to the public key
+*/
+
+EVP_PKEY* client_parse_public_key(char* encoded_key);
 
 #endif
