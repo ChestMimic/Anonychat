@@ -77,9 +77,12 @@ void* client_handle(void* arg) {
 	
 	//send the initial peer request
 	//listen for requests from the client	
-
 	
-	manage_graph();
+	pthread_mutex_lock(&(client_list->mutex));
+	list_add(client_list, client_o);
+	pthread_mutex_lock(&(client_list->mutex));
+
+
 	
 	char buffer [SERVER_MAX_MESSAGE + 1];
 	
@@ -103,7 +106,7 @@ void* client_handle(void* arg) {
 			strncpy(client_o->port, tok, NI_MAXSERV);
 			printf("Client %s on socket %d updated thier port to %s \n", client_o->address, 
 				client_socket, client_o->port);
-				
+			/*	
 			//probally not the best place for this,,
 			//TODO: Move / figure out where to put this
 			//lets send the peers to all other clients
@@ -116,10 +119,10 @@ void* client_handle(void* arg) {
 					}
 					client_send_peers(to_send, NULL);
 				}
-			}
+			}*/
 			
 		}
-		
+		manage_graph();
 		memset(buffer,0, SERVER_MAX_MESSAGE + 1);
 	}
 	
