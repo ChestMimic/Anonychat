@@ -67,12 +67,18 @@ Client Communication
 			-Downside, It is possible, however rare, for MD5 hashes to overlap.
 				-as this is rare the TTL will allow for other messages with the same hash to
 					be sent again.			
+					
+Client Peers
+	-Client will have a maximum amount of peers that it will be currently connected to
+		-Each connection to the peer will have a TTL, after that TTL expires, it will randomly choose a new peer
+			-This keeps the number of simultaneous connections low, while still mainting anonimity
+				with changing peers
 
 
 How we will be anonymous
 	-The souce of the messages that will be sent between clients will not be known.
-	-The connect to the cetnralized name server will only be for checking client state
-		-No messages will be transfered to/from a client through the name server
+	-The connect to the centralized name server will only be for checking client state
+		-No messages will be transferred to/from a client through the name server
 				
 				
 Approach:
@@ -89,16 +95,22 @@ Questions ---
 	
 	IRC~~?
 		-Do we need to use IRC? The distributed aspect of the program is seemingly more
-			important, and we can implement our own very basic protocl that will allow
+			important, and we can implement our own very basic protocol that will allow
 			users to send very basic messages between each other. Possibly we can base
 			this on how IRC does it?
+			--Base the message format upon IRC message format.
 			
 	Encryption?
 		-We need to decide which Library that we will be using for encryption
+			-public/private key, RSA encryption
 		-How will the users get public keys for the other users they wish to communicate with?
-			-Possibly a user can decide to publish thier public key to the name server
+			-Possibly a user can decide to publish their public key to the name server
 				allowing users to fetch it from the name-server and communicate with that user
-				
+					--this will break destination ip anonymity rule.
+			
+			--Users will exchange their public keys before hand if they wish to talk.
+			
+			
 			-How will private keys for chats work. If we use a public key model for this
 				then all of the clients who wish to communicate will have to have the
 				same private key to decrypt the messages? Or can different private keys be
@@ -118,7 +130,7 @@ Questions ---
 			-Need a way to uniquely identify messages? Maybe?
 			-What exactly will we contain in each message?
 			
-		-Message Protocol
+		--Message Protocol
 		
 			IRC, 512 line string, ending with CR-LF		
 				[<prefix>]<command> <params> <crlf>

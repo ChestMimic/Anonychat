@@ -1,0 +1,12 @@
+
+-test load on name server, constant connection
+	-load (memory, cpu, network usage) should at least be linear with additional clients
+-rrt for messages
+	-average message transfer time < 5 times the direct communication between clients.
+-check anonymity of messages, ensure source address is obscure
+	-if Alice is receiving a message from Bob, the source address of Bob’s messages is changing at least every minute.
+-ensure that peers are distributed appropriately
+	-every client has a path to every other client
+	-frequency of race condition, causing message to be dropped
+-verify encryption of messages
+	-The messages are indeed encrypted
