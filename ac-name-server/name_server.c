@@ -194,7 +194,9 @@ char* client_peers_rand(client* client_o, int max_msg_size, node* graph) {
 
 	int i;
 	for(i = 0; i< graph->numConnections; i++){
-		strncat(msg, graph->connections[i]->data, max_msg_size);
+		strncat(msg, ((client *) graph->connections[i]->data)->address, max_msg_size);
+		strncat(msg, ":", max_msg_size);
+		strncat(msg, ((client *) graph->connections[i]->data)->port, max_msg_size);
 		strncat(msg, " ", max_msg_size); //add a space
 	}
 	
