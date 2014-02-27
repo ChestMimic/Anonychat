@@ -6,6 +6,8 @@
 #include       <stdlib.h>
 #include       <pthread.h>
 #include       <errno.h>
+#include       <dirent.h>
+#include	   <sys/types.h>
 
 #include       "msg.h"
 #include       "list.h"
