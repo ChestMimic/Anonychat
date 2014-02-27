@@ -56,6 +56,7 @@ int str_starts_with(const char* a, const char* b) {
 */
 
 void* client_handle(void* arg) {
+	
 	client* client_o = (client*) arg; // cast the argument into client struct
 	int client_socket = client_o->socket_fd; // the socket that this client is connected on		
 	struct sockaddr_in* ipv4_addr = (struct sockaddr_in*) &(client_o->client_addr); //client addr	
@@ -80,8 +81,7 @@ void* client_handle(void* arg) {
 	
 	pthread_mutex_lock(&(client_list->mutex));
 	list_add(client_list, client_o);
-	pthread_mutex_lock(&(client_list->mutex));
-
+	pthread_mutex_unlock(&(client_list->mutex));
 
 	
 	char buffer [SERVER_MAX_MESSAGE + 1];
@@ -378,6 +378,7 @@ void print_usage() {
 
 
 void manage_graph(){
+	
 	time_t t;
 	srand((unsigned) time(&t));
 
@@ -403,10 +404,13 @@ void manage_graph(){
 	}
 	
 	//Part 2: Create graph from array (using tree's functions)
-	node* graph = combineNodesToGraph(&randArray, 4, client_list->size);
+	node* graph = malloc(sizeof(graph));
+	graph =	combineNodesToGraph(&randArray, 4, client_list->size);
 	//Part 3: Send out results to nodes
 	//for every client
 	here = client_list->head;
+	
+	
 	while(here != NULL){
 		//find node that matches client first
 		
@@ -417,22 +421,28 @@ void manage_graph(){
 		list_add(queue, graph);
 		list_add(sight, graph);
 		node* target;
+		
 		while(queue->size > 0){
 			//dequeue head of queue
-			target = (node* ) queue->head;
+			target = (node* ) list_item_at(queue, 0);
 			list_remove(queue, target);
 			
 			//is head what we want?
 			if(target->data == here->val){//Yes->break
+				
 				break;
 			}else{//no->continue
+				
 				int j = target->numConnections;
 				for( ; j > 0; j--){//for all edges to "graph"
 					//is edge seen?
+					printf("%d\n", target->numConnections);
 					if(list_contains(sight, target->connections[j])){
 						//do nothing
+						printf("Ping!!\n");
 					}
 					else{
+						
 						list_add(queue, target->connections[j]);
 						list_add(sight, target->connections[j]);
 					}
@@ -447,10 +457,10 @@ void manage_graph(){
 		
 		
 		
-		
 		client_send_peers( (client *) here->val, target);
 		here = here->next;
 	}
 	//release mutex
 	pthread_mutex_unlock(&(client_list->mutex));
+	
 }

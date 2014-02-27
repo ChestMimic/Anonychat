@@ -111,6 +111,7 @@ list* list_create() {
 }
 
 int list_contains(list* lst, void* val){
+	printf("Ping!!\n");
 	list_elm* spot = lst->head;
 	while(spot != NULL){
 		if(spot->val == val){
