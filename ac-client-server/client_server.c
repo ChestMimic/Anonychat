@@ -6,6 +6,8 @@
 #include       <stdlib.h>
 #include       <pthread.h>
 #include       <errno.h>
+#include       <dirent.h>
+#include	   <sys/types.h>
 
 #include       "msg.h"
 #include       "list.h"
@@ -15,6 +17,12 @@
 
 
 #define BUFFER_SIZE 1500
+
+#define PUBLIC_KEY_DIR "./pub_key/"
+#define PRIVATE_KEY_DIR "./priv_key/"
+
+#define PEER_REQUEST_PUB_KEY_MSG "REQPUBKEY"
+#define PEER_PUB_KEY_MSG "PUBKEY "
 
 // List of peers for a client
 list* peer_list;
@@ -30,6 +38,12 @@ GHashTable* message_hash_table;
 
 // The private key we will use to decrypt messages
 EVP_PKEY* private_key;
+
+/** Public and private key set to use for peer communication */
+
+EVP_PKEY* peer_private_key;
+EVP_PKEY* peer_public_key;
+
 
 //indicates whether or not we are still running
 int running = 1; 
@@ -48,8 +62,9 @@ pthread_mutex_t mht_mutex; // message hash table mutex
 
 void print_usage() {
 	printf("Usage: \n");
-	printf("\t	client-server name-server-addr name-server-port peer-port private_key \n");
-	printf("\t ex: client-server 192.168.1.105 6958 4758 bob.pem\n");
+	printf("\t	client-server name-server-addr name-server-port peer-port" 
+	" private_key\n");
+	printf("\t ex: client-server 192.168.1.105 6958 4758 bob.pem \n");
 }
 
 /** Initializes the lib crypto context, the rsa encryption context
@@ -69,6 +84,8 @@ void init_crypto(char* private_key_name) {
 	//lets load the private key
 	load_private_key(private_key_name);
 	
+	//load_peer_keys(peer_key_name);
+	
 }
 
 /** Loads the private key with the given name
@@ -78,7 +95,7 @@ void init_crypto(char* private_key_name) {
 void load_private_key(char* key_name) {
 	printf("Loading Private Key! \n");
 	//the private key directory
-	char* private_key_dir = "./priv_key/";
+	char* private_key_dir = PRIVATE_KEY_DIR;
 	
 	int full_path_len = 256 + 25 + 1;
 	char full_path[full_path_len];
@@ -99,6 +116,49 @@ void load_private_key(char* key_name) {
 	
 }
 
+/** Loads the public and private keys used for peer communication
+	@param key_name A cstring containing the name of the peer key
+*/
+
+void load_peer_keys(char* key_name) {
+
+	char* private_key_dir = PRIVATE_KEY_DIR;
+	char* public_key_dir = PUBLIC_KEY_DIR;
+
+	int private_key_len = strlen(private_key_dir) + strlen(key_name)
+		 + strlen(".pem") + 1;
+	int public_key_len = strlen(public_key_dir) + strlen(key_name)
+		 + strlen(".pub.peer") + 1;
+	
+	char* private_key_name = (char*) malloc(private_key_len);
+	char* public_key_name = (char*) malloc(public_key_len);
+	
+	strncpy(private_key_name, private_key_dir, private_key_len);
+	strncat(private_key_name, key_name, private_key_len);
+	strncat(private_key_name, ".pem", private_key_len);
+	
+	strncpy(public_key_name, public_key_dir, public_key_len);
+	strncat(public_key_name, key_name, public_key_len);
+	strncat(public_key_name, ".pub.peer", public_key_len);
+	
+	EVP_PKEY* tmp_key = client_open_priv_key(private_key_name);
+	peer_private_key = (EVP_PKEY*) malloc(sizeof(EVP_PKEY));
+	memcpy(peer_private_key, tmp_key, sizeof(EVP_PKEY));
+	free(tmp_key);
+	
+	tmp_key = client_open_pub_key(public_key_name);
+	peer_public_key = (EVP_PKEY*) malloc(sizeof(EVP_PKEY));
+	memcpy(peer_public_key, tmp_key, sizeof(EVP_PKEY));
+	free(tmp_key);
+	
+	if (peer_public_key == NULL || peer_private_key == NULL) {
+		printf("Unable to load peer key set \n");
+	}
+	else {
+		printf("Loaded peer key set \n");	
+	}
+}
+
 /** Loads the public keys to be used for encrypting messages
 
 */
@@ -106,7 +166,7 @@ void load_private_key(char* key_name) {
 void load_public_keys() {
 	printf("Loading Public Key! \n");
 	//the public key directory
-	char* public_key_dir = "./pub_key/";
+	char* public_key_dir = PUBLIC_KEY_DIR;
 	
 	int full_path_len = 256 + 25 + 1;
 	char full_path[full_path_len];
@@ -166,7 +226,8 @@ int main (int argc, char **argv) {
 	char* address_name_server; // the address of the name server
 	char* port_name_server; // the port of the name server
 	char* port_peers; // the port to listen for peer connections on
-	char* private_key_name;
+	char* private_key_name; // the name of the private key to load
+	//char* peer_key_name; // the name of the peer key to load
 
 	if (argc < 5) {	// If there are not 4 arguments, error
 		print_usage();
@@ -177,6 +238,7 @@ int main (int argc, char **argv) {
 	port_name_server = argv[2]; // name server port is 3rd argument
 	port_peers = argv[3]; // peer port is the 4th argument
 	private_key_name = argv[4]; // the private key is 5th argument
+	//peer_key_name = argv[5];
 
 
 	//create the message hash table
@@ -315,6 +377,67 @@ void* client_handle(void* arg) {
 	return;
 }
 
+/** Function that will handle listening for messages from the specified peer
+	@param A pointer to a peer struct
+	@return TODO:
+*/
+
+void* peer_handle(void* arg) {	
+	peer_o* peer = (peer_o*) arg;	
+	char* buffer = (char*) malloc(BUFFER_SIZE + 1);
+	int res;	
+	while ( (res = recv(peer->socket_fd, buffer, BUFFER_SIZE, 0))) {
+		buffer[res] = '\0';
+		if (str_starts_with(buffer, PEER_PUB_KEY_MSG)) {
+			char* encoded_key = buffer + strlen(PEER_PUB_KEY_MSG);
+			//printf("PeerHandle EncodedKey: PEER: %d |%s|\n", peer->peer_id, encoded_key);
+			EVP_PKEY* key = client_parse_public_key(encoded_key);
+			if (key == NULL) {
+				printf("Key is null? \n");
+			}
+			peer->public_key = key;
+		}
+		else {
+			printf("We received something unknown from a peer? |%s|\n", buffer);
+		}
+	}
+	free(buffer);
+	return;
+}
+
+/** Sends a message to request a public key from the specifeid peer
+	@param peer A pointer to the peer struct to send the message to
+*/
+
+void peer_request_key(peer_o* peer) {
+	char* req_msg = PEER_REQUEST_PUB_KEY_MSG;
+	send_msg_peer(peer, req_msg, strlen(req_msg));
+}
+
+/** Sends a the peer public key to the specified client
+	@param client A pointer to the client struct to send the key to
+	@return 1 if sucessful 0 otherwise
+*/
+
+int client_send_peer_key(client_o* client) {
+	char** encoded_key = (char**) malloc(sizeof(char*));
+	printf("Woo an encoded key! %x %x\n", peer_public_key, encoded_key);
+	int len = client_encode_public_key(peer_public_key, encoded_key);
+	if (len < 1) {
+		printf("Could not encode public key! \n");
+		return 0;
+	}
+	printf("We encoded our key \n");
+	int key_msg_len = len + strlen(PEER_PUB_KEY_MSG) + 1;
+	char* key_msg = (char*) malloc(key_msg_len);
+	strncpy(key_msg, PEER_PUB_KEY_MSG, key_msg_len);
+	strncat(key_msg, *encoded_key, key_msg_len);
+	
+	printf("About to send message to client \n");
+	return send_msg(client->socket_fd, key_msg, key_msg_len);
+}
+
+
 /** Function that will parse the peers from the peer message from name server, into
 		the peer list
 	@param peer_list A pointer to a list struct containing the current peers,
@@ -364,6 +487,8 @@ int parse_peers(list* peer_list, char* peer_msg) {
 */
 
 int connect_to_peers(list* peer_list) {
+
+	printf("We are connecting to peers \n");
 	int failed = 0;
 	
 	int i=0;
@@ -719,6 +844,15 @@ int input_send_msg(char* input, int len) {
 
 
 int client_parse_msg(char* msg, int len) {
+	//decrypt the message first.
+	/*
+	char* peer_decrypted_msg = msg_decode_decrypt(msg, rsa_encrypt_ctx,
+		 peer_private_key);
+		 
+	if (peer_decrypted_msg == NULL) {
+		printf("Unable to peer decrypt the message \n");
+		return 1;
+	}*/
 	
 	pthread_mutex_lock(&mht_mutex);
 	if (client_has_seen_msg(message_hash_table, msg)) {
@@ -742,7 +876,7 @@ int client_parse_msg(char* msg, int len) {
 	client_send_to_all_peers(msg, len); // send orig, not decoded
 
 	//msg_decode_decrypt probally changes msg... 
-	char* decoded_msg = msg_decode_decrypt(msg, rsa_encrypt_ctx, private_key);
+	char* decoded_msg = msg_decode_decrypt(msg,	rsa_encrypt_ctx, private_key);
 	
 	if (decoded_msg != NULL) {
 		//woohoo we decoded the message
@@ -766,10 +900,16 @@ int client_send_to_all_peers(char* msg, int len) {
 	pthread_mutex_lock(&(peer_list->mutex));		
 	int i;
 	for (i=0;i<list_size(peer_list); i++) {
-		peer_o* to_send = list_item_at(peer_list, i);
+		peer_o* to_send = (peer_o*) list_item_at(peer_list, i);			
+		/*
+		char* encoded_msg = msg_encrypt_encode(msg, rsa_encrypt_ctx, 
+			to_send->public_key);
 		
-		printf("Sending message a to peer %d \n", to_send->peer_id);
-		printf("SENDMSG: |%s|\n", msg);
+		
+		if (encoded_msg == NULL) {
+			printf("Error peer encoding the message \n"); //dont just silently fail..
+			return 1;
+		}*/
 					
 		int res = send_msg_peer(to_send, msg, len);
 		if (res == -1) {
@@ -801,5 +941,52 @@ void* client_purge_msg_hash(void* arg) {
 	
 	}
 
+}
+
+/** Parses the base64 encoded key received from peers that will be used to	
+		communicate with it	
+	@param encoded_key The encoded key
+	@return A pointer to the public key
+*/
+
+EVP_PKEY* client_parse_public_key(char* encoded_key) {
+	EVP_PKEY* tmp_key = (EVP_PKEY*) malloc(sizeof(EVP_PKEY));
+	unsigned char* raw_key = (unsigned char*) malloc(Base64decode_len(encoded_key));
+	int len = Base64decode(raw_key, encoded_key);
+	
+	printf("Decoded len: %d, CalcLen %d EVP_PKEY SIZE: %d\n", len, 
+		Base64decode_len(encoded_key), sizeof(EVP_PKEY));
+	
+	if (len < 1) {
+		printf("len was less than 1\n");
+		return NULL;
+	}	
+	
+	memcpy(tmp_key, raw_key, sizeof(EVP_PKEY));
+	
+	EVP_PKEY* public_key = (EVP_PKEY*) malloc(sizeof(EVP_PKEY));
+	if (!EVP_PKEY_copy_parameters(public_key, tmp_key)) {
+		printf("Failed to copy key parameters\n");
+	}
+	
+	return public_key;	
+	
+}
+
+/** Encodes the given public key
+	@param public_key A pointer to the EVP_PKEY public key to encode
+	@param dest A pointer to the string to store the encoded key in
+	@param The length of the endoed key
+*/
+
+int client_encode_public_key(EVP_PKEY* public_key, char** dest) {
+	printf("Encoding a key \n");
+	*dest = (char*) malloc(Base64encode_len(sizeof(EVP_PKEY)));
+	
+	printf("Encoded key %x\n", *dest);
+	int len = Base64encode(*dest, (unsigned char*) public_key, sizeof(EVP_PKEY));
+	printf("Encoded len %d \n", len);
+	printf("Encoded: |%s|\n", *dest);
+	return len;	
 }
 
