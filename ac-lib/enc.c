@@ -137,7 +137,7 @@ EVP_PKEY* client_open_priv_key(char* file_path) {
 	}	
 	
 	//file is open lets read it into an EVP_PKEY
-	EVP_PKEY* pkey = (EVP_PKEY*) malloc(sizeof(EVP_PKEY));
+	EVP_PKEY* pkey = NULL;
 	if (!PEM_read_PrivateKey(fp, &pkey, NULL, NULL)) {
 		printf("Failed to load private key \n");
 	}
