@@ -97,9 +97,14 @@ EVP_PKEY* client_open_pub_key(char* file_path) {
 	}	
 	
 	//file is open lets read it into an EVP_PKEY
-	EVP_PKEY* pkey = (EVP_PKEY*) malloc(sizeof(EVP_PKEY));
-	RSA* rsa_key = PEM_read_RSA_PUBKEY(fp, NULL, 0, NULL);
+	EVP_PKEY* pkey = NULL;
+	//printf("Loading public key! \n");
+	if (!PEM_read_PUBKEY(fp, &pkey, NULL, NULL)) {
+		printf("Error loading public key \n");
+	}
+	//RSA* rsa_key = PEM_read_RSA_PUBKEY(fp, NULL, 0, NULL);
 	
+	/*
 	if (rsa_key == NULL || pkey == NULL) {
 		//error creating reading key from file, or malloc failed
 		return NULL;
@@ -109,6 +114,7 @@ EVP_PKEY* client_open_pub_key(char* file_path) {
 		//error setting pkey.
 		return NULL;
 	}
+	*/
 	
 	int res = fclose(fp);
 	
@@ -132,7 +138,11 @@ EVP_PKEY* client_open_priv_key(char* file_path) {
 	
 	//file is open lets read it into an EVP_PKEY
 	EVP_PKEY* pkey = (EVP_PKEY*) malloc(sizeof(EVP_PKEY));
-	RSA* rsa_key = PEM_read_RSAPrivateKey(fp, NULL, 0, NULL);
+	if (!PEM_read_PrivateKey(fp, &pkey, NULL, NULL)) {
+		printf("Failed to load private key \n");
+	}
+	
+	/*RSA* rsa_key = PEM_read_RSAPrivateKey(fp, NULL, 0, NULL);
 	
 	if (rsa_key == NULL || pkey == NULL) {
 		//error creating reading key from file, or malloc failed
@@ -143,7 +153,7 @@ EVP_PKEY* client_open_priv_key(char* file_path) {
 		//error setting pkey.
 		return NULL;
 	}
-	
+	*/
 	int res = fclose(fp);
 	
 	return pkey;
