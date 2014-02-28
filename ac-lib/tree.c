@@ -15,20 +15,22 @@ int compareNodes(node* uno, node* dos){
 int addConnection(node* uno, node* dos){
 	//add dos to uno
 	//allocate space to uno->connections if necessary
-	
-	printf("%d\n", dos->numConnections);
+	printf("Pointer uno: %p\n", uno);
+	printf("Pointer dos: %p\n", dos);
+
+	if(uno == dos){//can't connect to self
+		return 1;
+	}
 	
 	uno->connections =  realloc(uno->connections, sizeof(node)*(uno->numConnections + 1));
 	//add pointer to dos at end
 	uno->connections[uno->numConnections] = dos;
 	//increase uno's counter
 	uno->numConnections = uno->numConnections +1;
-					printf("PingA!\n");
 
 	//add uno to dos
 	dos->connections = realloc(dos->connections, sizeof(node)*(dos->numConnections + 1));
 	//add pointer to dos at end
-	printf("PingB!\n");
 	dos->connections[dos->numConnections] = uno;
 	//increase uno's counter
 	
@@ -42,7 +44,7 @@ int addConnection(node* uno, node* dos){
 
 node* combineNodesToGraph(node* group[], int minConnections, int size){
 	if(size == 1){
-		printf("Ping!!\n");
+		
 		//do nothing
 	}
 	else if(size < (minConnections - 1)){
@@ -50,19 +52,27 @@ node* combineNodesToGraph(node* group[], int minConnections, int size){
 		
 		int count;
 		for(count = 0; count < size; count++){
+		printf("Count %d\n", count);
 		//add connection with * minConnections like so
 		//1. connect to next cieling(minConnections/4) in array 
 		//this creates a looping effect when completed, so all nodes will be halfway done
 			int sub;
-			for(sub = 1; sub <= minConnections; sub++){
-				printf("size %d\n", size);
+			int target;
+			if(size < minConnections){
+				target = size;
+			}
+			else{
+				target = minConnections;
+			}
+			for(sub = 1; sub < target; sub++){
+				printf("Sub %d\n", sub);
 			//	printf("%d\n",  (group[0+sub])->numConnections);
-				if(count + sub > size){
-					printf("%p\n", group[0+sub]);
+				if(count + sub >= size){
+					printf("No Loop\n");
 					addConnection(group[count], group[0+sub]);
 				}
 				else{
-					printf("%p\n", group[count+sub]);
+					printf("Loop\n");
 					addConnection(group[count], group[count+sub]);
 					
 				}

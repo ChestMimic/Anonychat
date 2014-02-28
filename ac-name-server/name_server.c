@@ -174,6 +174,7 @@ void client_send_peers(client* client_o, node* graph) {
 	printf("Message to send: %s \n", msg);
 	
 	server_send_message(client_o->socket_fd, msg, strlen(msg));
+	
 
 }
 
@@ -409,13 +410,10 @@ void manage_graph(){
 	//Part 3: Send out results to nodes
 	//for every client
 	here = client_list->head;
-	
+	printf("Connections at head %d\n", graph->numConnections);
 	
 	while(here != NULL){
 		//find node that matches client first
-		
-		
-		
 		list* queue;
 		queue = list_create();//queue for breadth first search
 		list* sight = list_create();//set of seen elements
@@ -425,7 +423,7 @@ void manage_graph(){
 		
 		while(queue->size > 0){
 			//dequeue head of queue
-			target =   (node * ) list_item_at(queue, 0);
+			target =   list_item_at(queue, 0);
 			list_remove(queue, target);
 			
 			//is head what we want?
@@ -434,14 +432,14 @@ void manage_graph(){
 				break;
 			}else{//no->continue
 				
-				int j = (target->numConnections);
+				int j = 0;
 			
-				for( ; j > 0; j--){//for all edges to "graph"
+				for( ; j < target->numConnections; j++){//for all edges to "graph"
 					//is edge seen?
-					
+					printf("Target: %d\n", target->numConnections);
 					if(list_contains(sight, target->connections[j])){
-						//do nothing
-						
+						//do nothing, we found it
+						printf("Found\n");
 					}
 					else{
 						
