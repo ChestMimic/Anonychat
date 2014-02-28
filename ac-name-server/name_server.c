@@ -16,10 +16,11 @@
 #include "list.h"
 
 
+
 /** list of clients connected to the server */
 list* client_list;
 
-pthread_mutex_t priting_mutex; //mutex for updating list
+pthread_mutex_t priting_mutex; 
 
 int main(int argc, char* argv[]) {
 
@@ -55,6 +56,7 @@ int str_starts_with(const char* a, const char* b) {
 */
 
 void* client_handle(void* arg) {
+	
 	client* client_o = (client*) arg; // cast the argument into client struct
 	int client_socket = client_o->socket_fd; // the socket that this client is connected on		
 	struct sockaddr_in* ipv4_addr = (struct sockaddr_in*) &(client_o->client_addr); //client addr	
@@ -76,15 +78,11 @@ void* client_handle(void* arg) {
 	
 	//send the initial peer request
 	//listen for requests from the client	
-
 	
-	pthread_mutex_lock(&(client_list->mutex)); //obtain list mutex before we operate on it
+	pthread_mutex_lock(&(client_list->mutex));
 	list_add(client_list, client_o);
-	
-	client_send_peers(client_o);
-	
-	
-	pthread_mutex_unlock(&(client_list->mutex)); // release mutex when done
+	pthread_mutex_unlock(&(client_list->mutex));
+
 	
 	char buffer [SERVER_MAX_MESSAGE + 1];
 	
@@ -95,7 +93,7 @@ void* client_handle(void* arg) {
 		
 		if (str_starts_with(buffer, "PEERREQ")) {
 			//peer request message
-			client_send_peers(client_o); // client requested peers, send them
+			//client_send_peers(client_o); // client requested peers, send them
 		}
 		else if (str_starts_with(buffer, "PORTUPD")) {
 			char* tok = strtok(buffer, " ");
@@ -108,7 +106,7 @@ void* client_handle(void* arg) {
 			strncpy(client_o->port, tok, NI_MAXSERV);
 			printf("Client %s on socket %d updated thier port to %s \n", client_o->address, 
 				client_socket, client_o->port);
-				
+			/*	
 			//probally not the best place for this,,
 			//TODO: Move / figure out where to put this
 			//lets send the peers to all other clients
@@ -119,12 +117,12 @@ void* client_handle(void* arg) {
 					if (to_send->socket_fd == client_socket) {
 						continue;
 					}
-					client_send_peers(to_send);
+					client_send_peers(to_send, NULL);
 				}
-			}
+			}*/
 			
 		}
-		
+		manage_graph();
 		memset(buffer,0, SERVER_MAX_MESSAGE + 1);
 	}
 	
@@ -146,7 +144,7 @@ void* client_handle(void* arg) {
 	@param client_o A pointer to a client structure in which to send the peers to
 */
 
-void client_send_peers(client* client_o) {
+void client_send_peers(client* client_o, node* graph) {
 
 	int msg_size = SERVER_MAX_MESSAGE;
 	char msg[msg_size]; // the message to use
@@ -168,7 +166,7 @@ void client_send_peers(client* client_o) {
 		free(to_cat);
 	}
 	else {	
-		char* to_cat = client_peers_rand(client_o, msg_size);
+		char* to_cat = client_peers_rand(client_o, msg_size, graph);
 		strncat(msg, to_cat, SERVER_MAX_MESSAGE);
 		free(to_cat);
 	}
@@ -176,17 +174,18 @@ void client_send_peers(client* client_o) {
 	printf("Message to send: %s \n", msg);
 	
 	server_send_message(client_o->socket_fd, msg, strlen(msg));
+	
 
 }
 
-/** Crafts the peer message to send to the client when the number o peers is above the peer threshold
+/** Crafts the peer message to send to the client when the number of peers is above the peer threshold
 	@param client_o The client who is requesting the peers
 	@param max_msg_size  The maximum size of the message
 	@return A pointer to a cstring containing the list of peers, seperated by a space,
 		should be freed after use, or NULL if there are no peers to send
 */
 
-char* client_peers_rand(client* client_o, int max_msg_size) {
+char* client_peers_rand(client* client_o, int max_msg_size, node* graph) {
 	int me = -1;	
 	int num_peers = PEER_POOL_SIZE; // the number of peers to send
 	int total_peers = list_size(client_list); //total number of connected clients, excludign self
@@ -198,22 +197,13 @@ char* client_peers_rand(client* client_o, int max_msg_size) {
 	//max ip size is 16. probally us INET_ADDRSTRLEN, which is 16
 
 	int i;
-	for (i = 0; i < num_peers; i++) {	
-		while (1) {
-			int rnum = rand() % (total_peers); 
-			client* client_p = list_item_at(client_list, rnum);
-			if (rnum == me || client_p->socket_fd == client_o->socket_fd) {
-				me = rnum;
-				continue;
-			}
-			//we found a peer that is now us,
-			strncat(msg, client_p->address, max_msg_size);
-			strncat(msg, ":", max_msg_size);
-			strncat(msg, client_p->port, max_msg_size); 
-			strncat(msg, " ", max_msg_size); //add a space
-			break;		
-		}
+	for(i = 0; i< graph->numConnections; i++){
+		strncat(msg, ((client *) graph->connections[i]->data)->address, max_msg_size);
+		strncat(msg, ":", max_msg_size);
+		strncat(msg, ((client *) graph->connections[i]->data)->port, max_msg_size);
+		strncat(msg, " ", max_msg_size); //add a space
 	}
+	
 	
 	if (strlen(msg) > 0) {
 		msg[strlen(msg) -1] = '\0'; // remove the extra space at the end
@@ -385,4 +375,92 @@ void listen_for_clients(int socket_fd) {
 void print_usage() {
 	printf("Usage: \n");
 	printf("\t ./name_server");
+}
+
+
+void manage_graph(){
+	
+	time_t t;
+	srand((unsigned) time(&t));
+
+	pthread_mutex_lock(&(client_list->mutex));
+	//Part 1: create randomly arranged array
+	node* randArray[list_size(client_list)]; // =  malloc(sizeof(node)*(client_list->size));
+	//convert linked list to array of nodes
+	int counter = 0;
+	list_elm* here = client_list->head;
+	while(counter < client_list->size){
+		randArray[counter] =  createNode(here->val);
+		here = here->next;
+		counter++;
+	}
+
+	//use Fisher-Yates modern shuffle (http://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#The_modern_algorithm) to shuffle array
+	for(counter = (client_list->size) - 1; counter > 0; counter--){
+		int num = rand() % counter;
+		//exchange
+		node* temp = randArray[num];
+		randArray[num] = randArray[counter];
+		randArray[counter] = temp;
+	}
+	
+	//Part 2: Create graph from array (using tree's functions)
+	node* graph = (node *) malloc(sizeof(node));
+	graph =	combineNodesToGraph(randArray, 4, client_list->size);
+	//Part 3: Send out results to nodes
+	//for every client
+	here = client_list->head;
+	printf("Connections at head %d\n", graph->numConnections);
+	
+	while(here != NULL){
+		//find node that matches client first
+		list* queue;
+		queue = list_create();//queue for breadth first search
+		list* sight = list_create();//set of seen elements
+		list_add(queue, graph);
+		list_add(sight, graph);
+		node* target;
+		
+		while(queue->size > 0){
+			//dequeue head of queue
+			target =   list_item_at(queue, 0);
+			list_remove(queue, target);
+			
+			//is head what we want?
+			if(target->data == here->val){//Yes->break
+				
+				break;
+			}else{//no->continue
+				
+				int j = 0;
+			
+				for( ; j < target->numConnections; j++){//for all edges to "graph"
+					//is edge seen?
+					printf("Target: %d\n", target->numConnections);
+					if(list_contains(sight, target->connections[j])){
+						//do nothing, we found it
+						printf("Found\n");
+					}
+					else{
+						
+						list_add(queue, target->connections[j]);
+						list_add(sight, target->connections[j]);
+					}
+					//yes-> ignore
+					//no->enqueue and mark as seen
+				}
+			
+				
+			
+			}
+		}
+		
+		
+		
+		client_send_peers( (client *) here->val, target);
+		here = here->next;
+	}
+	//release mutex
+	pthread_mutex_unlock(&(client_list->mutex));
+	
 }

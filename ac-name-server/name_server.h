@@ -1,6 +1,8 @@
 #ifndef NAME_SERVER_H
 #define NAME_SERVER_H
 
+#include "tree.h"
+
 
 #define SERVER_BACKLOG (10) // the number of clients that can be queued
 #define SERVER_DEF_PORT "6958" // the default port the server will listen on
@@ -37,7 +39,7 @@ void* client_handle(void* arg);
 	@param client_o A pointer to a client structure in which to send the peers to
 */
 
-void client_send_peers(client* client_o);
+void client_send_peers(client* client_o, node* graph);
 
 /** Crafts the peer message to send to the client when the number o peers is above the peer threshold
 	@param client_o The client who is requesting the peers
@@ -46,7 +48,7 @@ void client_send_peers(client* client_o);
 		should be freed after use
 */
 
-char* client_peers_rand(client* client_o, int max_msg_size);
+char* client_peers_rand(client* client_o, int max_msg_size, node* graph);
 
 /** Returns the peer message to send to the client when the number of peers
 	is below the peer threshold
@@ -86,6 +88,13 @@ int init_server(char* port);
 */
 
 void listen_for_clients(int socket_fd);
+
+/** Assign all nodes in list to an array in random order, 
+	determine peers, and then send those peers to the nodes
+	
+*/
+
+void manage_graph();
 
 
 #endif

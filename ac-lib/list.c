@@ -109,3 +109,18 @@ list* list_create() {
 	pthread_mutex_init(&(list_o->mutex), NULL);
 	return list_o;
 }
+
+int list_contains(list* lst, void* val){
+	
+	list_elm* spot = lst->head;
+	while(spot != NULL){
+		if(spot->val == val){
+			return 1;
+		}
+		else{
+			spot = spot->next;
+		}
+	}
+	return 0;
+
+}

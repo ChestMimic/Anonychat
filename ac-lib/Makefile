@@ -13,7 +13,7 @@ list.o: list.c list.h
 	$(CC) -c list.c
 
 tree.o: tree.c tree.h
-	$(CC) -c tree.c
+	$(CC) -c tree.c -lm
 	
 enc.o: enc.c enc.h msg.h
 	$(CC) -c enc.c

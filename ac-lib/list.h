@@ -64,4 +64,6 @@ void* list_item_at(list* list, int pos);
 */
 list* list_create();
 
+int list_contains(list* lst, void* val);
+
 #endif

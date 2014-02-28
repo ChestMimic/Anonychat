@@ -152,10 +152,9 @@ int init_server(peer_server_o* peer_server);
 /** Initializes the lib crypto context, the rsa encryption context
 		and loads the public / private keys into memory
 	@param private_key_name The name of the private key to load
-	@param peer_key_name The name of the peer key to load
 */
 
-void init_crypto(char* private_key_name, char* peer_key_name);
+void init_crypto(char* private_key_name);
 
 /** Loads the public keys to be used for encrypting messages
 
