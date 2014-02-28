@@ -384,12 +384,12 @@ void manage_graph(){
 
 	pthread_mutex_lock(&(client_list->mutex));
 	//Part 1: create randomly arranged array
-	node* randArray = malloc(sizeof(node)*(client_list->size));
+	node* randArray[list_size(client_list)]; // =  malloc(sizeof(node)*(client_list->size));
 	//convert linked list to array of nodes
 	int counter = 0;
 	list_elm* here = client_list->head;
 	while(counter < client_list->size){
-		randArray[counter] = *(node *) createNode(here->val);
+		randArray[counter] =  createNode(here->val);
 		here = here->next;
 		counter++;
 	}
@@ -398,14 +398,14 @@ void manage_graph(){
 	for(counter = (client_list->size) - 1; counter > 0; counter--){
 		int num = rand() % counter;
 		//exchange
-		node temp = randArray[num];
+		node* temp = randArray[num];
 		randArray[num] = randArray[counter];
 		randArray[counter] = temp;
 	}
 	
 	//Part 2: Create graph from array (using tree's functions)
-	node* graph = malloc(sizeof(graph));
-	graph =	combineNodesToGraph(&randArray, 4, client_list->size);
+	node* graph = (node *) malloc(sizeof(node));
+	graph =	combineNodesToGraph(randArray, 4, client_list->size);
 	//Part 3: Send out results to nodes
 	//for every client
 	here = client_list->head;
@@ -415,6 +415,7 @@ void manage_graph(){
 		//find node that matches client first
 		
 		
+		
 		list* queue;
 		queue = list_create();//queue for breadth first search
 		list* sight = list_create();//set of seen elements
@@ -422,9 +423,9 @@ void manage_graph(){
 		list_add(sight, graph);
 		node* target;
 		
-		while(queue->size > 0){
+		while(queue->size > 0){printf("Ping\n");
 			//dequeue head of queue
-			target = (node* ) list_item_at(queue, 0);
+			target =   (node * ) list_item_at(queue, 0);
 			list_remove(queue, target);
 			
 			//is head what we want?
@@ -433,13 +434,14 @@ void manage_graph(){
 				break;
 			}else{//no->continue
 				
-				int j = target->numConnections;
+				int j = (target->numConnections);
+			
 				for( ; j > 0; j--){//for all edges to "graph"
 					//is edge seen?
-					printf("%d\n", target->numConnections);
+					
 					if(list_contains(sight, target->connections[j])){
 						//do nothing
-						printf("Ping!!\n");
+						
 					}
 					else{
 						

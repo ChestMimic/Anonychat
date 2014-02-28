@@ -16,18 +16,24 @@ int addConnection(node* uno, node* dos){
 	//add dos to uno
 	//allocate space to uno->connections if necessary
 	
+	printf("%d\n", dos->numConnections);
+	
 	uno->connections =  realloc(uno->connections, sizeof(node)*(uno->numConnections + 1));
 	//add pointer to dos at end
 	uno->connections[uno->numConnections] = dos;
 	//increase uno's counter
 	uno->numConnections = uno->numConnections +1;
+					printf("PingA!\n");
 
 	//add uno to dos
-	dos->connections = realloc(dos->connections, sizeof(node)*(dos->numConnections + 1));printf("PingAdd!\n");
+	dos->connections = realloc(dos->connections, sizeof(node)*(dos->numConnections + 1));
 	//add pointer to dos at end
+	printf("PingB!\n");
 	dos->connections[dos->numConnections] = uno;
 	//increase uno's counter
+	
 	dos->numConnections = dos->numConnections +1;
+					
 
 	return 0;
 }
@@ -48,12 +54,17 @@ node* combineNodesToGraph(node* group[], int minConnections, int size){
 		//1. connect to next cieling(minConnections/4) in array 
 		//this creates a looping effect when completed, so all nodes will be halfway done
 			int sub;
-			for(sub = 0; sub < minConnections; sub++){
-				if(count + sub == size){
-					addConnection(group[count], group[1+sub]);
+			for(sub = 1; sub <= minConnections; sub++){
+				printf("size %d\n", size);
+			//	printf("%d\n",  (group[0+sub])->numConnections);
+				if(count + sub > size){
+					printf("%p\n", group[0+sub]);
+					addConnection(group[count], group[0+sub]);
 				}
 				else{
+					printf("%p\n", group[count+sub]);
 					addConnection(group[count], group[count+sub]);
+					
 				}
 			}
 			
