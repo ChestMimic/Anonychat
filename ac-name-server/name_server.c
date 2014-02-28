@@ -423,7 +423,7 @@ void manage_graph(){
 		list_add(sight, graph);
 		node* target;
 		
-		while(queue->size > 0){printf("Ping\n");
+		while(queue->size > 0){
 			//dequeue head of queue
 			target =   (node * ) list_item_at(queue, 0);
 			list_remove(queue, target);
