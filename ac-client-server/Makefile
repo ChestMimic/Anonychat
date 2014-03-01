@@ -9,7 +9,7 @@ GCC=gcc $(CFLAGS) $(INC)
 all: client_server enc-test
 
 enc-test: enc-test.o $(OBJECTS) key_table.o
-	$(GCC) -g enc-test.o key_table.o $(OBJECTS) -o test -lcrypto -lssl -ldl -lglib-2.0 
+	$(GCC) -g enc-test.o key_table.o $(OBJECTS) -o enc-test -lcrypto -lssl -ldl -lglib-2.0 
 
 client_server: thread_util.o client_server.o key_table.o msg-test.o $(OBJECTS)
 	$(GCC) -lpthread -g thread_util.o client_server.o key_table.o msg-test.o $(OBJECTS) -o client_server -lssl -lcrypto -lglib-2.0 -ldl
@@ -30,4 +30,4 @@ key_table.o: key_table.c key_table.h
 	$(GCC) -c key_table.c
 
 clean:
-	rm  -f *.o client_server test
+	rm  -f *.o client_server enc-test

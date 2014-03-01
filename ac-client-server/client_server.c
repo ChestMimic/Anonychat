@@ -14,6 +14,7 @@
 #include       "client_server.h"
 #include       "enc.h"
 #include       "key_table.h"
+#include       "msg-test.h"
 
 
 #define BUFFER_SIZE 1500
@@ -25,6 +26,8 @@
 
 #define PEER_REQUEST_PUB_KEY_MSG "REQPUBKEY"
 #define PEER_PUB_KEY_MSG "PUBKEY "
+
+#define TEST_RTT
 
 // List of peers for a client
 list* peer_list;
@@ -268,6 +271,7 @@ int main (int argc, char **argv) {
 	// Initialize the crypto + public keys
 	init_crypto(private_key_name);
 
+	node_name = strtok(private_key_name, ".");
 	
 	name_server_o name_server;
 	strncpy(name_server.address, address_name_server, NI_MAXHOST);
@@ -297,8 +301,16 @@ int main (int argc, char **argv) {
 	
 	//start user input now
 	pthread_t user_input_thread;
-	pthread_create(&user_input_thread, NULL, &input_handle, NULL);
 	
+#ifdef TEST_RTT
+	pthread_create(&user_input_thread, NULL, &input_handle_rtt, NULL);
+#elif TEST_UTIL
+	pthread_create(&user_input_thread, NULL, &input_handle_util, NULL);
+#elif TEST_SCALE
+	pthread_create(&user_input_thread, NULL, &input_handle_scale, NULL);
+#else
+	pthread_create(&user_input_thread, NULL, &input_handle, NULL);
+#endif
 	//TODO: for now, no message purging
 	//start message purging thread
 	//pthread_t msg_purge_thread;
@@ -369,7 +381,16 @@ void* client_handle(void* arg) {
 		buffer[res] = '\0'; //add a null terminator just in case		
 		printf("Received: a msg from client: %d \n", client->client_id);		
 		
+		
+	#ifdef TEST_RTT
+		client_parse_msg_rtt(buffer, res);
+	#elif TEST_SCALE
+		client_parse_msg_scale(buffer, res);
+	#elif TEST_UTIL
 		client_parse_msg(buffer, res);
+	#else
+		client_parse_msg(buffer, res);
+	#endif
 	}
 	
 	printf("Disconnected from client: %d \n", client->client_id);

@@ -57,8 +57,10 @@ void* input_handle_rtt(void* arg) {
 		time_val time;
 		gettimeofday(&time, NULL);		
 		
+		int node_num = rand() % 2 + 1; // 1 -2
+		
 		double time_milli = get_time_in_milli(&time);
-		snprintf(time_msg, 70, "%s:%f", node_name, time_milli);	
+		snprintf(time_msg, 70, "node%d:%s %f",node_num, node_name, time_milli);	
 		//TODO: Prolly add our node name, aka node1
 		input_send_msg(time_msg, strlen(time_msg));
 		sleep(10); // sleep for 10 seconds
@@ -120,8 +122,10 @@ void* input_handle_scale(void* arg) {
 		time_val time;
 		gettimeofday(&time, NULL);		
 		
+		int node_num = rand() % 2 + 1; // 1 -2
+		
 		double time_milli = get_time_in_milli(&time);
-		snprintf(time_msg, 70, "%s:%f", node_name, time_milli);	
+		snprintf(time_msg, 70, "node%d:%s %f", node_num, node_name, time_milli);	
 		//TODO: Prolly add our node name, aka node1
 		input_send_msg(time_msg, strlen(time_msg));
 		sleep(10); // sleep for 10 seconds
@@ -165,15 +169,15 @@ int client_parse_msg_rtt(char* msg, int len) {
 		time_val time;
 		gettimeofday(&time, NULL);	
 		
-		char* node_from = strtok(decoded_msg, ":");
-		char* str_start_time = strtok(NULL, ":");
+		char* node_from = strtok(decoded_msg, " ");
+		char* str_start_time = strtok(NULL, " ");
 			
 		double time_milli = get_time_in_milli(&time);
 		double start_time = atof(str_start_time);
 		
 		double rtt = time_milli - start_time;
 		
-		printf("RTT from %s to %s : %f\n", node_from, node_name, rtt);
+		printf("RTT from %s to %s : %fms\n", node_from, node_name, rtt);
 
 	}
 	else {
@@ -220,8 +224,8 @@ int client_parse_msg_scale(char* msg, int len) {
 		time_val time;
 		gettimeofday(&time, NULL);	
 		
-		char* node_from = strtok(decoded_msg, ":");
-		char* str_start_time = strtok(NULL, ":");
+		char* node_from = strtok(decoded_msg, " ");
+		char* str_start_time = strtok(NULL, " ");
 			
 		double time_milli = get_time_in_milli(&time);
 		double start_time = atof(str_start_time);
