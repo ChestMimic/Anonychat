@@ -1,4 +1,6 @@
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <pthread.h>
 
 #include "client.h"
@@ -18,8 +20,7 @@ void add_connection_client(client* a, client* b) {
 	@param client_list The list containing all of the connected clients
 */
 
-void create_connection_graph(list* client_list) {
-	
+void create_connection_graph(list* client_list) {		
 	int num_clients = list_size(client_list);
 	int i;
 	for (i=0; i < num_clients; i++) {
@@ -32,28 +33,27 @@ void create_connection_graph(list* client_list) {
 		
 		//add all neighbors
 		
-		client* tar_client = list_item_at(client_list, fix_index(i + 1, num_clients));
+		client* tar_client = list_item_at(client_list, fix_index(i + 1, num_clients));		
 		add_connection_client(cur_client, tar_client);
 		
 		tar_client = list_item_at(client_list, fix_index(i + 2, num_clients));
 		add_connection_client(cur_client, tar_client);
 		
 		tar_client = list_item_at(client_list, fix_index(i - 1, num_clients));
-		add_connection_client(cur_client, tar_client);
+		add_connection_client(cur_client, tar_client);		
 		
 		tar_client = list_item_at(client_list, fix_index(i - 2, num_clients));
 		add_connection_client(cur_client, tar_client);
 		
 		//add client directly across in the ring
 		tar_client = list_item_at(client_list, 
-			fix_index(num_clients / 2, num_clients));
+			fix_index(i + num_clients / 2, num_clients));
 		add_connection_client(cur_client, tar_client);
 		
 		//unlock the list mutex
 		pthread_mutex_unlock(&(cur_client->connections->mutex));
 		
 	}
-
 }
 
 /** Adds all other clients to each client in the specified list
@@ -92,5 +92,9 @@ int fix_index(int index, int size) {
 	if (index >= size) {
 		index -= size;
 	}
+	if (index < 0) {
+		index = size + index;
+	}
+	
 	return index;
 }

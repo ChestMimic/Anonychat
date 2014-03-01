@@ -137,6 +137,7 @@ void* client_handle(void* arg) {
 */
 
 void client_update_peers() {
+	printf("Updating peers \n");
 	pthread_mutex_lock(&(client_list->mutex));
 	
 	if (list_size(client_list) < 6) {
@@ -169,8 +170,8 @@ void client_send_peers(client* client_o) {
 	
 	int i;
 	for (i=0; i < list_size(connection_list); i++) {
+
 		client* client_p = list_item_at(connection_list, i);
-		
 		strncat(msg, client_p->address, SERVER_MAX_MESSAGE);
 		strncat(msg, ":", SERVER_MAX_MESSAGE);
 		strncat(msg, client_p->port, SERVER_MAX_MESSAGE); 
