@@ -939,7 +939,7 @@ int client_parse_msg(char* msg, int len) {
 		printf("Received: %s\n", decoded_msg);
 	}
 	else {
-		printf("This message was not meant for me :( \n");
+		//printf("This message was not meant for me :( \n");
 	}
 }
 	

@@ -19,6 +19,9 @@
 #include "msg-test.h"
 #include "client_server.h"
 
+
+#define NUM_NODES 2
+
 extern int running;
 
 // the hash table that contains the public keys
@@ -57,7 +60,7 @@ void* input_handle_rtt(void* arg) {
 		time_val time;
 		gettimeofday(&time, NULL);		
 		
-		int node_num = rand() % 2 + 1; // 1 -2
+		int node_num = rand() % NUM_NODES + 1; // 1 -2
 		
 		double time_milli = get_time_in_milli(&time);
 		snprintf(time_msg, 70, "node%d:%s %f",node_num, node_name, time_milli);	
@@ -78,7 +81,7 @@ void* input_handle_rtt(void* arg) {
 void* input_handle_util(void* arg) {
 	//allocate space for the input buffer
 	
-	int node_num = 1;
+
 	
 	printf("Send a time message every 10 secconds \n");	
 	
@@ -87,6 +90,7 @@ void* input_handle_util(void* arg) {
 	while (running) {
 		
 		int random_len = rand() % 100 + 20; // random number from 20 - 120
+		int node_num = rand() % NUM_NODES + 1; // 1 -2
 		
 		char* random = (char*) malloc(random_len + 1);
 		str_rand(random, random_len);
@@ -122,7 +126,7 @@ void* input_handle_scale(void* arg) {
 		time_val time;
 		gettimeofday(&time, NULL);		
 		
-		int node_num = rand() % 2 + 1; // 1 -2
+		int node_num = rand() % NUM_NODES + 1; // 1 -2
 		
 		double time_milli = get_time_in_milli(&time);
 		snprintf(time_msg, 70, "node%d:%s %f", node_num, node_name, time_milli);	
