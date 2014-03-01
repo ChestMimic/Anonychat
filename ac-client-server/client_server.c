@@ -62,6 +62,8 @@ pthread_mutex_t pkht_mutex; // public key hash table mutex
 
 pthread_mutex_t mht_mutex; // message hash table mutex
 
+pthread_mutex_t sending_mutex; // mutex to lock before sending a message
+
 void print_usage() {
 	printf("Usage: \n");
 	printf("\t	client-server name-server-addr name-server-port peer-port" 
@@ -250,6 +252,7 @@ int main (int argc, char **argv) {
 	pthread_mutex_init(&printing_mutex, NULL);
 	pthread_mutex_init(&pkht_mutex, NULL);
 	pthread_mutex_init(&mht_mutex, NULL);
+	pthread_mutex_init(&sending_mutex, NULL);	
 	
 	//initialize peer_list
 	peer_list = list_create();
@@ -320,12 +323,15 @@ void* name_server_handle(void* arg) {
 		
 		//parse the peers message
 		if (str_starts_with(buffer, "PEERS ")) {
+			//lets lock sending messages while updating peers
+			pthread_mutex_lock(&sending_mutex);
 			parse_peers(peer_list, buffer + 6);
 			//we parsed the peers now lets connect
 			int failed = connect_to_peers(peer_list);
 			if (failed) {
 				printf("Failed to connect to %d peers \n", failed);
 			}
+			pthread_mutex_unlock(&sending_mutex);
 		}
 	}
 	
@@ -452,6 +458,7 @@ int parse_peers(list* peer_list, char* peer_msg) {
 	if (strlen(peer_msg) < 1) {
 		return 1; // no peers to parse
 	}
+	
 	//clean out the existing peers
 	clean_peers_list(peer_list);
 			
@@ -918,6 +925,8 @@ int client_parse_msg(char* msg, int len) {
 
 int client_send_to_all_peers(char* msg, int len) {
 	//now lets send the message to all our peers
+	//lock the sending mutex
+	pthread_mutex_lock(&sending_mutex);
 	pthread_mutex_lock(&(peer_list->mutex));		
 	int i;
 	for (i=0;i<list_size(peer_list); i++) {
@@ -939,6 +948,7 @@ int client_send_to_all_peers(char* msg, int len) {
 		}
 	}		
 	pthread_mutex_unlock(&(peer_list->mutex)); //unlock mutex
+	pthread_mutex_unlock(&sending_mutex);
 }
 
 /** Thread responsible for purging the msg hash table of old messages
