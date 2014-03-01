@@ -37,6 +37,9 @@ extern pthread_mutex_t mht_mutex; // message hash table mutex
 // The rsa struct for encryption
 extern rsa_ctx_o* rsa_encrypt_ctx;
 
+extern char* node_name;
+
+extern int messages_processed;
 
 /** Input handle function to be used by client_server, that will send the 
 		current time, for a RTT
@@ -44,19 +47,18 @@ extern rsa_ctx_o* rsa_encrypt_ctx;
 
 void* input_handle_rtt(void* arg) {
 	//allocate space for the input buffer
-	
-	int node_num = 1;
+
 	
 	printf("Send a time message every 10 secconds \n");	
 	
-	char* time_msg = (char*) malloc(50);
+	char* time_msg = (char*) malloc(70);
 	
 	while (running) {
 		time_val time;
 		gettimeofday(&time, NULL);		
 		
 		double time_milli = get_time_in_milli(&time);
-		snprintf(time_msg, 50, "node%d:%f", node_num, time_milli);	
+		snprintf(time_msg, 70, "%s:%f", node_name, time_milli);	
 		//TODO: Prolly add our node name, aka node1
 		input_send_msg(time_msg, strlen(time_msg));
 		sleep(10); // sleep for 10 seconds
@@ -82,10 +84,12 @@ void* input_handle_util(void* arg) {
 	
 	while (running) {
 		
-		char* random = (char*) malloc(151);
-		str_rand(random, 150);
+		int random_len = rand() % 100 + 20; // random number from 20 - 120
 		
-		snprintf(msg, 200, "node%d:%s", node_num, random);	
+		char* random = (char*) malloc(random_len + 1);
+		str_rand(random, random_len);
+		
+		snprintf(msg, random_len + 1, "node%d:%s", node_num, random);	
 		//TODO: Prolly add our node name, aka node1
 		input_send_msg(msg, strlen(msg));
 		
@@ -97,6 +101,35 @@ void* input_handle_util(void* arg) {
 	free(msg); // free the allocated memory
 	
 	return 0;	
+}
+
+/** Input handle function to be used by client_server, that will be used for
+		the scalability test.
+		
+		Have every clietn send a random message every 10 seccons
+*/
+
+void* input_handle_scale(void* arg) {
+	//allocate space for the input buffer
+	
+	printf("Send a time message every 10 secconds \n");	
+	
+	char* time_msg = (char*) malloc(70);
+	
+	while (running) {
+		time_val time;
+		gettimeofday(&time, NULL);		
+		
+		double time_milli = get_time_in_milli(&time);
+		snprintf(time_msg, 70, "%s:%f", node_name, time_milli);	
+		//TODO: Prolly add our node name, aka node1
+		input_send_msg(time_msg, strlen(time_msg));
+		sleep(10); // sleep for 10 seconds
+	}
+	
+	free(time_msg); // free the allocated memory
+	
+	return 0;		
 }
 
 /** Client parse msg function to print out the RTT
@@ -130,18 +163,84 @@ int client_parse_msg_rtt(char* msg, int len) {
 	
 	if (decoded_msg != NULL) {
 		time_val time;
-		gettimeofday(&time, NULL);		
+		gettimeofday(&time, NULL);	
+		
+		char* node_from = strtok(decoded_msg, ":");
+		char* str_start_time = strtok(NULL, ":");
+			
 		double time_milli = get_time_in_milli(&time);
-		double start_time = atof(decoded_msg);
+		double start_time = atof(str_start_time);
 		
 		double rtt = time_milli - start_time;
 		
-		printf("StartTime: %s RTT: %f \n", decoded_msg, rtt);
+		printf("RTT from %s to %s : %f\n", node_from, node_name, rtt);
 
 	}
 	else {
 		//printf("This message was not meant for me :( \n");
 	}
+}
+
+/** Client parse msg function to print out the RTT
+*/
+
+int client_parse_msg_scale(char* msg, int len) {
+	time_val start_time;
+	time_val end_time;
+	gettimeofday(&start_time, NULL); // starting time	
+
+	
+	messages_processed++;
+	//decrypt the message first.
+
+	
+	pthread_mutex_lock(&mht_mutex);
+	if (client_has_seen_msg(message_hash_table, msg)) {
+		//printf("We have seen this message before! \n");
+		pthread_mutex_unlock(&mht_mutex);
+		return 0;
+	}
+
+	
+	//add the message to the hash table
+	client_hash_add_msg(message_hash_table, msg);
+	
+	pthread_mutex_unlock(&mht_mutex);
+	//try to decode the message
+	
+	//send the message before we attempt to decrypt the message
+	//this should hide any possible timing differences between a sucessful or failed
+	//encryption.
+	client_send_to_all_peers(msg, len); // send orig, not decoded
+
+	//msg_decode_decrypt probally changes msg... 
+	char* decoded_msg = msg_decode_decrypt(msg,	rsa_encrypt_ctx, private_key);
+	
+	if (decoded_msg != NULL) {
+		time_val time;
+		gettimeofday(&time, NULL);	
+		
+		char* node_from = strtok(decoded_msg, ":");
+		char* str_start_time = strtok(NULL, ":");
+			
+		double time_milli = get_time_in_milli(&time);
+		double start_time = atof(str_start_time);
+		
+		double rtt = time_milli - start_time;
+		
+		printf("RTT from %s to %s : %f\n", node_from, node_name, rtt);
+
+	}
+	else {
+		//printf("This message was not meant for me :( \n");
+	}
+	
+	gettimeofday(&end_time, NULL); // starting time
+	
+	double msg_proc_time = get_timediff_milli(&start_time, &end_time);
+	printf("%s has processed message #%d, took %f ms \n", node_name, messages_processed,
+		msg_proc_time);
+	
 }
 
 /** Returns the time in milli seconds represented in the given time struct

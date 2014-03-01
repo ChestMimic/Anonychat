@@ -46,12 +46,17 @@ EVP_PKEY* private_key;
 EVP_PKEY* peer_private_key;
 EVP_PKEY* peer_public_key;
 
+/** The node name */
+char* node_name;
 
 //indicates whether or not we are still running
 int running = 1; 
 
 //counter for client ids
 int client_id = 0;
+
+// the number of messages processed
+int messages_processed = 0;
 
 // The rsa struct for encryption
 rsa_ctx_o* rsa_encrypt_ctx;
