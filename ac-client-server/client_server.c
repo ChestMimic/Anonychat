@@ -27,7 +27,7 @@
 #define PEER_REQUEST_PUB_KEY_MSG "REQPUBKEY"
 #define PEER_PUB_KEY_MSG "PUBKEY "
 
-#define TEST_RTT
+#define TEST_UTIL
 
 // List of peers for a client
 list* peer_list;
@@ -304,9 +304,9 @@ int main (int argc, char **argv) {
 	
 #ifdef TEST_RTT
 	pthread_create(&user_input_thread, NULL, &input_handle_rtt, NULL);
-#elif TEST_UTIL
+#elif defined(TEST_UTIL)
 	pthread_create(&user_input_thread, NULL, &input_handle_util, NULL);
-#elif TEST_SCALE
+#elif defined(TEST_SCALE)
 	pthread_create(&user_input_thread, NULL, &input_handle_scale, NULL);
 #else
 	pthread_create(&user_input_thread, NULL, &input_handle, NULL);
@@ -379,14 +379,14 @@ void* client_handle(void* arg) {
 	
 	while ( (res = recv(client->socket_fd, buffer, BUFFER_SIZE, 0))) {
 		buffer[res] = '\0'; //add a null terminator just in case		
-		printf("Received: a msg from client: %d \n", client->client_id);		
+		//printf("Received: a msg from client: %d \n", client->client_id);		
 		
 		
 	#ifdef TEST_RTT
 		client_parse_msg_rtt(buffer, res);
-	#elif TEST_SCALE
+	#elif defined(TEST_SCALE)
 		client_parse_msg_scale(buffer, res);
-	#elif TEST_UTIL
+	#elif defined(TEST_UTIL)
 		client_parse_msg(buffer, res);
 	#else
 		client_parse_msg(buffer, res);
@@ -878,7 +878,7 @@ int input_send_msg(char* input, int len) {
 	client_hash_add_msg(message_hash_table, padded_msg);	
 
 	if (client_has_seen_msg(message_hash_table, padded_msg)) {
-		printf("THE MESSAGE HAS BEEN PUT INTO THE HASH TABLE \n");
+		//printf("THE MESSAGE HAS BEEN PUT INTO THE HASH TABLE \n");
 	}	
 	
 	pthread_mutex_unlock(&mht_mutex);
