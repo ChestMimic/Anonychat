@@ -27,7 +27,7 @@
 #define PEER_REQUEST_PUB_KEY_MSG "REQPUBKEY"
 #define PEER_PUB_KEY_MSG "PUBKEY "
 
-#define TEST_UTIL
+#define TEST_SCALE
 
 // List of peers for a client
 list* peer_list;
@@ -57,9 +57,6 @@ int running = 1;
 
 //counter for client ids
 int client_id = 0;
-
-// the number of messages processed
-int messages_processed = 0;
 
 // The rsa struct for encryption
 rsa_ctx_o* rsa_encrypt_ctx;

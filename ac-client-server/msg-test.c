@@ -42,7 +42,8 @@ extern rsa_ctx_o* rsa_encrypt_ctx;
 
 extern char* node_name;
 
-extern int messages_processed;
+// the number of messages processed
+int messages_processed = 0;
 
 /** Input handle function to be used by client_server, that will send the 
 		current time, for a RTT
@@ -206,6 +207,14 @@ int client_parse_msg_scale(char* msg, int len) {
 	if (client_has_seen_msg(message_hash_table, msg)) {
 		//printf("We have seen this message before! \n");
 		pthread_mutex_unlock(&mht_mutex);
+		
+		gettimeofday(&end_time, NULL); // starting time
+	
+		double msg_proc_time = get_timediff_milli(&start_time, &end_time);
+	
+		printf("%s has processed message #%d, took %f ms \n", node_name, messages_processed,
+			msg_proc_time);
+		
 		return 0;
 	}
 
@@ -246,6 +255,7 @@ int client_parse_msg_scale(char* msg, int len) {
 	gettimeofday(&end_time, NULL); // starting time
 	
 	double msg_proc_time = get_timediff_milli(&start_time, &end_time);
+	
 	printf("%s has processed message #%d, took %f ms \n", node_name, messages_processed,
 		msg_proc_time);
 	
