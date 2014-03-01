@@ -17,6 +17,8 @@
 
 
 #define BUFFER_SIZE 1500
+#define MESSAGE_LENGTH 1350
+#define INPUT_BUFFER_SIZE 500
 
 #define PUBLIC_KEY_DIR "./pub_key/"
 #define PRIVATE_KEY_DIR "./priv_key/"
@@ -770,8 +772,8 @@ int connect_to_host(char* address, char* port) {
 
 void* input_handle(void* arg) {
 	//allocate space for the input buffer
-	char* input_buffer = (char*) malloc(BUFFER_SIZE);
-	size_t buffer_len = BUFFER_SIZE -1; // allow room for the \0
+	char* input_buffer = (char*) malloc(INPUT_BUFFER_SIZE);
+	size_t buffer_len = INPUT_BUFFER_SIZE -1; // allow room for the \0
 	
 	//let user know its time
 	printf("You are free to type messages! Format username (SPACE) message body \n");
@@ -816,21 +818,40 @@ int input_send_msg(char* input, int len) {
 		return 1;
 	}
 	
+	//lets start our padding.
+	int encoded_len = strlen(encoded_msg);
+	
+	char* padded_msg = malloc(MESSAGE_LENGTH);
+	strncpy(padded_msg, encoded_msg, MESSAGE_LENGTH);
+	
+	if (encoded_len < MESSAGE_LENGTH) {
+		//encoded msg is too small pad it
+		//it should never be larger. as input buffer wont allow it
+		int pad_len = MESSAGE_LENGTH - encoded_len - 1; //-1 for space		
+		char* pad_str = (char*) malloc(pad_len + 1);
+		str_rand(pad_str, pad_len);
+		
+		strncat(padded_msg, " ", 2); // add the space
+		strncat(padded_msg, pad_str, pad_len + 1);
+		
+		free(pad_str);	
+	}
+	free(encoded_msg);
+	
 	//add the message to our hash list before we send it
 	pthread_mutex_lock(&mht_mutex);
-	client_hash_add_msg(message_hash_table, encoded_msg);	
-	printf("HASHMSG: |%s|\n", encoded_msg);	
-	
-	if (client_has_seen_msg(message_hash_table, encoded_msg)) {
+	client_hash_add_msg(message_hash_table, padded_msg);	
+
+	if (client_has_seen_msg(message_hash_table, padded_msg)) {
 		printf("THE MESSAGE HAS BEEN PUT INTO THE HASH TABLE \n");
 	}	
 	
 	pthread_mutex_unlock(&mht_mutex);
 	
 	//send to all of our peers!
-	client_send_to_all_peers(encoded_msg, strlen(encoded_msg)); 
+	client_send_to_all_peers(padded_msg, strlen(padded_msg)); 
 	
-	free(encoded_msg); // free the message
+	free(padded_msg); // free the message
 	return 0; // we sent all the messages
 }
 
@@ -860,8 +881,8 @@ int client_parse_msg(char* msg, int len) {
 		pthread_mutex_unlock(&mht_mutex);
 		return 0;
 	}
-	printf("We have received a never before seen message! \n");
-	printf("RECVMSG: |%s|\n", msg);
+	//printf("We have received a never before seen message! \n");
+	//printf("RECVMSG: |%s|\n", msg);
 	//we havent seen the message, lets process it
 	
 	//add the message to the hash table
@@ -988,5 +1009,19 @@ int client_encode_public_key(EVP_PKEY* public_key, char** dest) {
 	printf("Encoded len %d \n", len);
 	printf("Encoded: |%s|\n", *dest);
 	return len;	
+}
+
+/** Creates a null terminated random string with the given length
+	@param A pointer to a string to put the random string in
+	@param len The length of the string to create
+*/
+
+void str_rand(char* dest, int len) {
+	int i;
+	
+	for(i = 0; i < len; i++) {
+		dest[i] = '0' + rand() % 72; // starting on '0', ending on '}'
+	}
+	dest[i] = '\0'; // add the null terminator
 }
 

@@ -218,4 +218,11 @@ void* client_purge_msg_hash(void* arg);
 
 EVP_PKEY* client_parse_public_key(char* encoded_key);
 
+/** Creates a null terminated random string with the given length
+	@param A pointer to a string to put the random string in
+	@param len The length of the string to create
+*/
+
+void str_rand(char* dest, int len);
+
 #endif
