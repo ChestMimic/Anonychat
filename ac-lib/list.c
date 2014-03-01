@@ -69,6 +69,17 @@ void* list_remove(list* list, void* val) {
 	return ret;
 }
 
+/** Removes all elements from the specified list
+	@param list The list to remove the elements from
+*/
+
+void list_remove_all(list* list) {
+	while (list_size(list) > 0) {
+		void* to_remove = list_item_at(list, 0);
+		list_remove(list, to_remove);
+	}
+}
+
 /** Returns the size of the list
 	@param list The list
 	@return The size of the list

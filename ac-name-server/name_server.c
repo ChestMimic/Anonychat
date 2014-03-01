@@ -11,8 +11,8 @@
 
 #include <pthread.h>
 
-
 #include "name_server.h"
+#include "client.h"
 #include "list.h"
 
 
@@ -108,20 +108,11 @@ void* client_handle(void* arg) {
 			strncpy(client_o->port, tok, NI_MAXSERV);
 			printf("Client %s on socket %d updated thier port to %s \n", client_o->address, 
 				client_socket, client_o->port);
-				
-			//probally not the best place for this,,
-			//TODO: Move / figure out where to put this
-			//lets send the peers to all other clients
-			if (list_size(client_list) <= PEER_POOL_SIZE) {
-				int i = 0;
-				for (i = 0; i < list_size(client_list); i++) {
-					client* to_send = (client*) list_item_at(client_list, i);
-					if (to_send->socket_fd == client_socket) {
-						continue;
-					}
-					client_send_peers(to_send);
-				}
-			}
+			
+			//client sent a port update.
+			//lets send a new peer list to all clients
+			client_update_peers();				
+	
 			
 		}
 		
@@ -142,122 +133,56 @@ void* client_handle(void* arg) {
 	return NULL;		
 }
 
-/** Creates a set of peers for the specified client, and sends them to the client
-	@param client_o A pointer to a client structure in which to send the peers to
+/** Re creates the peer graph, and seends a new peer message to all clients
+*/
+
+void client_update_peers() {
+	pthread_mutex_lock(&(client_list->mutex));
+	
+	if (list_size(client_list) < 6) {
+		create_connection_all(client_list);
+	}
+	else {
+		create_connection_graph(client_list);
+	}
+	
+	int i;
+	for (i = 0; i < list_size(client_list); i ++) {
+		client_send_peers( (client*) list_item_at(client_list ,i));
+	}
+	
+	pthread_mutex_unlock(&(client_list->mutex));
+}
+
+/** Creates the peer message for the specified client, and then sends the peer
+		message to that client
+	@param client_o The client to send the message to
 */
 
 void client_send_peers(client* client_o) {
-
-	int msg_size = SERVER_MAX_MESSAGE;
-	char msg[msg_size]; // the message to use
-	msg[0] = '\0'; // add the null byte
+	list* connection_list = client_o->connections;
+	
+	char* msg = (char*) malloc(SERVER_MAX_MESSAGE); //allocate space for the mesage
+	memset(msg, 0, SERVER_MAX_MESSAGE);
+	msg[0] = '\0';
 	strncat(msg, "PEERS ", SERVER_MAX_MESSAGE);
-	msg_size = msg_size - 2 - 6; // - 2 for CRLF, -6 for PEERS 
 	
-	int num_peers = PEER_POOL_SIZE; // the number of peers to send
-	int total_peers = list_size(client_list); //total number of connected clients, excludign self
-	
-	printf("num_peers: %d, total_peers: %d \n", num_peers, total_peers);
-	
-	if (num_peers > total_peers) {
-		char* to_cat = client_peers_static(client_o, msg_size);		
-		if (to_cat == NULL) {
-			return; // no peers to send
-		}
-		strncat(msg, to_cat, SERVER_MAX_MESSAGE);
-		free(to_cat);
+	int i;
+	for (i=0; i < list_size(connection_list); i++) {
+		client* client_p = list_item_at(connection_list, i);
+		
+		strncat(msg, client_p->address, SERVER_MAX_MESSAGE);
+		strncat(msg, ":", SERVER_MAX_MESSAGE);
+		strncat(msg, client_p->port, SERVER_MAX_MESSAGE); 
+		strncat(msg, " ", SERVER_MAX_MESSAGE); //add a space
 	}
-	else {	
-		char* to_cat = client_peers_rand(client_o, msg_size);
-		strncat(msg, to_cat, SERVER_MAX_MESSAGE);
-		free(to_cat);
+	
+	if (strlen(msg) > 0) {
+		msg[strlen(msg) -1] = '\0'; // remove the extra space at the end
 	}
 	
 	printf("Message to send: %s \n", msg);
-	
 	server_send_message(client_o->socket_fd, msg, strlen(msg));
-
-}
-
-/** Crafts the peer message to send to the client when the number o peers is above the peer threshold
-	@param client_o The client who is requesting the peers
-	@param max_msg_size  The maximum size of the message
-	@return A pointer to a cstring containing the list of peers, seperated by a space,
-		should be freed after use, or NULL if there are no peers to send
-*/
-
-char* client_peers_rand(client* client_o, int max_msg_size) {
-	int me = -1;	
-	int num_peers = PEER_POOL_SIZE; // the number of peers to send
-	int total_peers = list_size(client_list); //total number of connected clients, excludign self
-	
-	char* msg = (char*) malloc(max_msg_size); //allocate space for the mesage
-	memset(msg, 0, max_msg_size);
-	msg[0] = '\0';
-		
-	//max ip size is 16. probally us INET_ADDRSTRLEN, which is 16
-
-	int i;
-	for (i = 0; i < num_peers; i++) {	
-		while (1) {
-			int rnum = rand() % (total_peers); 
-			client* client_p = list_item_at(client_list, rnum);
-			if (rnum == me || client_p->socket_fd == client_o->socket_fd) {
-				me = rnum;
-				continue;
-			}
-			//we found a peer that is now us,
-			strncat(msg, client_p->address, max_msg_size);
-			strncat(msg, ":", max_msg_size);
-			strncat(msg, client_p->port, max_msg_size); 
-			strncat(msg, " ", max_msg_size); //add a space
-			break;		
-		}
-	}
-	
-	if (strlen(msg) > 0) {
-		msg[strlen(msg) -1] = '\0'; // remove the extra space at the end
-	}
-	
-	return msg;
-}
-
-/** Returns the peer message to send to the client when the number of peers
-	is below the peer threshold
-	@param client_o The client who is requesting the peers
-	@param max_msg_size  The maximum size of the message
-	@return A pointer to a cstring containing the list of peers, seperated by a space,
-		should be freed after use
-*/
-
-char* client_peers_static(client* client_o, int max_msg_size) {
-	char* msg = (char*) malloc(max_msg_size);
-	memset(msg, 0, max_msg_size);
-	msg[0] = '\0';
-	//if num peers is greater than total peers, we can just add the whole list
-	int total_peers = list_size(client_list);
-	
-	if (total_peers == 1) {
-		return NULL;
-	}
-	
-	int i;
-	for (i = 0; i <total_peers; i++) {
-		client* client_p = (client*)list_item_at(client_list, i);
-		if (client_p->socket_fd == client_o->socket_fd) {
-			continue;
-		}
-		//copy the ip address into the message
-		strncat(msg, client_p->address, max_msg_size);
-		strncat(msg, ":", max_msg_size);
-		strncat(msg, client_p->port, max_msg_size); 
-		strncat(msg, " ", max_msg_size); //add a space
-	}
-	if (strlen(msg) > 0) {
-		msg[strlen(msg) -1] = '\0'; // remove the extra space at the end
-		printf("Removing extra space at end \n");
-	}
-	return msg;
 }
 
 /** Sends the message in msg to the given socket
@@ -375,6 +300,7 @@ void listen_for_clients(int socket_fd) {
 		client_con->socket_fd = client_socket_fd;
 		client_con->client_addr = client_addr;	
 		client_con->client_thread = (pthread_t*) malloc(sizeof(pthread_t));		
+		client_con->connections = list_create();
 		//start the client thread	
 		pthread_create(client_con->client_thread, NULL, &client_handle, (void*) client_con);
 		

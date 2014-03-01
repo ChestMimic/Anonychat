@@ -8,6 +8,9 @@
 #include <openssl/evp.h>
 #include <pthread.h>
 
+#include "list.h"
+
+
 /** Struct representing a name server
 */
 
@@ -21,6 +24,20 @@ struct _name_server {
 
 typedef struct _name_server name_server_o;
 
+/** Struct representing a client connected as a peer
+*/
+
+struct _client {
+	int client_id; // the id of this client
+	int socket_fd; // the socket descriptor the client is connected on
+	int open_con; // 1 if there is an open connection, 0 if not
+	struct sockaddr_storage client_addr; // address of the client
+	pthread_t* handler_thread; // the thread to handle responses from clients
+	list* connections; //list of peers this client connects to
+};
+
+typedef struct _client client_o;
+
 /** Struct to represent the peer server
 */
 
@@ -32,19 +49,6 @@ struct _peer_server {
 };
 
 typedef struct _peer_server peer_server_o;
-
-/** Struct representing a client connected as a peer
-*/
-
-struct _client {
-	int client_id; // the id of this client
-	int socket_fd; // the socket descriptor the client is connected on
-	int open_con; // 1 if there is an open connection, 0 if not
-	struct sockaddr_storage client_addr; // address of the client
-	pthread_t* handler_thread; // the thread to handle responses from clients
-};
-
-typedef struct _client client_o;
 
 /** Prints the appropriate usage of this program
 */

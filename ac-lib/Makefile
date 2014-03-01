@@ -4,7 +4,10 @@ LIB=		$(shell pkg-config --libs glib-2.0)
 CC=			gcc $(CFLAGS)
 
 
-all: msg.o list.o enc.o base64.o tree.o
+all: msg.o list.o enc.o base64.o tree.o client.o
+
+client.o: client.c client.h
+	$(CC) -c client.c
 
 msg.o: msg.c msg.h
 	$(CC) -c msg.c 

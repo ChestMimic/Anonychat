@@ -43,6 +43,12 @@ int list_add(list* list, void* val);
 
 void* list_remove(list* list, void* val);
 
+/** Removes all elements from the specified list
+	@param list The list to remove the elements from
+*/
+
+void list_remove_all(list* list);
+
 
 /** Returns the size of the list
 	@param list The list

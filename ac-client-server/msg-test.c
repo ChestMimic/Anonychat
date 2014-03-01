@@ -182,7 +182,7 @@ int client_parse_msg_rtt(char* msg, int len) {
 		
 		double rtt = time_milli - start_time;
 		
-		printf("RTT from %s to %s : %fms\n", node_from, node_name, rtt);
+		printf("RTT from %s to %s : %f ms\n", node_from, node_name, rtt);
 
 	}
 	else {
@@ -245,7 +245,7 @@ int client_parse_msg_scale(char* msg, int len) {
 		
 		double rtt = time_milli - start_time;
 		
-		printf("RTT from %s to %s : %f\n", node_from, node_name, rtt);
+		printf("RTT from %s to %s : %f ms\n", node_from, node_name, rtt);
 
 	}
 	else {

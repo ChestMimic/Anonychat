@@ -27,7 +27,10 @@
 #define PEER_REQUEST_PUB_KEY_MSG "REQPUBKEY"
 #define PEER_PUB_KEY_MSG "PUBKEY "
 
+#define TEST
 #define TEST_SCALE
+
+#define STOP_AFTER_SECONDS (60 * 5)
 
 // List of peers for a client
 list* peer_list;
@@ -315,7 +318,13 @@ int main (int argc, char **argv) {
 	
 	//wait for the name server handler thread to finish.
 	//if it does, we will drop out, can't do much without the name server
+	
+#ifdef TEST
+	sleep(STOP_AFTER_SECONDS); // sleep for 5 minutes
+#else
 	pthread_join(*(name_server.name_thread), NULL);
+#endif
+	
 	running = 0;
 	
 	printf("We are exiting \n");
