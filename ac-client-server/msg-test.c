@@ -12,6 +12,7 @@
 #include <string.h>
 #include <sys/time.h>
 #include <math.h>
+#include <unistd.h>
 
 #include "list.h"
 #include "enc.h"
@@ -36,6 +37,7 @@ extern pthread_mutex_t mht_mutex; // message hash table mutex
 // The rsa struct for encryption
 extern rsa_ctx_o* rsa_encrypt_ctx;
 
+
 /** Input handle function to be used by client_server, that will send the 
 		current time, for a RTT
 */
@@ -55,12 +57,44 @@ void* input_handle_rtt(void* arg) {
 		
 		double time_milli = get_time_in_milli(&time);
 		snprintf(time_msg, 50, "node%d:%f", node_num, time_milli);	
-			
+		//TODO: Prolly add our node name, aka node1
 		input_send_msg(time_msg, strlen(time_msg));
 		sleep(10); // sleep for 10 seconds
 	}
 	
 	free(time_msg); // free the allocated memory
+	
+	return 0;	
+}
+
+/** Input handle function to be used by client_server, that will be used for
+		the network utilization test to send random messages at a random interval
+*/
+
+void* input_handle_util(void* arg) {
+	//allocate space for the input buffer
+	
+	int node_num = 1;
+	
+	printf("Send a time message every 10 secconds \n");	
+	
+	char* msg = (char*) malloc(200);
+	
+	while (running) {
+		
+		char* random = (char*) malloc(151);
+		str_rand(random, 150);
+		
+		snprintf(msg, 200, "node%d:%s", node_num, random);	
+		//TODO: Prolly add our node name, aka node1
+		input_send_msg(msg, strlen(msg));
+		
+		free(random);
+		int sleep_time = rand() % 30 + 6;
+		sleep(sleep_time); // sleep for 10 seconds
+	}
+	
+	free(msg); // free the allocated memory
 	
 	return 0;	
 }

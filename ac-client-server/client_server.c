@@ -227,6 +227,8 @@ void cleanup_crypto() {
 
 int main (int argc, char **argv) {
   
+	srand(time(NULL));
+  
 	char* address_name_server; // the address of the name server
 	char* port_name_server; // the port of the name server
 	char* port_peers; // the port to listen for peer connections on
