@@ -8,6 +8,8 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <time.h>
+#include <unistd.h>
+#include <math.h>
 
 #include <pthread.h>
 
@@ -20,6 +22,8 @@
 list* client_list;
 
 pthread_mutex_t priting_mutex; //mutex for updating list
+
+int peers_updated = 0;
 
 int main(int argc, char* argv[]) {
 
@@ -136,8 +140,13 @@ void* client_handle(void* arg) {
 /** Re creates the peer graph, and seends a new peer message to all clients
 */
 
-void client_update_peers() {
-	printf("Updating peers \n");
+void client_update_peers() {	
+	time_val start_time;
+	time_val end_time;
+	gettimeofday(&start_time, NULL); // starting time 
+	
+	peers_updated++;
+	
 	pthread_mutex_lock(&(client_list->mutex));
 	
 	if (list_size(client_list) < 6) {
@@ -153,6 +162,11 @@ void client_update_peers() {
 	}
 	
 	pthread_mutex_unlock(&(client_list->mutex));
+	
+	gettimeofday(&end_time, NULL);
+	double shuffle_time = get_timediff_milli(&start_time, &end_time);
+	printf("Reshuffled peer list %d time, took %f ms \n", peers_updated, shuffle_time);
+	
 }
 
 /** Creates the peer message for the specified client, and then sends the peer
@@ -314,4 +328,16 @@ void listen_for_clients(int socket_fd) {
 void print_usage() {
 	printf("Usage: \n");
 	printf("\t ./name_server");
+}
+
+
+/** Time difference in mill secconds
+*/
+
+double get_timediff_milli(time_val* start_time, time_val* end_time) {
+    long second_diff = end_time->tv_sec - start_time->tv_sec;
+    long micro_diff = end_time->tv_usec - start_time->tv_usec;
+    double time_in_seconds = second_diff + ((double)micro_diff * pow(10,-6));
+    double time_in_milli = time_in_seconds * pow(10,3);	
+    return time_in_milli;
 }

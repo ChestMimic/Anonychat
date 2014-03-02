@@ -13,6 +13,8 @@
 #define PEER_POOL_SIZE (5) // the default peer pool size to send to the client
 
 
+typedef struct timeval time_val;
+
 /** Prints the usage of this program
 */
 void print_usage();
@@ -63,6 +65,11 @@ int init_server(char* port);
 */
 
 void listen_for_clients(int socket_fd);
+
+/** Time difference in mill secconds
+*/
+
+double get_timediff_milli(time_val* start_time, time_val* end_time);
 
 
 #endif
