@@ -28,7 +28,7 @@
 #define PEER_PUB_KEY_MSG "PUBKEY "
 
 #define TEST
-#define TEST_UTIL
+#define TEST_SCALE
 
 #define STOP_AFTER_SECONDS (60 * 5)
 
