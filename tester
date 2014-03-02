@@ -10,7 +10,7 @@ for i in {1..6}
 do
 	echo $PORT
 	
-	./client_server 127.0.0.1 6958 $PORT node$i.pem > ../results/scale/node$i &
+	./client_server 192.168.1.160 6958 $PORT node$i.pem > ../results/scale/node$i &
 	#./client_server 127.0.0.1 6958 $PORT node$i.pem &
 	((PORT++))
 	sleep 1
