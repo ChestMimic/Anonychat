@@ -20,7 +20,7 @@
 #include "client_server.h"
 
 
-#define NUM_NODES 2
+#define NUM_NODES 6
 
 extern int running;
 
@@ -153,11 +153,10 @@ int client_parse_msg_rtt(char* msg, int len) {
 		//printf("We have seen this message before! \n");
 		pthread_mutex_unlock(&mht_mutex);
 		return 0;
-	}
-
-	
+	}	
 	//add the message to the hash table
 	client_hash_add_msg(message_hash_table, msg);
+	//printf("Added TO HASH %s \n", msg);
 	
 	pthread_mutex_unlock(&mht_mutex);
 	//try to decode the message
@@ -212,8 +211,10 @@ int client_parse_msg_scale(char* msg, int len) {
 	
 		double msg_proc_time = get_timediff_milli(&start_time, &end_time);
 	
-		printf("%s has processed message #%d, took %f ms \n", node_name, messages_processed,
-			msg_proc_time);
+		/*printf("%s has processed message #%d, took %f ms \n", node_name, messages_processed,
+			msg_proc_time);*/
+			
+		printf("%s has processed message %s \n", node_name, msg);
 		
 		return 0;
 	}
@@ -223,6 +224,8 @@ int client_parse_msg_scale(char* msg, int len) {
 	client_hash_add_msg(message_hash_table, msg);
 	
 	pthread_mutex_unlock(&mht_mutex);
+	
+	//printf("Added TO HASH %s \n", msg);
 	//try to decode the message
 	
 	//send the message before we attempt to decrypt the message

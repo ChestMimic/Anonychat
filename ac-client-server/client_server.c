@@ -313,8 +313,8 @@ int main (int argc, char **argv) {
 #endif
 	//TODO: for now, no message purging
 	//start message purging thread
-	//pthread_t msg_purge_thread;
-	//pthread_create(&msg_purge_thread, NULL, &client_purge_msg_hash, NULL);
+	pthread_t msg_purge_thread;
+	pthread_create(&msg_purge_thread, NULL, &client_purge_msg_hash, NULL);
 	
 	//wait for the name server handler thread to finish.
 	//if it does, we will drop out, can't do much without the name server
@@ -387,16 +387,21 @@ void* client_handle(void* arg) {
 		buffer[res] = '\0'; //add a null terminator just in case		
 		//printf("Received: a msg from client: %d \n", client->client_id);		
 		
+		//char* msg = (char*) malloc(res + 1);
+		//strncpy(msg, buffer, res + 1);
+		char* msg = buffer;
 		
 	#ifdef TEST_RTT
-		client_parse_msg_rtt(buffer, res);
+		client_parse_msg_rtt(msg, res);
 	#elif defined(TEST_SCALE)
-		client_parse_msg_scale(buffer, res);
+		client_parse_msg_scale(msg, res);
 	#elif defined(TEST_UTIL)
-		client_parse_msg(buffer, res);
+		client_parse_msg(msg, res);
 	#else
-		client_parse_msg(buffer, res);
+		client_parse_msg(msg, res);
 	#endif
+	
+		//free(msg);
 	}
 	
 	printf("Disconnected from client: %d \n", client->client_id);

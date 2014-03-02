@@ -101,7 +101,6 @@ void client_hash_free_key(gpointer key) {
 
 void client_hash_free_val(gpointer val) {
 	message_hash_o* msg_val = (message_hash_o*) val;
-	free(msg_val->msg); // free the cstring containing the msg
 	free(msg_val);
 }
 
@@ -119,7 +118,7 @@ void client_hash_add_msg(GHashTable* hash_table, char* msg) {
 	msg_val->purge_time = time(NULL) + MESSAGE_PURGE_TIME;
 	
 	//insert the value into the hash table
-	g_hash_table_insert(hash_table, msg, msg_val);	
+	g_hash_table_replace(hash_table, msg_val->msg, msg_val);	
 }
 
 /** Determines if the client has seen the message before
@@ -129,7 +128,7 @@ void client_hash_add_msg(GHashTable* hash_table, char* msg) {
 */
 
 int client_has_seen_msg(GHashTable* hash_table, char* msg) {
-	if (g_hash_table_lookup(hash_table, msg)) {
+	if (g_hash_table_lookup_extended(hash_table, msg, NULL, NULL)) {
 		return 1; // it is in the hash table, we've seen the msg
 	}
 	return 0; // not in the hash table, we haven't seen the msg
@@ -153,6 +152,8 @@ gboolean purge_message(gpointer key, gpointer val, gpointer data) {
 	time_t current_time;
 	time(&current_time);	
 	message_hash_o* msg_val = (message_hash_o*) val;
+	
+	printf("Purge message, msg_val: %x msg_val->msg %x \n", msg_val, msg_val->msg);
 	
 	if (msg_val->purge_time <= current_time) {
 		return TRUE;

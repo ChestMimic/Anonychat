@@ -3,7 +3,7 @@
 
 #define DEFAULT_PEER_PORT "4758"
 #define PEER_SERVER_BACKLOG (5)
-#define PURGE_FREQUENCY (30) // the purge frequency of messages in seconds
+#define PURGE_FREQUENCY (15) // the purge frequency of messages in seconds
 
 #include <openssl/evp.h>
 #include <pthread.h>
