@@ -1000,9 +1000,6 @@ void* client_purge_msg_hash(void* arg) {
 	while (running) {
 
 		sleep( PURGE_FREQUENCY); // sleep for purge frequency seconds
-
-		printf("About to purse the message hashes! \n");
-
 		pthread_mutex_lock(&mht_mutex);
 		//clean up the messages	
 		client_purge_msg(message_hash_table);
