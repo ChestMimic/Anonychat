@@ -153,8 +153,6 @@ gboolean purge_message(gpointer key, gpointer val, gpointer data) {
 	time(&current_time);	
 	message_hash_o* msg_val = (message_hash_o*) val;
 	
-	printf("Purge message, msg_val: %x msg_val->msg %x \n", msg_val, msg_val->msg);
-	
 	if (msg_val->purge_time <= current_time) {
 		return TRUE;
 	}
