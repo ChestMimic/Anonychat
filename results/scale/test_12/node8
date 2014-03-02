@@ -1,0 +1,643 @@
+Loading Public Key! 
+We opened all public keys 
+Loading Private Key! 
+Loaded Private Key! 
+Peer Server Port: 1235
+Inited server with a socket of 4 
+Send a time message every 10 secconds 
+Recevied |PEERS| from name server! 
+Recevied |PEERS 192.168.1.160:1234 192.168.1.160:1235 192.168.1.121:1234 192.168.1.160:1239 192.168.1.160:1237| from name server! 
+Created peer 192.168.1.160:1234, with id 0 
+Created peer 192.168.1.160:1235, with id 1 
+Created peer 192.168.1.121:1234, with id 2 
+Created peer 192.168.1.160:1239, with id 3 
+Created peer 192.168.1.160:1237, with id 4 
+We are connecting to peers 
+Recevied |PEERS 192.168.1.121:1236 192.168.1.160:1234 192.168.1.121:1234 192.168.1.160:1239 192.168.1.160:1236| from name server! 
+Disconnected from client: 0 
+Created peer 192.168.1.121:1236, with id 5 
+Created peer 192.168.1.160:1234, with id 6 
+Created peer 192.168.1.121:1234, with id 7 
+Created peer 192.168.1.160:1239, with id 8 
+Created peer 192.168.1.160:1236, with id 9 
+We are connecting to peers 
+Disconnected from client: 3 
+Disconnected from client: 4 
+Disconnected from client: 2 
+Disconnected from client: 1 
+Disconnected from client: 5 
+Recevied |PEERS 192.168.1.121:1236 192.168.1.121:1237 192.168.1.121:1234 192.168.1.160:1239 192.168.1.160:1236| from name server! 
+Created peer 192.168.1.121:1236, with id 10 
+Created peer 192.168.1.121:1237, with id 11 
+Created peer 192.168.1.121:1234, with id 12 
+Created peer 192.168.1.160:1239, with id 13 
+Created peer 192.168.1.160:1236, with id 14 
+We are connecting to peers 
+Disconnected from client: 7 
+Disconnected from client: 6 
+Disconnected from client: 8 
+Disconnected from client: 9 
+node8 has processed message #2, took 0.004000 ms 
+node8 has processed message #3, took 0.002000 ms 
+node8 has processed message #3, took 10.660000 ms 
+Disconnected from client: 10 
+Recevied |PEERS 192.168.1.121:1236 192.168.1.121:1237 192.168.1.121:1234 192.168.1.160:1239 192.168.1.160:1235| from name server! 
+Created peer 192.168.1.121:1236, with id 15 
+Created peer 192.168.1.121:1237, with id 16 
+Created peer 192.168.1.121:1234, with id 17 
+Created peer 192.168.1.160:1239, with id 18 
+Created peer 192.168.1.160:1235, with id 19 
+We are connecting to peers 
+Disconnected from client: 11 
+Disconnected from client: 13 
+Disconnected from client: 12 
+Disconnected from client: 14 
+node8 has processed message #5, took 0.004000 ms 
+node8 has processed message #6, took 0.003000 ms 
+node8 has processed message #6, took 10.721000 ms 
+Disconnected from client: 15 
+Recevied |PEERS 192.168.1.121:1236 192.168.1.121:1237 192.168.1.121:1234 192.168.1.160:1239 192.168.1.160:1235| from name server! 
+Created peer 192.168.1.121:1236, with id 20 
+Created peer 192.168.1.121:1237, with id 21 
+Created peer 192.168.1.121:1234, with id 22 
+Created peer 192.168.1.160:1239, with id 23 
+Created peer 192.168.1.160:1235, with id 24 
+We are connecting to peers 
+Disconnected from client: 16 
+Disconnected from client: 17 
+Disconnected from client: 18 
+Disconnected from client: 19 
+node8 has processed message #8, took 0.004000 ms 
+node8 has processed message #9, took 0.003000 ms 
+node8 has processed message #9, took 9.429000 ms 
+node8 has processed message #11, took 0.003000 ms 
+node8 has processed message #12, took 0.002000 ms 
+node8 has processed message #12, took 12.656000 ms 
+node8 has processed message #14, took 0.003000 ms 
+node8 has processed message #15, took 0.002000 ms 
+node8 has processed message #15, took 15.724000 ms 
+node8 has processed message #17, took 0.004000 ms 
+node8 has processed message #18, took 0.003000 ms 
+node8 has processed message #19, took 0.002000 ms 
+node8 has processed message #19, took 8.846000 ms 
+node8 has processed message #21, took 0.003000 ms 
+node8 has processed message #22, took 0.002000 ms 
+node8 has processed message #22, took 14.908000 ms 
+node8 has processed message #23, took 0.003000 ms 
+node8 has processed message #24, took 0.002000 ms 
+node8 has processed message #25, took 0.002000 ms 
+node8 has processed message #27, took 0.003000 ms 
+node8 has processed message #28, took 0.003000 ms 
+node8 has processed message #28, took 8.451000 ms 
+node8 has processed message #30, took 0.003000 ms 
+node8 has processed message #31, took 0.002000 ms 
+RTT from node10 to node8 : 8.666016 ms
+node8 has processed message #31, took 8.399000 ms 
+node8 has processed message #33, took 0.004000 ms 
+node8 has processed message #34, took 0.003000 ms 
+node8 has processed message #34, took 16.134000 ms 
+node8 has processed message #36, took 0.003000 ms 
+node8 has processed message #37, took 0.004000 ms 
+node8 has processed message #37, took 15.242000 ms 
+node8 has processed message #39, took 0.004000 ms 
+node8 has processed message #40, took 0.003000 ms 
+node8 has processed message #41, took 0.003000 ms 
+node8 has processed message #41, took 17.027000 ms 
+node8 has processed message #43, took 0.003000 ms 
+node8 has processed message #44, took 0.003000 ms 
+node8 has processed message #44, took 15.198000 ms 
+node8 has processed message #46, took 0.004000 ms 
+node8 has processed message #47, took 0.003000 ms 
+node8 has processed message #47, took 9.475000 ms 
+node8 has processed message #49, took 0.004000 ms 
+node8 has processed message #50, took 0.003000 ms 
+node8 has processed message #50, took 15.161000 ms 
+node8 has processed message #52, took 0.004000 ms 
+node8 has processed message #53, took 0.003000 ms 
+node8 has processed message #53, took 16.201000 ms 
+node8 has processed message #55, took 0.003000 ms 
+node8 has processed message #56, took 0.003000 ms 
+node8 has processed message #57, took 0.002000 ms 
+node8 has processed message #57, took 16.492000 ms 
+node8 has processed message #59, took 0.004000 ms 
+node8 has processed message #60, took 0.003000 ms 
+node8 has processed message #60, took 8.576000 ms 
+node8 has processed message #61, took 0.002000 ms 
+node8 has processed message #62, took 0.003000 ms 
+node8 has processed message #63, took 0.003000 ms 
+node8 has processed message #65, took 0.003000 ms 
+node8 has processed message #66, took 0.003000 ms 
+node8 has processed message #66, took 14.792000 ms 
+node8 has processed message #68, took 0.003000 ms 
+node8 has processed message #69, took 0.003000 ms 
+node8 has processed message #69, took 8.663000 ms 
+node8 has processed message #71, took 0.004000 ms 
+node8 has processed message #72, took 0.002000 ms 
+node8 has processed message #72, took 14.657000 ms 
+node8 has processed message #74, took 0.004000 ms 
+node8 has processed message #75, took 0.003000 ms 
+node8 has processed message #75, took 8.916000 ms 
+node8 has processed message #77, took 0.004000 ms 
+node8 has processed message #78, took 0.003000 ms 
+node8 has processed message #79, took 0.003000 ms 
+node8 has processed message #79, took 11.380000 ms 
+node8 has processed message #81, took 0.003000 ms 
+node8 has processed message #82, took 0.003000 ms 
+node8 has processed message #82, took 8.579000 ms 
+node8 has processed message #84, took 0.004000 ms 
+node8 has processed message #85, took 0.003000 ms 
+node8 has processed message #85, took 14.313000 ms 
+node8 has processed message #87, took 0.004000 ms 
+node8 has processed message #88, took 0.003000 ms 
+node8 has processed message #88, took 18.857000 ms 
+node8 has processed message #90, took 0.004000 ms 
+node8 has processed message #91, took 0.002000 ms 
+node8 has processed message #91, took 17.633000 ms 
+node8 has processed message #93, took 0.004000 ms 
+node8 has processed message #94, took 0.004000 ms 
+node8 has processed message #95, took 0.003000 ms 
+node8 has processed message #95, took 8.740000 ms 
+node8 has processed message #97, took 0.003000 ms 
+node8 has processed message #98, took 0.002000 ms 
+node8 has processed message #98, took 8.337000 ms 
+node8 has processed message #99, took 0.003000 ms 
+node8 has processed message #100, took 0.002000 ms 
+node8 has processed message #101, took 0.002000 ms 
+node8 has processed message #103, took 0.004000 ms 
+node8 has processed message #104, took 0.003000 ms 
+node8 has processed message #104, took 8.640000 ms 
+node8 has processed message #106, took 0.003000 ms 
+node8 has processed message #107, took 0.003000 ms 
+node8 has processed message #107, took 8.565000 ms 
+node8 has processed message #109, took 0.004000 ms 
+node8 has processed message #110, took 0.003000 ms 
+node8 has processed message #110, took 8.643000 ms 
+node8 has processed message #112, took 0.019000 ms 
+node8 has processed message #113, took 0.003000 ms 
+RTT from node11 to node8 : 15.641846 ms
+node8 has processed message #113, took 15.176000 ms 
+node8 has processed message #115, took 0.004000 ms 
+node8 has processed message #116, took 0.003000 ms 
+node8 has processed message #117, took 0.002000 ms 
+node8 has processed message #117, took 11.724000 ms 
+node8 has processed message #120, took 0.004000 ms 
+node8 has processed message #120, took 0.004000 ms 
+node8 has processed message #120, took 15.295000 ms 
+node8 has processed message #122, took 0.003000 ms 
+node8 has processed message #123, took 0.004000 ms 
+node8 has processed message #123, took 10.279000 ms 
+node8 has processed message #125, took 0.004000 ms 
+node8 has processed message #126, took 0.003000 ms 
+node8 has processed message #126, took 15.151000 ms 
+node8 has processed message #128, took 0.004000 ms 
+node8 has processed message #129, took 0.003000 ms 
+node8 has processed message #129, took 17.157000 ms 
+node8 has processed message #131, took 0.005000 ms 
+node8 has processed message #132, took 0.003000 ms 
+node8 has processed message #133, took 0.003000 ms 
+node8 has processed message #133, took 8.516000 ms 
+node8 has processed message #135, took 0.003000 ms 
+node8 has processed message #136, took 0.002000 ms 
+node8 has processed message #136, took 10.432000 ms 
+node8 has processed message #137, took 0.003000 ms 
+node8 has processed message #138, took 0.002000 ms 
+node8 has processed message #139, took 0.003000 ms 
+node8 has processed message #141, took 0.004000 ms 
+node8 has processed message #142, took 0.002000 ms 
+node8 has processed message #142, took 8.616000 ms 
+node8 has processed message #144, took 0.003000 ms 
+node8 has processed message #145, took 0.002000 ms 
+node8 has processed message #145, took 8.768000 ms 
+node8 has processed message #147, took 0.003000 ms 
+node8 has processed message #148, took 0.002000 ms 
+node8 has processed message #148, took 15.388000 ms 
+node8 has processed message #150, took 0.004000 ms 
+node8 has processed message #151, took 0.003000 ms 
+node8 has processed message #151, took 11.056000 ms 
+node8 has processed message #153, took 0.012000 ms 
+node8 has processed message #154, took 0.003000 ms 
+node8 has processed message #155, took 0.003000 ms 
+node8 has processed message #155, took 15.170000 ms 
+node8 has processed message #157, took 0.004000 ms 
+node8 has processed message #158, took 0.003000 ms 
+node8 has processed message #158, took 15.014000 ms 
+node8 has processed message #160, took 0.004000 ms 
+node8 has processed message #161, took 0.003000 ms 
+RTT from node3 to node8 : 39.857910 ms
+node8 has processed message #161, took 15.234000 ms 
+node8 has processed message #163, took 0.004000 ms 
+node8 has processed message #164, took 0.003000 ms 
+node8 has processed message #164, took 16.200000 ms 
+node8 has processed message #166, took 0.004000 ms 
+node8 has processed message #167, took 0.002000 ms 
+node8 has processed message #167, took 8.621000 ms 
+node8 has processed message #169, took 0.004000 ms 
+node8 has processed message #170, took 0.003000 ms 
+node8 has processed message #171, took 0.003000 ms 
+RTT from node6 to node8 : 36.781982 ms
+node8 has processed message #171, took 12.197000 ms 
+node8 has processed message #173, took 0.003000 ms 
+node8 has processed message #174, took 0.003000 ms 
+node8 has processed message #174, took 8.698000 ms 
+node8 has processed message #175, took 0.002000 ms 
+node8 has processed message #176, took 0.003000 ms 
+node8 has processed message #177, took 0.003000 ms 
+node8 has processed message #179, took 0.004000 ms 
+node8 has processed message #180, took 0.003000 ms 
+RTT from node9 to node8 : 9.073975 ms
+node8 has processed message #180, took 8.697000 ms 
+node8 has processed message #182, took 0.003000 ms 
+node8 has processed message #183, took 0.003000 ms 
+node8 has processed message #183, took 8.755000 ms 
+node8 has processed message #185, took 0.003000 ms 
+node8 has processed message #186, took 0.003000 ms 
+node8 has processed message #186, took 9.205000 ms 
+node8 has processed message #188, took 0.004000 ms 
+node8 has processed message #189, took 0.003000 ms 
+node8 has processed message #189, took 14.999000 ms 
+node8 has processed message #192, took 0.006000 ms 
+node8 has processed message #192, took 0.024000 ms 
+node8 has processed message #192, took 9.312000 ms 
+node8 has processed message #193, took 0.002000 ms 
+node8 has processed message #195, took 0.003000 ms 
+node8 has processed message #196, took 0.003000 ms 
+node8 has processed message #196, took 15.380000 ms 
+node8 has processed message #198, took 0.003000 ms 
+node8 has processed message #199, took 0.003000 ms 
+node8 has processed message #199, took 10.048000 ms 
+node8 has processed message #201, took 0.003000 ms 
+node8 has processed message #202, took 0.003000 ms 
+node8 has processed message #202, took 16.559000 ms 
+node8 has processed message #204, took 0.003000 ms 
+node8 has processed message #205, took 0.003000 ms 
+node8 has processed message #205, took 16.636000 ms 
+node8 has processed message #207, took 0.004000 ms 
+node8 has processed message #208, took 0.004000 ms 
+node8 has processed message #209, took 0.002000 ms 
+node8 has processed message #209, took 8.684000 ms 
+node8 has processed message #211, took 0.004000 ms 
+node8 has processed message #212, took 0.003000 ms 
+node8 has processed message #212, took 17.260000 ms 
+node8 has processed message #213, took 0.002000 ms 
+node8 has processed message #214, took 0.002000 ms 
+node8 has processed message #215, took 0.003000 ms 
+node8 has processed message #217, took 0.003000 ms 
+node8 has processed message #217, took 8.524000 ms 
+node8 has processed message #218, took 0.002000 ms 
+node8 has processed message #220, took 0.003000 ms 
+node8 has processed message #221, took 0.002000 ms 
+node8 has processed message #221, took 8.438000 ms 
+node8 has processed message #223, took 0.004000 ms 
+node8 has processed message #224, took 0.003000 ms 
+node8 has processed message #224, took 17.469000 ms 
+node8 has processed message #226, took 0.003000 ms 
+node8 has processed message #227, took 0.002000 ms 
+node8 has processed message #227, took 17.539000 ms 
+node8 has processed message #229, took 0.003000 ms 
+node8 has processed message #230, took 0.003000 ms 
+node8 has processed message #231, took 0.004000 ms 
+node8 has processed message #231, took 10.071000 ms 
+node8 has processed message #233, took 0.004000 ms 
+node8 has processed message #234, took 0.003000 ms 
+node8 has processed message #234, took 15.129000 ms 
+node8 has processed message #236, took 0.003000 ms 
+node8 has processed message #237, took 0.004000 ms 
+node8 has processed message #237, took 18.257000 ms 
+node8 has processed message #239, took 0.003000 ms 
+node8 has processed message #240, took 0.003000 ms 
+node8 has processed message #240, took 13.169000 ms 
+node8 has processed message #242, took 0.003000 ms 
+node8 has processed message #243, took 0.003000 ms 
+node8 has processed message #243, took 9.421000 ms 
+node8 has processed message #245, took 0.004000 ms 
+node8 has processed message #246, took 0.002000 ms 
+node8 has processed message #247, took 0.003000 ms 
+node8 has processed message #247, took 15.145000 ms 
+node8 has processed message #249, took 0.004000 ms 
+node8 has processed message #250, took 0.002000 ms 
+node8 has processed message #250, took 10.363000 ms 
+node8 has processed message #251, took 0.002000 ms 
+node8 has processed message #252, took 0.003000 ms 
+node8 has processed message #253, took 0.002000 ms 
+node8 has processed message #255, took 0.003000 ms 
+node8 has processed message #256, took 0.002000 ms 
+node8 has processed message #256, took 15.467000 ms 
+node8 has processed message #258, took 0.003000 ms 
+node8 has processed message #259, took 0.002000 ms 
+node8 has processed message #259, took 15.507000 ms 
+node8 has processed message #261, took 0.003000 ms 
+node8 has processed message #262, took 0.003000 ms 
+node8 has processed message #262, took 10.112000 ms 
+node8 has processed message #264, took 0.003000 ms 
+node8 has processed message #265, took 0.002000 ms 
+node8 has processed message #265, took 15.288000 ms 
+node8 has processed message #267, took 0.004000 ms 
+node8 has processed message #268, took 0.003000 ms 
+node8 has processed message #269, took 0.003000 ms 
+node8 has processed message #269, took 15.471000 ms 
+node8 has processed message #271, took 0.004000 ms 
+node8 has processed message #272, took 0.003000 ms 
+node8 has processed message #272, took 8.805000 ms 
+node8 has processed message #274, took 0.004000 ms 
+node8 has processed message #275, took 0.003000 ms 
+node8 has processed message #275, took 15.169000 ms 
+node8 has processed message #277, took 0.003000 ms 
+node8 has processed message #278, took 0.002000 ms 
+node8 has processed message #278, took 15.202000 ms 
+node8 has processed message #280, took 0.003000 ms 
+node8 has processed message #281, took 0.002000 ms 
+node8 has processed message #281, took 15.232000 ms 
+node8 has processed message #283, took 0.004000 ms 
+node8 has processed message #284, took 0.003000 ms 
+node8 has processed message #285, took 0.003000 ms 
+node8 has processed message #285, took 8.929000 ms 
+node8 has processed message #287, took 0.003000 ms 
+node8 has processed message #287, took 8.323000 ms 
+node8 has processed message #288, took 0.002000 ms 
+node8 has processed message #289, took 0.003000 ms 
+node8 has processed message #290, took 0.003000 ms 
+node8 has processed message #291, took 0.003000 ms 
+node8 has processed message #293, took 0.003000 ms 
+node8 has processed message #294, took 0.003000 ms 
+node8 has processed message #294, took 15.390000 ms 
+node8 has processed message #296, took 0.003000 ms 
+node8 has processed message #297, took 0.002000 ms 
+node8 has processed message #297, took 9.747000 ms 
+node8 has processed message #299, took 0.003000 ms 
+node8 has processed message #300, took 0.003000 ms 
+node8 has processed message #300, took 10.047000 ms 
+node8 has processed message #302, took 0.003000 ms 
+node8 has processed message #303, took 0.002000 ms 
+node8 has processed message #303, took 15.131000 ms 
+node8 has processed message #305, took 0.004000 ms 
+node8 has processed message #306, took 0.003000 ms 
+node8 has processed message #307, took 0.002000 ms 
+node8 has processed message #307, took 16.135000 ms 
+node8 has processed message #309, took 0.002000 ms 
+node8 has processed message #310, took 0.002000 ms 
+node8 has processed message #310, took 15.147000 ms 
+node8 has processed message #312, took 0.004000 ms 
+node8 has processed message #313, took 0.002000 ms 
+RTT from node3 to node8 : 41.676270 ms
+node8 has processed message #313, took 17.066000 ms 
+node8 has processed message #315, took 0.004000 ms 
+node8 has processed message #316, took 0.003000 ms 
+node8 has processed message #316, took 17.356000 ms 
+node8 has processed message #318, took 0.003000 ms 
+node8 has processed message #319, took 0.002000 ms 
+node8 has processed message #319, took 15.160000 ms 
+node8 has processed message #321, took 0.004000 ms 
+node8 has processed message #322, took 0.002000 ms 
+node8 has processed message #323, took 0.002000 ms 
+node8 has processed message #323, took 15.394000 ms 
+node8 has processed message #325, took 0.003000 ms 
+node8 has processed message #326, took 0.003000 ms 
+node8 has processed message #326, took 14.891000 ms 
+node8 has processed message #327, took 0.003000 ms 
+node8 has processed message #328, took 0.002000 ms 
+node8 has processed message #329, took 0.002000 ms 
+node8 has processed message #331, took 0.003000 ms 
+node8 has processed message #332, took 0.002000 ms 
+node8 has processed message #332, took 8.635000 ms 
+node8 has processed message #334, took 0.003000 ms 
+node8 has processed message #335, took 0.002000 ms 
+node8 has processed message #335, took 14.063000 ms 
+node8 has processed message #337, took 0.004000 ms 
+node8 has processed message #338, took 0.003000 ms 
+node8 has processed message #338, took 19.338000 ms 
+node8 has processed message #340, took 0.004000 ms 
+node8 has processed message #341, took 0.002000 ms 
+node8 has processed message #341, took 10.142000 ms 
+node8 has processed message #343, took 0.003000 ms 
+node8 has processed message #344, took 0.003000 ms 
+node8 has processed message #345, took 0.004000 ms 
+node8 has processed message #345, took 18.242000 ms 
+node8 has processed message #347, took 0.004000 ms 
+node8 has processed message #348, took 0.002000 ms 
+node8 has processed message #348, took 9.043000 ms 
+node8 has processed message #350, took 0.003000 ms 
+node8 has processed message #351, took 0.003000 ms 
+node8 has processed message #351, took 9.311000 ms 
+node8 has processed message #353, took 0.004000 ms 
+node8 has processed message #354, took 0.003000 ms 
+node8 has processed message #354, took 8.552000 ms 
+node8 has processed message #356, took 0.004000 ms 
+node8 has processed message #356, took 8.858000 ms 
+node8 has processed message #357, took 0.002000 ms 
+node8 has processed message #359, took 0.003000 ms 
+node8 has processed message #360, took 0.003000 ms 
+node8 has processed message #361, took 0.003000 ms 
+node8 has processed message #361, took 15.372000 ms 
+node8 has processed message #363, took 0.004000 ms 
+node8 has processed message #364, took 0.002000 ms 
+node8 has processed message #364, took 9.710000 ms 
+node8 has processed message #365, took 0.003000 ms 
+node8 has processed message #366, took 0.003000 ms 
+node8 has processed message #367, took 0.003000 ms 
+node8 has processed message #369, took 0.004000 ms 
+node8 has processed message #370, took 0.003000 ms 
+node8 has processed message #370, took 8.889000 ms 
+node8 has processed message #372, took 0.003000 ms 
+node8 has processed message #373, took 0.002000 ms 
+node8 has processed message #373, took 15.086000 ms 
+node8 has processed message #375, took 0.004000 ms 
+node8 has processed message #376, took 0.003000 ms 
+node8 has processed message #376, took 9.937000 ms 
+node8 has processed message #378, took 0.003000 ms 
+node8 has processed message #379, took 0.003000 ms 
+node8 has processed message #379, took 15.333000 ms 
+node8 has processed message #381, took 0.003000 ms 
+node8 has processed message #382, took 0.002000 ms 
+node8 has processed message #383, took 0.003000 ms 
+node8 has processed message #383, took 16.555000 ms 
+node8 has processed message #385, took 0.032000 ms 
+node8 has processed message #386, took 0.003000 ms 
+node8 has processed message #386, took 8.777000 ms 
+node8 has processed message #388, took 0.003000 ms 
+node8 has processed message #389, took 0.004000 ms 
+node8 has processed message #389, took 10.272000 ms 
+node8 has processed message #391, took 0.003000 ms 
+node8 has processed message #392, took 0.002000 ms 
+node8 has processed message #392, took 16.432000 ms 
+node8 has processed message #394, took 0.004000 ms 
+node8 has processed message #395, took 0.002000 ms 
+node8 has processed message #395, took 15.336000 ms 
+node8 has processed message #397, took 0.004000 ms 
+node8 has processed message #398, took 0.003000 ms 
+node8 has processed message #399, took 0.003000 ms 
+node8 has processed message #399, took 16.758000 ms 
+node8 has processed message #401, took 0.003000 ms 
+node8 has processed message #402, took 0.002000 ms 
+node8 has processed message #402, took 15.034000 ms 
+node8 has processed message #403, took 0.003000 ms 
+node8 has processed message #404, took 0.003000 ms 
+node8 has processed message #405, took 0.003000 ms 
+node8 has processed message #407, took 0.004000 ms 
+node8 has processed message #408, took 0.003000 ms 
+node8 has processed message #408, took 12.285000 ms 
+node8 has processed message #410, took 0.003000 ms 
+node8 has processed message #411, took 0.004000 ms 
+node8 has processed message #411, took 15.211000 ms 
+node8 has processed message #413, took 0.004000 ms 
+node8 has processed message #414, took 0.003000 ms 
+node8 has processed message #414, took 9.949000 ms 
+node8 has processed message #416, took 0.004000 ms 
+node8 has processed message #417, took 0.002000 ms 
+node8 has processed message #417, took 15.141000 ms 
+node8 has processed message #419, took 0.004000 ms 
+node8 has processed message #420, took 0.003000 ms 
+node8 has processed message #421, took 0.003000 ms 
+node8 has processed message #421, took 9.647000 ms 
+node8 has processed message #423, took 0.002000 ms 
+node8 has processed message #424, took 0.003000 ms 
+node8 has processed message #424, took 15.545000 ms 
+node8 has processed message #426, took 0.004000 ms 
+node8 has processed message #427, took 0.003000 ms 
+node8 has processed message #427, took 0.088000 ms 
+node8 has processed message #429, took 0.003000 ms 
+node8 has processed message #430, took 0.003000 ms 
+node8 has processed message #430, took 15.433000 ms 
+node8 has processed message #432, took 0.002000 ms 
+node8 has processed message #433, took 0.003000 ms 
+node8 has processed message #433, took 16.493000 ms 
+node8 has processed message #435, took 0.005000 ms 
+node8 has processed message #436, took 0.004000 ms 
+node8 has processed message #437, took 0.003000 ms 
+node8 has processed message #437, took 15.393000 ms 
+node8 has processed message #439, took 0.003000 ms 
+node8 has processed message #440, took 0.002000 ms 
+node8 has processed message #440, took 8.284000 ms 
+node8 has processed message #441, took 0.003000 ms 
+node8 has processed message #442, took 0.002000 ms 
+node8 has processed message #443, took 0.003000 ms 
+node8 has processed message #445, took 0.003000 ms 
+node8 has processed message #446, took 0.003000 ms 
+node8 has processed message #446, took 9.976000 ms 
+node8 has processed message #448, took 0.003000 ms 
+node8 has processed message #449, took 0.002000 ms 
+node8 has processed message #449, took 15.250000 ms 
+node8 has processed message #451, took 0.003000 ms 
+node8 has processed message #452, took 0.003000 ms 
+node8 has processed message #452, took 10.131000 ms 
+node8 has processed message #454, took 0.003000 ms 
+node8 has processed message #455, took 0.002000 ms 
+node8 has processed message #455, took 8.519000 ms 
+node8 has processed message #457, took 0.003000 ms 
+node8 has processed message #458, took 0.003000 ms 
+node8 has processed message #459, took 0.003000 ms 
+node8 has processed message #459, took 15.545000 ms 
+node8 has processed message #461, took 0.004000 ms 
+node8 has processed message #462, took 0.003000 ms 
+node8 has processed message #462, took 8.563000 ms 
+node8 has processed message #464, took 0.004000 ms 
+node8 has processed message #464, took 10.259000 ms 
+node8 has processed message #465, took 0.002000 ms 
+node8 has processed message #467, took 0.004000 ms 
+node8 has processed message #468, took 0.002000 ms 
+node8 has processed message #468, took 15.260000 ms 
+node8 has processed message #470, took 0.004000 ms 
+node8 has processed message #471, took 0.002000 ms 
+node8 has processed message #471, took 15.848000 ms 
+node8 has processed message #473, took 0.004000 ms 
+node8 has processed message #474, took 0.003000 ms 
+node8 has processed message #475, took 0.002000 ms 
+node8 has processed message #475, took 15.415000 ms 
+node8 has processed message #477, took 0.003000 ms 
+node8 has processed message #478, took 0.003000 ms 
+node8 has processed message #478, took 8.399000 ms 
+node8 has processed message #479, took 0.008000 ms 
+node8 has processed message #479, took 0.014000 ms 
+node8 has processed message #479, took 0.021000 ms 
+node8 has processed message #481, took 0.003000 ms 
+node8 has processed message #482, took 0.004000 ms 
+node8 has processed message #482, took 9.966000 ms 
+node8 has processed message #484, took 0.003000 ms 
+node8 has processed message #485, took 0.002000 ms 
+node8 has processed message #485, took 8.728000 ms 
+node8 has processed message #487, took 0.003000 ms 
+node8 has processed message #488, took 0.003000 ms 
+node8 has processed message #488, took 16.577000 ms 
+node8 has processed message #490, took 0.002000 ms 
+node8 has processed message #491, took 0.002000 ms 
+node8 has processed message #491, took 13.745000 ms 
+node8 has processed message #493, took 0.004000 ms 
+node8 has processed message #494, took 0.003000 ms 
+node8 has processed message #495, took 0.003000 ms 
+node8 has processed message #495, took 17.703000 ms 
+node8 has processed message #497, took 0.004000 ms 
+node8 has processed message #498, took 0.003000 ms 
+RTT from node12 to node8 : 10.436035 ms
+node8 has processed message #498, took 9.980000 ms 
+node8 has processed message #500, took 0.003000 ms 
+node8 has processed message #501, took 0.003000 ms 
+node8 has processed message #501, took 10.316000 ms 
+node8 has processed message #503, took 0.003000 ms 
+node8 has processed message #504, took 0.003000 ms 
+RTT from node4 to node8 : 42.406006 ms
+node8 has processed message #504, took 17.561000 ms 
+node8 has processed message #506, took 0.003000 ms 
+node8 has processed message #507, took 0.002000 ms 
+node8 has processed message #507, took 15.508000 ms 
+node8 has processed message #509, took 0.005000 ms 
+node8 has processed message #510, took 0.003000 ms 
+node8 has processed message #511, took 0.003000 ms 
+node8 has processed message #511, took 15.289000 ms 
+node8 has processed message #513, took 0.002000 ms 
+node8 has processed message #513, took 8.469000 ms 
+node8 has processed message #514, took 0.003000 ms 
+node8 has processed message #515, took 0.003000 ms 
+node8 has processed message #516, took 0.003000 ms 
+node8 has processed message #517, took 0.003000 ms 
+node8 has processed message #519, took 0.004000 ms 
+node8 has processed message #520, took 0.004000 ms 
+node8 has processed message #520, took 15.440000 ms 
+node8 has processed message #522, took 0.004000 ms 
+node8 has processed message #523, took 0.003000 ms 
+node8 has processed message #523, took 15.190000 ms 
+node8 has processed message #525, took 0.004000 ms 
+node8 has processed message #526, took 0.003000 ms 
+node8 has processed message #526, took 10.245000 ms 
+node8 has processed message #528, took 0.003000 ms 
+node8 has processed message #529, took 0.003000 ms 
+node8 has processed message #529, took 11.114000 ms 
+node8 has processed message #531, took 0.004000 ms 
+node8 has processed message #532, took 0.003000 ms 
+node8 has processed message #533, took 0.002000 ms 
+node8 has processed message #533, took 9.647000 ms 
+node8 has processed message #535, took 0.004000 ms 
+node8 has processed message #536, took 0.003000 ms 
+RTT from node12 to node8 : 10.435791 ms
+node8 has processed message #536, took 10.056000 ms 
+node8 has processed message #538, took 0.004000 ms 
+node8 has processed message #539, took 0.002000 ms 
+node8 has processed message #539, took 9.995000 ms 
+node8 has processed message #541, took 0.004000 ms 
+node8 has processed message #542, took 0.002000 ms 
+node8 has processed message #542, took 16.094000 ms 
+node8 has processed message #544, took 0.004000 ms 
+node8 has processed message #545, took 0.004000 ms 
+node8 has processed message #545, took 12.318000 ms 
+node8 has processed message #547, took 0.004000 ms 
+node8 has processed message #548, took 0.003000 ms 
+node8 has processed message #549, took 0.003000 ms 
+node8 has processed message #549, took 16.055000 ms 
+node8 has processed message #551, took 0.003000 ms 
+node8 has processed message #552, took 0.002000 ms 
+node8 has processed message #552, took 8.433000 ms 
+node8 has processed message #553, took 0.003000 ms 
+node8 has processed message #554, took 0.002000 ms 
+node8 has processed message #555, took 0.003000 ms 
+node8 has processed message #557, took 0.003000 ms 
+node8 has processed message #558, took 0.002000 ms 
+node8 has processed message #558, took 15.216000 ms 
+node8 has processed message #560, took 0.004000 ms 
+node8 has processed message #561, took 0.002000 ms 
+node8 has processed message #561, took 10.106000 ms 
+node8 has processed message #563, took 0.003000 ms 
+node8 has processed message #564, took 0.003000 ms 
+node8 has processed message #564, took 15.530000 ms 
+node8 has processed message #566, took 0.003000 ms 
+node8 has processed message #567, took 0.003000 ms 
+node8 has processed message #567, took 10.265000 ms 
+node8 has processed message #569, took 0.004000 ms 
+node8 has processed message #570, took 0.003000 ms

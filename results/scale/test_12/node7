@@ -1,0 +1,487 @@
+Loading Public Key! 
+We opened all public keys 
+Loading Private Key! 
+Loaded Private Key! 
+Peer Server Port: 1234
+Inited server with a socket of 4 
+Send a time message every 10 secconds 
+Recevied |PEERS| from name server! 
+Recevied |PEERS 192.168.1.160:1234 192.168.1.160:1235 192.168.1.160:1239 192.168.1.160:1238 192.168.1.160:1236| from name server! 
+Created peer 192.168.1.160:1234, with id 0 
+Created peer 192.168.1.160:1235, with id 1 
+Created peer 192.168.1.160:1239, with id 2 
+Created peer 192.168.1.160:1238, with id 3 
+Created peer 192.168.1.160:1236, with id 4 
+We are connecting to peers 
+Recevied |PEERS 192.168.1.121:1235 192.168.1.160:1234 192.168.1.160:1239 192.168.1.160:1238 192.168.1.160:1236| from name server! 
+Created peer 192.168.1.121:1235, with id 5 
+Created peer 192.168.1.160:1234, with id 6 
+Created peer 192.168.1.160:1239, with id 7 
+Created peer 192.168.1.160:1238, with id 8 
+Created peer 192.168.1.160:1236, with id 9 
+We are connecting to peers 
+Disconnected from client: 0 
+Disconnected from client: 3 
+Disconnected from client: 1 
+Disconnected from client: 4 
+Disconnected from client: 2 
+Recevied |PEERS 192.168.1.121:1235 192.168.1.121:1236 192.168.1.160:1239 192.168.1.160:1238 192.168.1.160:1235| from name server! 
+Created peer 192.168.1.121:1235, with id 10 
+Created peer 192.168.1.121:1236, with id 11 
+Created peer 192.168.1.160:1239, with id 12 
+Created peer 192.168.1.160:1238, with id 13 
+Created peer 192.168.1.160:1235, with id 14 
+We are connecting to peers 
+Disconnected from client: 6 
+Disconnected from client: 9 
+Disconnected from client: 8 
+Disconnected from client: 7 
+Disconnected from client: 5 
+Recevied |PEERS 192.168.1.121:1235 192.168.1.121:1236 192.168.1.160:1239 192.168.1.160:1238 192.168.1.160:1235| from name server! 
+Created peer 192.168.1.121:1235, with id 15 
+Created peer 192.168.1.121:1236, with id 16 
+Created peer 192.168.1.160:1239, with id 17 
+Created peer 192.168.1.160:1238, with id 18 
+Created peer 192.168.1.160:1235, with id 19 
+We are connecting to peers 
+Disconnected from client: 10 
+Disconnected from client: 11 
+Disconnected from client: 12 
+Disconnected from client: 13 
+Disconnected from client: 14 
+node7 has processed message #2, took 0.003000 ms 
+node7 has processed message #2, took 17.511000 ms 
+Recevied |PEERS 192.168.1.121:1235 192.168.1.121:1236 192.168.1.160:1239 192.168.1.160:1238 192.168.1.160:1234| from name server! 
+Created peer 192.168.1.121:1235, with id 20 
+Created peer 192.168.1.121:1236, with id 21 
+Created peer 192.168.1.160:1239, with id 22 
+Created peer 192.168.1.160:1238, with id 23 
+Created peer 192.168.1.160:1234, with id 24 
+We are connecting to peers 
+Disconnected from client: 15 
+Disconnected from client: 16 
+Disconnected from client: 18 
+Disconnected from client: 17 
+Disconnected from client: 19 
+node7 has processed message #4, took 0.007000 ms 
+node7 has processed message #5, took 0.003000 ms 
+node7 has processed message #5, took 9.911000 ms 
+Recevied |PEERS 192.168.1.121:1235 192.168.1.121:1236 192.168.1.160:1239 192.168.1.160:1238 192.168.1.160:1234| from name server! 
+Created peer 192.168.1.121:1235, with id 25 
+Created peer 192.168.1.121:1236, with id 26 
+Created peer 192.168.1.160:1239, with id 27 
+Created peer 192.168.1.160:1238, with id 28 
+Created peer 192.168.1.160:1234, with id 29 
+We are connecting to peers 
+Disconnected from client: 20 
+Disconnected from client: 21 
+Disconnected from client: 24 
+Disconnected from client: 22 
+Disconnected from client: 23 
+node7 has processed message #7, took 0.003000 ms 
+node7 has processed message #7, took 16.615000 ms 
+node7 has processed message #9, took 0.003000 ms 
+node7 has processed message #9, took 8.822000 ms 
+node7 has processed message #11, took 0.003000 ms 
+node7 has processed message #12, took 0.002000 ms 
+node7 has processed message #12, took 15.712000 ms 
+node7 has processed message #14, took 0.004000 ms 
+node7 has processed message #15, took 0.002000 ms 
+node7 has processed message #15, took 8.943000 ms 
+node7 has processed message #16, took 0.003000 ms 
+node7 has processed message #17, took 0.003000 ms 
+node7 has processed message #19, took 0.002000 ms 
+node7 has processed message #19, took 14.955000 ms 
+node7 has processed message #21, took 0.003000 ms 
+node7 has processed message #21, took 14.917000 ms 
+node7 has processed message #23, took 0.003000 ms 
+node7 has processed message #23, took 13.395000 ms 
+node7 has processed message #25, took 0.004000 ms 
+node7 has processed message #26, took 0.004000 ms 
+RTT from node1 to node7 : 42.218018 ms
+node7 has processed message #26, took 17.584000 ms 
+node7 has processed message #28, took 0.004000 ms 
+node7 has processed message #28, took 9.258000 ms 
+node7 has processed message #30, took 0.003000 ms 
+node7 has processed message #30, took 17.016000 ms 
+node7 has processed message #32, took 0.003000 ms 
+node7 has processed message #32, took 9.144000 ms 
+node7 has processed message #34, took 0.003000 ms 
+node7 has processed message #34, took 16.559000 ms 
+node7 has processed message #36, took 0.002000 ms 
+node7 has processed message #36, took 15.006000 ms 
+node7 has processed message #38, took 0.004000 ms 
+node7 has processed message #38, took 16.084000 ms 
+node7 has processed message #39, took 0.003000 ms 
+node7 has processed message #41, took 0.005000 ms 
+node7 has processed message #42, took 0.003000 ms 
+node7 has processed message #42, took 16.517000 ms 
+node7 has processed message #43, took 0.002000 ms 
+node7 has processed message #44, took 0.003000 ms 
+node7 has processed message #46, took 0.003000 ms 
+node7 has processed message #46, took 13.421000 ms 
+node7 has processed message #48, took 0.003000 ms 
+node7 has processed message #48, took 15.053000 ms 
+node7 has processed message #50, took 3.320000 ms 
+node7 has processed message #50, took 14.079000 ms 
+node7 has processed message #52, took 0.003000 ms 
+node7 has processed message #53, took 0.002000 ms 
+node7 has processed message #53, took 17.280000 ms 
+node7 has processed message #55, took 0.003000 ms 
+node7 has processed message #55, took 13.058000 ms 
+node7 has processed message #57, took 0.003000 ms 
+node7 has processed message #57, took 16.547000 ms 
+node7 has processed message #59, took 0.003000 ms 
+node7 has processed message #59, took 14.505000 ms 
+node7 has processed message #61, took 0.004000 ms 
+node7 has processed message #61, took 9.546000 ms 
+node7 has processed message #63, took 0.003000 ms 
+RTT from node4 to node7 : 34.166992 ms
+node7 has processed message #63, took 9.666000 ms 
+node7 has processed message #65, took 0.003000 ms 
+node7 has processed message #66, took 0.003000 ms 
+node7 has processed message #66, took 16.723000 ms 
+node7 has processed message #68, took 0.004000 ms 
+node7 has processed message #69, took 0.004000 ms 
+node7 has processed message #69, took 15.165000 ms 
+node7 has processed message #70, took 0.003000 ms 
+node7 has processed message #71, took 0.003000 ms 
+node7 has processed message #73, took 0.004000 ms 
+node7 has processed message #73, took 9.423000 ms 
+node7 has processed message #75, took 0.003000 ms 
+node7 has processed message #75, took 8.957000 ms 
+node7 has processed message #77, took 0.003000 ms 
+node7 has processed message #77, took 14.355000 ms 
+node7 has processed message #79, took 0.003000 ms 
+node7 has processed message #80, took 0.002000 ms 
+node7 has processed message #80, took 14.916000 ms 
+node7 has processed message #82, took 0.003000 ms 
+node7 has processed message #82, took 8.574000 ms 
+node7 has processed message #84, took 0.003000 ms 
+node7 has processed message #84, took 19.214000 ms 
+node7 has processed message #86, took 0.003000 ms 
+node7 has processed message #86, took 10.403000 ms 
+node7 has processed message #88, took 0.004000 ms 
+node7 has processed message #88, took 18.203000 ms 
+node7 has processed message #90, took 0.003000 ms 
+node7 has processed message #90, took 15.141000 ms 
+node7 has processed message #93, took 0.008000 ms 
+node7 has processed message #93, took 0.013000 ms 
+node7 has processed message #93, took 17.204000 ms 
+node7 has processed message #95, took 0.004000 ms 
+node7 has processed message #96, took 0.002000 ms 
+node7 has processed message #96, took 15.044000 ms 
+node7 has processed message #97, took 0.003000 ms 
+node7 has processed message #98, took 0.002000 ms 
+node7 has processed message #100, took 0.002000 ms 
+node7 has processed message #100, took 14.317000 ms 
+node7 has processed message #102, took 0.003000 ms 
+node7 has processed message #102, took 8.817000 ms 
+node7 has processed message #104, took 0.004000 ms 
+node7 has processed message #104, took 14.696000 ms 
+node7 has processed message #106, took 0.003000 ms 
+node7 has processed message #107, took 0.003000 ms 
+node7 has processed message #107, took 15.379000 ms 
+node7 has processed message #109, took 0.003000 ms 
+node7 has processed message #109, took 8.626000 ms 
+node7 has processed message #111, took 0.003000 ms 
+node7 has processed message #111, took 8.516000 ms 
+node7 has processed message #113, took 0.003000 ms 
+node7 has processed message #113, took 15.120000 ms 
+node7 has processed message #115, took 0.004000 ms 
+node7 has processed message #115, took 15.219000 ms 
+node7 has processed message #117, took 0.003000 ms 
+node7 has processed message #117, took 10.277000 ms 
+node7 has processed message #119, took 0.003000 ms 
+node7 has processed message #120, took 0.002000 ms 
+node7 has processed message #120, took 15.128000 ms 
+node7 has processed message #122, took 0.004000 ms 
+node7 has processed message #123, took 0.003000 ms 
+node7 has processed message #123, took 17.054000 ms 
+node7 has processed message #124, took 0.003000 ms 
+node7 has processed message #125, took 0.003000 ms 
+node7 has processed message #127, took 0.003000 ms 
+node7 has processed message #127, took 8.456000 ms 
+node7 has processed message #129, took 0.004000 ms 
+node7 has processed message #129, took 8.738000 ms 
+node7 has processed message #131, took 0.003000 ms 
+node7 has processed message #131, took 15.349000 ms 
+node7 has processed message #133, took 0.003000 ms 
+node7 has processed message #134, took 0.003000 ms 
+node7 has processed message #134, took 16.253000 ms 
+node7 has processed message #136, took 0.004000 ms 
+node7 has processed message #136, took 8.650000 ms 
+node7 has processed message #138, took 0.003000 ms 
+node7 has processed message #138, took 9.336000 ms 
+node7 has processed message #140, took 0.003000 ms 
+node7 has processed message #140, took 15.223000 ms 
+node7 has processed message #142, took 0.004000 ms 
+node7 has processed message #142, took 17.586000 ms 
+node7 has processed message #144, took 0.003000 ms 
+node7 has processed message #144, took 16.004000 ms 
+node7 has processed message #146, took 0.003000 ms 
+node7 has processed message #147, took 0.003000 ms 
+node7 has processed message #147, took 9.420000 ms 
+node7 has processed message #149, took 0.004000 ms 
+node7 has processed message #150, took 0.003000 ms 
+node7 has processed message #150, took 15.119000 ms 
+node7 has processed message #151, took 0.003000 ms 
+node7 has processed message #152, took 0.003000 ms 
+node7 has processed message #154, took 0.003000 ms 
+node7 has processed message #154, took 9.575000 ms 
+node7 has processed message #156, took 0.003000 ms 
+node7 has processed message #156, took 8.951000 ms 
+node7 has processed message #158, took 0.003000 ms 
+node7 has processed message #158, took 13.551000 ms 
+node7 has processed message #160, took 0.003000 ms 
+node7 has processed message #161, took 0.002000 ms 
+RTT from node1 to node7 : 34.982910 ms
+node7 has processed message #161, took 10.042000 ms 
+node7 has processed message #163, took 0.002000 ms 
+node7 has processed message #163, took 17.112000 ms 
+node7 has processed message #165, took 0.004000 ms 
+node7 has processed message #165, took 16.630000 ms 
+node7 has processed message #167, took 0.002000 ms 
+node7 has processed message #167, took 8.876000 ms 
+node7 has processed message #169, took 0.003000 ms 
+RTT from node3 to node7 : 42.896973 ms
+node7 has processed message #169, took 18.314000 ms 
+node7 has processed message #171, took 3.341000 ms 
+node7 has processed message #171, took 12.784000 ms 
+node7 has processed message #173, took 0.003000 ms 
+node7 has processed message #174, took 0.003000 ms 
+node7 has processed message #174, took 13.860000 ms 
+node7 has processed message #176, took 0.004000 ms 
+node7 has processed message #177, took 0.003000 ms 
+node7 has processed message #177, took 15.186000 ms 
+node7 has processed message #178, took 0.003000 ms 
+node7 has processed message #179, took 0.002000 ms 
+node7 has processed message #181, took 0.003000 ms 
+node7 has processed message #181, took 15.109000 ms 
+node7 has processed message #182, took 9.105000 ms 
+node7 has processed message #183, took 0.002000 ms 
+node7 has processed message #185, took 0.003000 ms 
+node7 has processed message #185, took 15.325000 ms 
+node7 has processed message #187, took 0.004000 ms 
+node7 has processed message #188, took 0.003000 ms 
+node7 has processed message #188, took 10.097000 ms 
+node7 has processed message #190, took 0.003000 ms 
+node7 has processed message #190, took 15.095000 ms 
+node7 has processed message #192, took 0.003000 ms 
+node7 has processed message #192, took 8.568000 ms 
+node7 has processed message #194, took 0.003000 ms 
+node7 has processed message #194, took 13.794000 ms 
+node7 has processed message #196, took 0.004000 ms 
+node7 has processed message #196, took 8.620000 ms 
+node7 has processed message #198, took 0.015000 ms 
+node7 has processed message #198, took 10.230000 ms 
+node7 has processed message #200, took 0.004000 ms 
+node7 has processed message #201, took 0.002000 ms 
+node7 has processed message #201, took 15.272000 ms 
+node7 has processed message #203, took 0.004000 ms 
+node7 has processed message #204, took 0.002000 ms 
+RTT from node6 to node7 : 72.877197 ms
+node7 has processed message #204, took 15.788000 ms 
+node7 has processed message #205, took 0.003000 ms 
+node7 has processed message #206, took 0.003000 ms 
+node7 has processed message #207, took 8.605000 ms 
+node7 has processed message #208, took 0.002000 ms 
+node7 has processed message #210, took 0.004000 ms 
+node7 has processed message #210, took 8.625000 ms 
+node7 has processed message #212, took 0.003000 ms 
+node7 has processed message #212, took 13.413000 ms 
+node7 has processed message #214, took 0.004000 ms 
+node7 has processed message #215, took 0.003000 ms 
+node7 has processed message #215, took 17.472000 ms 
+node7 has processed message #217, took 0.003000 ms 
+node7 has processed message #217, took 15.089000 ms 
+node7 has processed message #218, took 8.834000 ms 
+node7 has processed message #219, took 0.003000 ms 
+node7 has processed message #221, took 0.003000 ms 
+node7 has processed message #221, took 14.346000 ms 
+node7 has processed message #223, took 0.003000 ms 
+node7 has processed message #223, took 9.586000 ms 
+node7 has processed message #225, took 0.004000 ms 
+node7 has processed message #225, took 8.835000 ms 
+node7 has processed message #227, took 0.003000 ms 
+node7 has processed message #228, took 0.002000 ms 
+node7 has processed message #228, took 15.183000 ms 
+node7 has processed message #230, took 0.004000 ms 
+node7 has processed message #231, took 0.004000 ms 
+node7 has processed message #231, took 15.412000 ms 
+node7 has processed message #232, took 0.003000 ms 
+node7 has processed message #233, took 0.003000 ms 
+node7 has processed message #235, took 0.003000 ms 
+node7 has processed message #235, took 8.291000 ms 
+node7 has processed message #237, took 0.003000 ms 
+node7 has processed message #237, took 8.859000 ms 
+node7 has processed message #239, took 0.003000 ms 
+node7 has processed message #239, took 13.753000 ms 
+node7 has processed message #241, took 0.004000 ms 
+node7 has processed message #241, took 11.680000 ms 
+node7 has processed message #242, took 0.003000 ms 
+node7 has processed message #244, took 0.003000 ms 
+node7 has processed message #244, took 8.787000 ms 
+node7 has processed message #246, took 0.004000 ms 
+node7 has processed message #246, took 10.343000 ms 
+node7 has processed message #248, took 0.003000 ms 
+node7 has processed message #248, took 10.519000 ms 
+node7 has processed message #250, took 0.003000 ms 
+node7 has processed message #250, took 9.262000 ms 
+node7 has processed message #252, took 0.003000 ms 
+node7 has processed message #252, took 14.167000 ms 
+node7 has processed message #254, took 0.005000 ms 
+node7 has processed message #255, took 0.002000 ms 
+RTT from node5 to node7 : 40.290283 ms
+node7 has processed message #255, took 15.634000 ms 
+node7 has processed message #257, took 0.003000 ms 
+node7 has processed message #258, took 0.003000 ms 
+node7 has processed message #258, took 15.398000 ms 
+node7 has processed message #259, took 0.003000 ms 
+node7 has processed message #260, took 0.002000 ms 
+node7 has processed message #262, took 0.003000 ms 
+node7 has processed message #262, took 8.454000 ms 
+node7 has processed message #264, took 0.002000 ms 
+node7 has processed message #264, took 8.862000 ms 
+node7 has processed message #266, took 0.003000 ms 
+node7 has processed message #266, took 8.548000 ms 
+node7 has processed message #268, took 0.003000 ms 
+node7 has processed message #269, took 0.003000 ms 
+node7 has processed message #269, took 17.354000 ms 
+node7 has processed message #271, took 0.003000 ms 
+node7 has processed message #271, took 15.210000 ms 
+node7 has processed message #273, took 0.004000 ms 
+node7 has processed message #273, took 16.521000 ms 
+node7 has processed message #275, took 0.003000 ms 
+node7 has processed message #275, took 8.701000 ms 
+node7 has processed message #277, took 0.003000 ms 
+node7 has processed message #277, took 18.284000 ms 
+node7 has processed message #279, took 0.003000 ms 
+node7 has processed message #279, took 13.292000 ms 
+node7 has processed message #281, took 0.004000 ms 
+node7 has processed message #282, took 0.002000 ms 
+node7 has processed message #282, took 15.233000 ms 
+node7 has processed message #284, took 0.004000 ms 
+node7 has processed message #285, took 0.003000 ms 
+node7 has processed message #285, took 16.642000 ms 
+node7 has processed message #286, took 0.003000 ms 
+node7 has processed message #287, took 0.002000 ms 
+node7 has processed message #289, took 0.003000 ms 
+node7 has processed message #289, took 15.192000 ms 
+node7 has processed message #291, took 0.003000 ms 
+node7 has processed message #291, took 8.690000 ms 
+node7 has processed message #293, took 0.002000 ms 
+node7 has processed message #293, took 14.639000 ms 
+node7 has processed message #295, took 0.003000 ms 
+node7 has processed message #296, took 0.002000 ms 
+RTT from node1 to node7 : 42.450195 ms
+node7 has processed message #296, took 16.944000 ms 
+node7 has processed message #298, took 0.003000 ms 
+node7 has processed message #298, took 15.133000 ms 
+node7 has processed message #300, took 0.003000 ms 
+node7 has processed message #300, took 16.985000 ms 
+node7 has processed message #302, took 0.003000 ms 
+node7 has processed message #302, took 14.811000 ms 
+node7 has processed message #304, took 0.003000 ms 
+node7 has processed message #304, took 16.758000 ms 
+node7 has processed message #306, took 0.003000 ms 
+node7 has processed message #306, took 15.108000 ms 
+node7 has processed message #308, took 0.004000 ms 
+node7 has processed message #309, took 0.003000 ms 
+node7 has processed message #309, took 9.318000 ms 
+node7 has processed message #311, took 0.002000 ms 
+node7 has processed message #312, took 0.002000 ms 
+node7 has processed message #312, took 15.435000 ms 
+node7 has processed message #313, took 0.003000 ms 
+node7 has processed message #314, took 0.002000 ms 
+node7 has processed message #316, took 0.003000 ms 
+node7 has processed message #316, took 15.306000 ms 
+node7 has processed message #318, took 0.003000 ms 
+node7 has processed message #318, took 8.679000 ms 
+node7 has processed message #320, took 0.003000 ms 
+node7 has processed message #320, took 16.711000 ms 
+node7 has processed message #322, took 0.004000 ms 
+node7 has processed message #323, took 0.003000 ms 
+node7 has processed message #323, took 15.157000 ms 
+node7 has processed message #325, took 0.003000 ms 
+node7 has processed message #325, took 13.520000 ms 
+node7 has processed message #327, took 0.002000 ms 
+node7 has processed message #327, took 8.462000 ms 
+node7 has processed message #329, took 0.003000 ms 
+node7 has processed message #329, took 14.715000 ms 
+node7 has processed message #331, took 0.004000 ms 
+node7 has processed message #331, took 18.203000 ms 
+node7 has processed message #333, took 0.003000 ms 
+node7 has processed message #333, took 9.849000 ms 
+node7 has processed message #335, took 0.004000 ms 
+node7 has processed message #336, took 0.004000 ms 
+node7 has processed message #336, took 15.727000 ms 
+node7 has processed message #338, took 0.003000 ms 
+node7 has processed message #339, took 0.002000 ms 
+node7 has processed message #339, took 15.309000 ms 
+node7 has processed message #340, took 0.003000 ms 
+node7 has processed message #341, took 0.002000 ms 
+node7 has processed message #343, took 0.003000 ms 
+node7 has processed message #343, took 15.324000 ms 
+node7 has processed message #345, took 0.003000 ms 
+node7 has processed message #345, took 8.655000 ms 
+node7 has processed message #347, took 0.003000 ms 
+node7 has processed message #347, took 12.618000 ms 
+node7 has processed message #349, took 0.012000 ms 
+node7 has processed message #350, took 0.002000 ms 
+node7 has processed message #350, took 16.436000 ms 
+node7 has processed message #352, took 0.003000 ms 
+node7 has processed message #352, took 13.806000 ms 
+node7 has processed message #354, took 0.004000 ms 
+node7 has processed message #354, took 16.647000 ms 
+node7 has processed message #356, took 0.004000 ms 
+node7 has processed message #356, took 8.679000 ms 
+node7 has processed message #358, took 0.003000 ms 
+RTT from node3 to node7 : 44.561035 ms
+node7 has processed message #358, took 18.304000 ms 
+node7 has processed message #360, took 0.002000 ms 
+node7 has processed message #360, took 14.039000 ms 
+node7 has processed message #362, took 0.003000 ms 
+node7 has processed message #363, took 0.003000 ms 
+node7 has processed message #363, took 8.765000 ms 
+node7 has processed message #365, took 0.003000 ms 
+node7 has processed message #366, took 0.003000 ms 
+node7 has processed message #366, took 15.349000 ms 
+node7 has processed message #367, took 0.002000 ms 
+node7 has processed message #368, took 0.003000 ms 
+node7 has processed message #370, took 0.003000 ms 
+node7 has processed message #370, took 15.298000 ms 
+node7 has processed message #372, took 0.004000 ms 
+node7 has processed message #372, took 10.267000 ms 
+node7 has processed message #374, took 0.003000 ms 
+node7 has processed message #374, took 15.185000 ms 
+node7 has processed message #376, took 0.004000 ms 
+node7 has processed message #377, took 0.003000 ms 
+node7 has processed message #377, took 10.244000 ms 
+node7 has processed message #379, took 0.003000 ms 
+node7 has processed message #379, took 12.940000 ms 
+node7 has processed message #381, took 0.004000 ms 
+node7 has processed message #381, took 15.255000 ms 
+node7 has processed message #383, took 0.003000 ms 
+node7 has processed message #383, took 9.013000 ms 
+node7 has processed message #385, took 0.004000 ms 
+node7 has processed message #385, took 9.984000 ms 
+node7 has processed message #387, took 0.003000 ms 
+node7 has processed message #387, took 14.087000 ms 
+node7 has processed message #389, took 0.003000 ms 
+node7 has processed message #390, took 0.004000 ms 
+node7 has processed message #390, took 8.609000 ms 
+node7 has processed message #392, took 0.004000 ms 
+node7 has processed message #393, took 0.003000 ms 
+node7 has processed message #393, took 9.131000 ms 
+node7 has processed message #394, took 0.002000 ms 
+node7 has processed message #395, took 0.002000 ms 
+node7 has processed message #397, took 0.003000 ms 
+node7 has processed message #397, took 9.033000 ms 
+node7 has processed message #399, took 0.002000 ms 
+node7 has processed message #399, took 16.758000 ms 
+node7 has processed message #401, took 0.003000 ms 
+node7 has processed message #401, took 15.272000 ms 
+node7 has processed message #403, took 0.004000 ms 
+node7 has processed message #404, took 0.004000 ms 
+node7 has processed message #404, took 15.126
