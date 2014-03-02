@@ -20,7 +20,7 @@
 #include "client_server.h"
 
 
-#define NUM_NODES 6
+#define NUM_NODES 4
 
 extern int running;
 
@@ -211,10 +211,10 @@ int client_parse_msg_scale(char* msg, int len) {
 	
 		double msg_proc_time = get_timediff_milli(&start_time, &end_time);
 	
-		/*printf("%s has processed message #%d, took %f ms \n", node_name, messages_processed,
-			msg_proc_time);*/
+		printf("%s has processed message #%d, took %f ms \n", node_name, messages_processed,
+			msg_proc_time);
 			
-		printf("%s has processed message %s \n", node_name, msg);
+		
 		
 		return 0;
 	}
