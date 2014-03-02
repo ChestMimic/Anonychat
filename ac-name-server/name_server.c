@@ -184,6 +184,8 @@ void client_send_peers(client* client_o) {
 	
 	printf("Message to send: %s \n", msg);
 	server_send_message(client_o->socket_fd, msg, strlen(msg));
+	
+	free(msg);
 }
 
 /** Sends the message in msg to the given socket

@@ -28,7 +28,7 @@
 #define PEER_PUB_KEY_MSG "PUBKEY "
 
 #define TEST
-#define TEST_RTT
+#define TEST_UTIL
 
 #define STOP_AFTER_SECONDS (60 * 5)
 
@@ -360,6 +360,8 @@ void* name_server_handle(void* arg) {
 		}
 	}
 	
+	free(buffer);
+	
 	printf("Disconnected from name server \n");
 	
 	name_server->socket_fd = -1;
@@ -417,8 +419,8 @@ void* client_handle(void* arg) {
 	pthread_mutex_unlock(&(client_list->mutex));
 	
 	//TODO: Add something to free the client, this will probally error.
-	/*free(client->handler_thread);
-	free(client);	*/	
+	/*free(client->handler_thread); */
+	free(client);
 
 	free(buffer); //free the input buffer
 	return;
@@ -568,6 +570,7 @@ int clean_peers_list(list* peer_list) {
 		if (tmp_peer->open_con) {
 			close(tmp_peer->socket_fd);
 		}
+		free(tmp_peer->handler_thread);
 		free(tmp_peer);
 	}
 	pthread_mutex_unlock(&(peer_list->mutex));
@@ -616,7 +619,10 @@ int update_port(name_server_o* name_server, char* port) {
 	strncpy(msg, "PORTUPD ", msg_len);
 	strncat(msg, port, msg_len);
 
-	return send_msg(name_server->socket_fd, msg, msg_len);
+	int res = send_msg(name_server->socket_fd, msg, msg_len);
+	
+	free (msg);
+	return res;
 }
 
 /** Establishes a connection with the specified peer

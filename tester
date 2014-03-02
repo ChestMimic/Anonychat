@@ -7,12 +7,17 @@ PORT=1234
 
 cd ./ac-client-server/
 
-for i in {1..30}
+sleep 1
+
+for i in {1..6}
 do
 	echo $PORT
 	
+	#./client_server 127.0.0.1 6958 $PORT node$i.pem > ../results/util/node$i &
 	./client_server 127.0.0.1 6958 $PORT node$i.pem &
 	((PORT++))
-	sleep 5
+	sleep 1
 	
 done
+
+sleep 400

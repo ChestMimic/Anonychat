@@ -20,7 +20,7 @@
 #include "client_server.h"
 
 
-#define NUM_NODES 4
+#define NUM_NODES 3
 
 extern int running;
 
