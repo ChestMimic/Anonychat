@@ -1,0 +1,199 @@
+Time to encrypt message with len               20 : 0.552000ms 
+Time to sucessfuly dencrypt message with len   20 : 18.835000ms 
+Time to unsucessfuly dencrypt message with len 20 : 18.774000ms 
+
+Time to encrypt message with len               40 : 0.397000ms 
+Time to sucessfuly dencrypt message with len   40 : 16.496000ms 
+Time to unsucessfuly dencrypt message with len 40 : 16.353000ms 
+
+Time to encrypt message with len               60 : 0.402000ms 
+Time to sucessfuly dencrypt message with len   60 : 16.371000ms 
+Time to unsucessfuly dencrypt message with len 60 : 16.349000ms 
+
+Time to encrypt message with len               80 : 0.461000ms 
+Time to sucessfuly dencrypt message with len   80 : 16.553000ms 
+Time to unsucessfuly dencrypt message with len 80 : 16.570000ms 
+
+Time to encrypt message with len               100 : 0.398000ms 
+Time to sucessfuly dencrypt message with len   100 : 16.373000ms 
+Time to unsucessfuly dencrypt message with len 100 : 16.350000ms 
+
+Time to encrypt message with len               120 : 0.358000ms 
+Time to sucessfuly dencrypt message with len   120 : 16.381000ms 
+Time to unsucessfuly dencrypt message with len 120 : 16.496000ms 
+
+Time to encrypt message with len               140 : 0.408000ms 
+Time to sucessfuly dencrypt message with len   140 : 16.383000ms 
+Time to unsucessfuly dencrypt message with len 140 : 16.549000ms 
+
+Time to encrypt message with len               160 : 0.410000ms 
+Time to sucessfuly dencrypt message with len   160 : 16.607000ms 
+Time to unsucessfuly dencrypt message with len 160 : 16.348000ms 
+
+Time to encrypt message with len               180 : 0.401000ms 
+Time to sucessfuly dencrypt message with len   180 : 16.422000ms 
+Time to unsucessfuly dencrypt message with len 180 : 16.355000ms 
+
+Time to encrypt message with len               200 : 0.399000ms 
+Time to sucessfuly dencrypt message with len   200 : 16.436000ms 
+Time to unsucessfuly dencrypt message with len 200 : 16.361000ms 
+
+Time to encrypt message with len               220 : 0.425000ms 
+Time to sucessfuly dencrypt message with len   220 : 16.549000ms 
+Time to unsucessfuly dencrypt message with len 220 : 16.576000ms 
+
+Time to encrypt message with len               240 : 0.403000ms 
+Time to sucessfuly dencrypt message with len   240 : 16.495000ms 
+Time to unsucessfuly dencrypt message with len 240 : 16.354000ms 
+
+Time to encrypt message with len               260 : 0.402000ms 
+Time to sucessfuly dencrypt message with len   260 : 16.422000ms 
+Time to unsucessfuly dencrypt message with len 260 : 16.346000ms 
+
+Time to encrypt message with len               280 : 0.401000ms 
+Time to sucessfuly dencrypt message with len   280 : 16.385000ms 
+Time to unsucessfuly dencrypt message with len 280 : 16.562000ms 
+
+Time to encrypt message with len               300 : 0.404000ms 
+Time to sucessfuly dencrypt message with len   300 : 16.692000ms 
+Time to unsucessfuly dencrypt message with len 300 : 16.358000ms 
+
+Time to encrypt message with len               320 : 0.401000ms 
+Time to sucessfuly dencrypt message with len   320 : 16.433000ms 
+Time to unsucessfuly dencrypt message with len 320 : 16.362000ms 
+
+Time to encrypt message with len               340 : 0.409000ms 
+Time to sucessfuly dencrypt message with len   340 : 16.377000ms 
+Time to unsucessfuly dencrypt message with len 340 : 16.350000ms 
+
+Time to encrypt message with len               360 : 0.421000ms 
+Time to sucessfuly dencrypt message with len   360 : 16.552000ms 
+Time to unsucessfuly dencrypt message with len 360 : 16.587000ms 
+
+Time to encrypt message with len               380 : 0.408000ms 
+Time to sucessfuly dencrypt message with len   380 : 20.161000ms 
+Time to unsucessfuly dencrypt message with len 380 : 22.342000ms 
+
+Time to encrypt message with len               400 : 0.593000ms 
+Time to sucessfuly dencrypt message with len   400 : 22.548000ms 
+Time to unsucessfuly dencrypt message with len 400 : 21.149000ms 
+
+Time to encrypt message with len               420 : 0.472000ms 
+Time to sucessfuly dencrypt message with len   420 : 25.243000ms 
+Time to unsucessfuly dencrypt message with len 420 : 23.957000ms 
+
+Time to encrypt message with len               440 : 0.625000ms 
+Time to sucessfuly dencrypt message with len   440 : 19.237000ms 
+Time to unsucessfuly dencrypt message with len 440 : 17.635000ms 
+
+Time to encrypt message with len               460 : 0.395000ms 
+Time to sucessfuly dencrypt message with len   460 : 16.883000ms 
+Time to unsucessfuly dencrypt message with len 460 : 16.549000ms 
+
+Time to encrypt message with len               480 : 0.406000ms 
+Time to sucessfuly dencrypt message with len   480 : 16.639000ms 
+Time to unsucessfuly dencrypt message with len 480 : 16.345000ms 
+
+Time to encrypt message with len               500 : 0.403000ms 
+Time to sucessfuly dencrypt message with len   500 : 16.374000ms 
+Time to unsucessfuly dencrypt message with len 500 : 16.398000ms 
+
+Time to encrypt message with len               520 : 0.404000ms 
+Time to sucessfuly dencrypt message with len   520 : 16.385000ms 
+Time to unsucessfuly dencrypt message with len 520 : 16.523000ms 
+
+Time to encrypt message with len               540 : 0.421000ms 
+Time to sucessfuly dencrypt message with len   540 : 16.610000ms 
+Time to unsucessfuly dencrypt message with len 540 : 16.578000ms 
+
+Time to encrypt message with len               560 : 0.407000ms 
+Time to sucessfuly dencrypt message with len   560 : 16.382000ms 
+Time to unsucessfuly dencrypt message with len 560 : 16.458000ms 
+
+Time to encrypt message with len               580 : 0.404000ms 
+Time to sucessfuly dencrypt message with len   580 : 16.365000ms 
+Time to unsucessfuly dencrypt message with len 580 : 16.436000ms 
+
+Time to encrypt message with len               600 : 0.396000ms 
+Time to sucessfuly dencrypt message with len   600 : 16.442000ms 
+Time to unsucessfuly dencrypt message with len 600 : 16.576000ms 
+
+Time to encrypt message with len               620 : 0.405000ms 
+Time to sucessfuly dencrypt message with len   620 : 16.692000ms 
+Time to unsucessfuly dencrypt message with len 620 : 16.466000ms 
+
+Time to encrypt message with len               640 : 0.406000ms 
+Time to sucessfuly dencrypt message with len   640 : 16.377000ms 
+Time to unsucessfuly dencrypt message with len 640 : 16.361000ms 
+
+Time to encrypt message with len               660 : 0.409000ms 
+Time to sucessfuly dencrypt message with len   660 : 18.424000ms 
+Time to unsucessfuly dencrypt message with len 660 : 18.559000ms 
+
+Time to encrypt message with len               680 : 0.408000ms 
+Time to sucessfuly dencrypt message with len   680 : 16.580000ms 
+Time to unsucessfuly dencrypt message with len 680 : 16.351000ms 
+
+Time to encrypt message with len               700 : 0.404000ms 
+Time to sucessfuly dencrypt message with len   700 : 16.390000ms 
+Time to unsucessfuly dencrypt message with len 700 : 16.459000ms 
+
+Time to encrypt message with len               720 : 0.420000ms 
+Time to sucessfuly dencrypt message with len   720 : 16.415000ms 
+Time to unsucessfuly dencrypt message with len 720 : 16.569000ms 
+
+Time to encrypt message with len               740 : 0.411000ms 
+Time to sucessfuly dencrypt message with len   740 : 16.619000ms 
+Time to unsucessfuly dencrypt message with len 740 : 16.353000ms 
+
+Time to encrypt message with len               760 : 0.407000ms 
+Time to sucessfuly dencrypt message with len   760 : 16.385000ms 
+Time to unsucessfuly dencrypt message with len 760 : 16.364000ms 
+
+Time to encrypt message with len               780 : 0.416000ms 
+Time to sucessfuly dencrypt message with len   780 : 16.414000ms 
+Time to unsucessfuly dencrypt message with len 780 : 16.361000ms 
+
+Time to encrypt message with len               800 : 0.426000ms 
+Time to sucessfuly dencrypt message with len   800 : 16.568000ms 
+Time to unsucessfuly dencrypt message with len 800 : 16.593000ms 
+
+Time to encrypt message with len               820 : 0.401000ms 
+Time to sucessfuly dencrypt message with len   820 : 16.494000ms 
+Time to unsucessfuly dencrypt message with len 820 : 16.356000ms 
+
+Time to encrypt message with len               840 : 0.409000ms 
+Time to sucessfuly dencrypt message with len   840 : 16.427000ms 
+Time to unsucessfuly dencrypt message with len 840 : 16.378000ms 
+
+Time to encrypt message with len               860 : 0.414000ms 
+Time to sucessfuly dencrypt message with len   860 : 16.391000ms 
+Time to unsucessfuly dencrypt message with len 860 : 16.548000ms 
+
+Time to encrypt message with len               880 : 0.408000ms 
+Time to sucessfuly dencrypt message with len   880 : 16.383000ms 
+Time to unsucessfuly dencrypt message with len 880 : 16.359000ms 
+
+Time to encrypt message with len               900 : 0.409000ms 
+Time to sucessfuly dencrypt message with len   900 : 16.394000ms 
+Time to unsucessfuly dencrypt message with len 900 : 16.377000ms 
+
+Time to encrypt message with len               920 : 0.406000ms 
+Time to sucessfuly dencrypt message with len   920 : 16.416000ms 
+Time to unsucessfuly dencrypt message with len 920 : 16.359000ms 
+
+Time to encrypt message with len               940 : 0.502000ms 
+Time to sucessfuly dencrypt message with len   940 : 16.607000ms 
+Time to unsucessfuly dencrypt message with len 940 : 19.493000ms 
+
+Time to encrypt message with len               960 : 0.525000ms 
+Time to sucessfuly dencrypt message with len   960 : 22.277000ms 
+Time to unsucessfuly dencrypt message with len 960 : 22.806000ms 
+
+Time to encrypt message with len               980 : 0.601000ms 
+Time to sucessfuly dencrypt message with len   980 : 21.591000ms 
+Time to unsucessfuly dencrypt message with len 980 : 24.416000ms 
+
+Time to encrypt message with len               1000 : 0.585000ms 
+Time to sucessfuly dencrypt message with len   1000 : 22.443000ms 
+Time to unsucessfuly dencrypt message with len 1000 : 16.680000ms 
