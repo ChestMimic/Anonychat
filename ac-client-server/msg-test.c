@@ -20,7 +20,7 @@
 #include "client_server.h"
 
 
-#define NUM_NODES 12
+#define NUM_NODES 6
 
 extern int running;
 
@@ -43,7 +43,22 @@ extern rsa_ctx_o* rsa_encrypt_ctx;
 extern char* node_name;
 
 // the number of messages processed
-int messages_processed = 0;
+extern int messages_processed;
+
+/** Total message processing time */
+extern double total_processing_time;
+
+/** The number of messages decrypted */
+extern int messages_decrypted;
+
+/** The total rrt */
+extern double total_rtt;
+
+/** Mutex around messages processed and processing time */
+extern pthread_mutex_t msg_proc_mutex;
+
+/** Mutex aroudn total_rrt and messages_decrypted */
+extern pthread_mutex_t rtt_mutex;
 
 /** Input handle function to be used by client_server, that will send the 
 		current time, for a RTT
@@ -192,13 +207,19 @@ int client_parse_msg_rtt(char* msg, int len) {
 /** Client parse msg function to print out the RTT
 */
 
+/** Mutex around messages processed and processing time */
+//pthread_mutex_t msg_proc_mutex;
+
+/** Mutex aroudn total_rrt and messages_decrypted */
+//pthread_mutex_t rrt_mutex;
+
+
 int client_parse_msg_scale(char* msg, int len) {
 	time_val start_time;
 	time_val end_time;
 	gettimeofday(&start_time, NULL); // starting time	
 
 	
-	messages_processed++;
 	//decrypt the message first.
 
 	
@@ -214,7 +235,10 @@ int client_parse_msg_scale(char* msg, int len) {
 		printf("%s has processed message #%d, took %f ms \n", node_name, messages_processed,
 			msg_proc_time);
 			
-		
+		pthread_mutex_lock(&msg_proc_mutex);
+		messages_processed++;
+		total_processing_time += msg_proc_time;
+		pthread_mutex_unlock(&msg_proc_mutex);
 		
 		return 0;
 	}
@@ -249,6 +273,11 @@ int client_parse_msg_scale(char* msg, int len) {
 		double rtt = time_milli - start_time;
 		
 		printf("RTT from %s to %s : %f ms\n", node_from, node_name, rtt);
+		
+		pthread_mutex_lock(&rtt_mutex);
+		messages_decrypted++;
+		total_rtt += rtt;
+		pthread_mutex_unlock(&rtt_mutex);
 
 	}
 	else {
@@ -261,6 +290,12 @@ int client_parse_msg_scale(char* msg, int len) {
 	
 	printf("%s has processed message #%d, took %f ms \n", node_name, messages_processed,
 		msg_proc_time);
+		
+	// keep track of total num + average
+	pthread_mutex_lock(&msg_proc_mutex);
+	messages_processed++;
+	total_processing_time += msg_proc_time;
+	pthread_mutex_unlock(&msg_proc_mutex);
 	
 }
 

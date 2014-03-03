@@ -72,6 +72,26 @@ pthread_mutex_t mht_mutex; // message hash table mutex
 
 pthread_mutex_t sending_mutex; // mutex to lock before sending a message
 
+//scalability test variables
+
+// the number of messages processed
+int messages_processed;
+
+/** Total message processing time */
+double total_processing_time;
+
+/** The number of messages decrypted */
+int messages_decrypted;
+
+/** The total rrt */
+double total_rtt;
+
+/** Mutex around messages processed and processing time */
+pthread_mutex_t msg_proc_mutex;
+
+/** Mutex aroudn total_rrt and messages_decrypted */
+pthread_mutex_t rtt_mutex;
+
 void print_usage() {
 	printf("Usage: \n");
 	printf("\t	client-server name-server-addr name-server-port peer-port" 
@@ -263,6 +283,8 @@ int main (int argc, char **argv) {
 	pthread_mutex_init(&pkht_mutex, NULL);
 	pthread_mutex_init(&mht_mutex, NULL);
 	pthread_mutex_init(&sending_mutex, NULL);	
+	pthread_mutex_init(&msg_proc_mutex, NULL);
+	pthread_mutex_init(&rtt_mutex, NULL);
 	
 	//initialize peer_list
 	peer_list = list_create();
@@ -328,6 +350,18 @@ int main (int argc, char **argv) {
 	running = 0;
 	
 	printf("We are exiting \n");
+	
+#ifdef TEST_SCALE
+
+	printf("Total messages processed: %d \n", messages_processed);
+	printf("Average messaging processing time: %f ms \n", 
+		total_processing_time / messages_processed);
+		
+	printf("Total messages decrypted: %d \n", messages_decrypted);
+	printf("Average RTT: %f ms \n", total_rtt / messages_decrypted);
+	
+#endif
+	
 }
 
 /** Function that will handle messages received from the name server
